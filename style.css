@@ -1,0 +1,24 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #0a0f18; /* Ensure dark mode default to avoid flash */
+    overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0a0f18; 
+}
+::-webkit-scrollbar-thumb {
+    background: #1f2937; 
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #374151; 
+}
+
+html {
+    scroll-behavior: smooth;
+}

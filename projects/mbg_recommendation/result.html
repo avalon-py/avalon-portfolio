@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Provincial Clustering Dashboard - Makan Bergizi Gratis</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="./styles.css">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <!-- Chart.js & PapaParse -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    
+    <!-- External JS -->
+    <script src="./script.js"></script>
+
+    <style>
+        /* Leaflet Specific Overrides */
+        .leaflet-container {
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        .chart-container {
+            position: relative; 
+            height: 160px; 
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+    
+    <div class="relative flex min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+        
+        <!-- Header -->
+        <header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-border-light dark:border-border-dark shadow-sm">
+            <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-tight hidden sm:block">
+                            Makan Bergizi Gratis
+                        </h2>
+                    </div>
+                    <nav class="flex items-center gap-2">
+                        <a href="./index.html" class="flex items-center justify-center rounded-lg h-10 px-6 text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/10 text-sm font-medium transition-colors">
+                            Home
+                        </a>
+
+                        <a href="./technical.html" class="flex items-center justify-center rounded-lg h-10 px-6 text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/10 text-sm font-medium transition-colors">
+                            Technical
+                        </a>
+                        <a href="./result.html" class="flex items-center justify-center rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold tracking-wide hover:bg-primary-hover transition-colors shadow-sm">
+                            Result
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            
+            <!-- Section 1: Dashboard Map -->
+            <section class="min-h-screen w-full flex flex-col justify-center py-16 sm:py-20 bg-background-light dark:bg-background-dark">
+                <!-- Increased padding (lg:px-24) to create wider margins to the edge of the screen -->
+                <div class="max-w-8xl px-6 sm:px-12 lg:px-32 w-full mx-auto">
+                    
+                    <!-- Moved H1 outside the grid so Map and Legend align perfectly at the top -->
+                    <h1 class="text-text-light dark:text-text-dark text-3xl sm:text-4xl font-bold tracking-tight mb-8 text-center lg:text-left">Provincial Clustering Dashboard</h1>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-12">
+                        <div class="lg:col-span-2">
+                            <!-- Interactive Map Container -->
+                            <div class="bg-card-light dark:bg-card-dark p-1 rounded-xl border border-border-light dark:border-border-dark shadow-lg">
+                                <div class="map-container relative">
+                                    <div id="map"></div>
+                                    <!-- Loader -->
+                                    <div id="map-loader" class="absolute inset-0 z-[999] bg-[#111921] flex flex-col gap-3 items-center justify-center rounded-lg">
+                                        <span class="material-symbols-outlined animate-spin text-4xl text-primary">progress_activity</span>
+                                        <p class="text-sm font-medium text-gray-400">Loading Map Data...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Legend / Sidebar -->
+                        <div class="flex flex-col gap-6 bg-card-light dark:bg-card-dark p-6 rounded-xl border border-border-light dark:border-border-dark lg:sticky lg:top-24">
+                            <h2 class="text-xl font-bold tracking-tight text-text-light dark:text-text-dark">Cluster Legend</h2>
+                            <div class="flex flex-col gap-6">
+                                <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors cursor-pointer group" onclick="resetMap()">
+                                    <div class="w-4 h-4 rounded-full bg-red-500 mt-1.5 flex-shrink-0 shadow-sm shadow-red-500/50 group-hover:scale-110 transition-transform"></div>
+                                    <div>
+                                        <h3 class="font-bold text-red-600 dark:text-red-400 text-base">Priority 1: Crisis</h3>
+                                        <p class="text-sm text-text-light/70 dark:text-text-dark/70 mt-1 leading-relaxed">Investment is urgent to address critical food insecurity and market failure.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors cursor-pointer group" onclick="resetMap()">
+                                    <div class="w-4 h-4 rounded-full bg-yellow-400 mt-1.5 flex-shrink-0 shadow-sm shadow-yellow-400/50 group-hover:scale-110 transition-transform"></div>
+                                    <div>
+                                        <h3 class="font-bold text-yellow-600 dark:text-yellow-400 text-base">Priority 2: Potential</h3>
+                                        <p class="text-sm text-text-light/70 dark:text-text-dark/70 mt-1 leading-relaxed">Indicates significant growth potential with targeted investment in technology.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-4 p-3 rounded-lg hover:bg-background-light dark:hover:bg-background-dark/50 transition-colors cursor-pointer group" onclick="resetMap()">
+                                    <div class="w-4 h-4 rounded-full bg-purple-500 mt-1.5 flex-shrink-0 shadow-sm shadow-purple-500/50 group-hover:scale-110 transition-transform"></div>
+                                    <div>
+                                        <h3 class="font-bold text-purple-600 dark:text-purple-400 text-base">Priority 3: Stable</h3>
+                                        <p class="text-sm text-text-light/70 dark:text-text-dark/70 mt-1 leading-relaxed">Signifies stability and self-sufficiency, requiring only maintenance.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-border-light dark:border-border-dark text-xs text-center text-text-light/50">
+                                Click on any province on the map to view specific distribution data below.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div id="province-details" class="bg-card-light dark:bg-card-dark rounded-xl border border-border-light dark:border-border-dark shadow-lg overflow-hidden transition-all duration-500 opacity-50 grayscale pointer-events-none">
+                        
+                        <!-- Details Header -->
+                        <div class="bg-primary/5 dark:bg-primary/10 p-6 border-b border-border-light dark:border-border-dark flex flex-col sm:flex-row justify-between items-center gap-4">
+                            <div class="flex items-center gap-4">
+                                <div class="size-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                                    <span class="material-symbols-outlined">analytics</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-xs font-bold uppercase tracking-widest text-text-light/50 dark:text-text-dark/50">Selected Province Analysis</h2>
+                                    <h1 id="selected-province-name" class="text-2xl font-black text-text-light dark:text-text-dark">Select a Province</h1>
+                                </div>
+                            </div>
+                            <div id="selected-priority-badge" class="px-4 py-2 rounded-full text-sm font-bold bg-gray-200 text-gray-500">
+                                No Selection
+                            </div>
+                        </div>
+
+                        <!-- Charts Grid -->
+                        <div class="p-6 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                            
+                            <!-- Chart 1: Farmer Org -->
+                            <div class="flex flex-col gap-2">
+                                <p class="text-xs font-bold text-text-light/60 dark:text-text-dark/60 uppercase truncate" title="Farmer Organization Rate">Farmer Org. Rate</p>
+                                <div class="chart-container">
+                                    <canvas id="chart-org"></canvas>
+                                </div>
+                                <div class="flex justify-between items-end border-t border-border-light dark:border-border-dark pt-2">
+                                    <div>
+                                        <span id="val-org" class="text-lg font-black text-primary block leading-none">-</span>
+                                        <span id="perc-org" class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight"></span>
+                                    </div>
+                                    <span class="text-xs text-text-light/50 mb-1">Rate</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart 2: Pop Density -->
+                            <div class="flex flex-col gap-2">
+                                <p class="text-xs font-bold text-text-light/60 dark:text-text-dark/60 uppercase truncate" title="Population Density">Pop. Density</p>
+                                <div class="chart-container">
+                                    <canvas id="chart-density"></canvas>
+                                </div>
+                                <div class="flex justify-between items-end border-t border-border-light dark:border-border-dark pt-2">
+                                    <div>
+                                        <span id="val-density" class="text-lg font-black text-primary block leading-none">-</span>
+                                        <span id="perc-density" class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight"></span>
+                                    </div>
+                                    <span class="text-xs text-text-light/50 mb-1">/km²</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart 3: Population -->
+                            <div class="flex flex-col gap-2">
+                                <p class="text-xs font-bold text-text-light/60 dark:text-text-dark/60 uppercase truncate" title="Total Population">Population</p>
+                                <div class="chart-container">
+                                    <canvas id="chart-pop"></canvas>
+                                </div>
+                                <div class="flex justify-between items-end border-t border-border-light dark:border-border-dark pt-2">
+                                    <div>
+                                        <span id="val-pop" class="text-lg font-black text-primary block leading-none">-</span>
+                                        <span id="perc-pop" class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight"></span>
+                                    </div>
+                                    <span class="text-xs text-text-light/50 mb-1">People</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart 4: Price to SSR -->
+                            <div class="flex flex-col gap-2">
+                                <p class="text-xs font-bold text-text-light/60 dark:text-text-dark/60 uppercase truncate" title="Price-to-Self Sustainability Ratio">Price-to-SSR</p>
+                                <div class="chart-container">
+                                    <canvas id="chart-price"></canvas>
+                                </div>
+                                <div class="flex justify-between items-end border-t border-border-light dark:border-border-dark pt-2">
+                                    <div>
+                                        <span id="val-price" class="text-lg font-black text-primary block leading-none">-</span>
+                                        <span id="perc-price" class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight"></span>
+                                    </div>
+                                    <span class="text-xs text-text-light/50 mb-1">Ratio</span>
+                                </div>
+                            </div>
+
+                            <!-- Chart 5: Commodity Basket -->
+                            <div class="flex flex-col gap-2">
+                                <p class="text-xs font-bold text-text-light/60 dark:text-text-dark/60 uppercase truncate" title="Commodity Basket Index">Commodity Index</p>
+                                <div class="chart-container">
+                                    <canvas id="chart-commodity"></canvas>
+                                </div>
+                                <div class="flex justify-between items-end border-t border-border-light dark:border-border-dark pt-2">
+                                    <div>
+                                        <span id="val-commodity" class="text-lg font-black text-primary block leading-none">-</span>
+                                        <span id="perc-commodity" class="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-tight"></span>
+                                    </div>
+                                    <span class="text-xs text-text-light/50 mb-1">Index</span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 2: National Report -->
+            <section class="min-h-screen w-full flex items-center py-16 sm:py-20 bg-card-light dark:bg-card-dark border-y border-border-light dark:border-border-dark">
+                <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 w-full">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-text-light dark:text-text-dark">National Situation Report</h2>
+                        <p class="mt-4 text-text-light/70 dark:text-text-dark/70 max-w-2xl mx-auto text-lg">A high-level overview of the analysis and key provincial outliers derived from the ML models.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                        <!-- Stats Grid -->
+                        <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div class="bg-background-light dark:bg-background-dark p-8 rounded-2xl border border-border-light dark:border-border-dark flex flex-col gap-3 items-center text-center shadow-sm hover:shadow-md transition-shadow">
+                                <span class="material-symbols-outlined text-primary text-5xl mb-2">public</span>
+                                <p class="text-sm font-bold uppercase tracking-wider text-text-light/60 dark:text-text-dark/60">Provinces Analyzed</p>
+                                <p class="text-4xl font-black text-text-light dark:text-text-dark">38</p>
+                            </div>
+                            <!-- P1 Crisis: Red -->
+                            <div class="bg-red-50 dark:bg-red-900/10 p-8 rounded-2xl border border-red-200 dark:border-red-700/30 flex flex-col gap-3 items-center text-center shadow-sm hover:shadow-md transition-shadow group">
+                                <span class="material-symbols-outlined text-red-600 dark:text-red-400 text-5xl mb-2 group-hover:scale-110 transition-transform">crisis_alert</span>
+                                <p class="text-sm font-bold uppercase tracking-wider text-red-700/80 dark:text-red-300/80">Crisis Zones</p>
+                                <p class="text-4xl font-black text-red-600 dark:text-red-400">4</p>
+                                <p class="text-xs font-medium text-red-700/60 dark:text-red-300/60 mt-1">Papua Highlands</p>
+                            </div>
+                            <!-- P2 Potential: Yellow -->
+                            <div class="bg-yellow-50 dark:bg-yellow-800/20 p-8 rounded-2xl border border-yellow-200 dark:border-yellow-700/50 flex flex-col gap-3 items-center text-center shadow-sm hover:shadow-md transition-shadow group">
+                                <span class="material-symbols-outlined text-yellow-600 dark:text-yellow-400 text-5xl mb-2 group-hover:scale-110 transition-transform">trending_up</span>
+                                <p class="text-sm font-bold uppercase tracking-wider text-yellow-600/80 dark:text-yellow-400/80">Potential Zones</p>
+                                <p class="text-4xl font-black text-yellow-600 dark:text-yellow-400">14</p>
+                                <p class="text-xs font-medium text-yellow-600/80 dark:text-yellow-400/60 mt-1">Kalimantan, Bali</p>
+                            </div>
+                            <!-- P3 Stable: Purple (Unchanged) -->
+                            <div class="bg-purple-50 dark:bg-purple-900/10 p-8 rounded-2xl border border-purple-200 dark:border-purple-700/30 flex flex-col gap-3 items-center text-center shadow-sm hover:shadow-md transition-shadow group">
+                                <span class="material-symbols-outlined text-purple-600 dark:text-purple-400 text-5xl mb-2 group-hover:scale-110 transition-transform">shield</span>
+                                <p class="text-sm font-bold uppercase tracking-wider text-purple-700/80 dark:text-purple-300/80">Stable Zones</p>
+                                <p class="text-4xl font-black text-purple-600 dark:text-purple-400">20</p>
+                                <p class="text-xs font-medium text-purple-700/60 dark:text-purple-300/60 mt-1">Java-Sumatra Core</p>
+                            </div>
+                        </div>
+
+                        <!-- Highlights -->
+                        <div class="lg:col-span-5 flex flex-col gap-5 h-full">
+                            <div class="bg-background-light dark:bg-background-dark p-6 rounded-xl border border-border-light dark:border-border-dark shadow-sm flex-1 flex flex-col justify-center">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="flex h-2 w-2 rounded-full bg-red-500"></span>
+                                    <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-widest">Highest Food Insecurity</p>
+                                </div>
+                                <p class="text-lg text-text-light dark:text-text-dark leading-snug">
+                                    <strong class="font-bold">Papua Pegunungan</strong> with a Price Score of <span class="font-black text-2xl ml-1 block mt-1">69,346</span>
+                                </p>
+                            </div>
+                            <div class="bg-background-light dark:bg-background-dark p-6 rounded-xl border border-border-light dark:border-border-dark shadow-sm flex-1 flex flex-col justify-center">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="flex h-2 w-2 rounded-full bg-green-500"></span>
+                                    <p class="text-xs font-bold text-green-600 dark:text-green-400 uppercase tracking-widest">Best ROI Potential</p>
+                                </div>
+                                <p class="text-lg text-text-light dark:text-text-dark leading-snug">
+                                    <strong class="font-bold">Kalimantan Utara & Maluku</strong> with a Yield Gap of <span class="font-black text-2xl ml-1 block mt-1">> 0.40</span>
+                                </p>
+                            </div>
+                            <div class="bg-background-light dark:bg-background-dark p-6 rounded-xl border border-border-light dark:border-border-dark shadow-sm flex-1 flex flex-col justify-center">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="flex h-2 w-2 rounded-full bg-blue-500"></span>
+                                    <p class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest">Most Efficient System</p>
+                                </div>
+                                <p class="text-lg text-text-light dark:text-text-dark leading-snug">
+                                    <strong class="font-bold">Jawa Timur</strong> with a Price Score of <span class="font-black text-2xl ml-1 block mt-1">54 <span class="text-sm font-normal text-text-light/60 dark:text-text-dark/60 align-middle ml-2">(Lowest/Best)</span></span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Detailed Breakdown -->
+            <section class="min-h-screen w-full flex items-center py-16 sm:py-20 bg-background-light dark:bg-background-dark">
+                <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-24 w-full">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl sm:text-4xl font-black tracking-tight text-text-light dark:text-text-dark">Detailed Cluster Breakdown</h2>
+                        <p class="mt-4 text-text-light/70 dark:text-text-dark/70 max-w-2xl mx-auto text-lg">Understanding the 'why' behind each provincial grouping and the recommended mission.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <!-- Card 1 (Red) -->
+                        <div class="flex flex-col bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark shadow-xl overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+                            <div class="p-6 border-b-4 border-red-500 bg-red-50 dark:bg-red-900/20">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="size-3 rounded-full bg-red-500 animate-pulse"></div>
+                                    <h3 class="text-xl font-bold text-red-700 dark:text-red-400">Priority 1: Crisis Front</h3>
+                                </div>
+                                <p class="text-xs font-bold uppercase tracking-widest text-red-600/70 dark:text-red-300/70">Status: CRITICAL</p>
+                            </div>
+                            <div class="p-8 flex-1 flex flex-col gap-6">
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-text-light/50 dark:text-text-dark/50 mb-1">The Problem</p>
+                                    <p class="text-lg font-medium text-text-light dark:text-text-dark">Extreme Market Failure</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-text-light/50 dark:text-text-dark/50 mb-2">Key Metrics</p>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start gap-2 text-sm text-text-light/80 dark:text-text-dark/80">
+                                            <span class="material-symbols-outlined text-[18px] text-red-500">arrow_right_alt</span>
+                                            Price-to-SSR Ratio: Avg ~14,500
+                                        </li>
+                                        <li class="flex items-start gap-2 text-sm text-text-light/80 dark:text-text-dark/80">
+                                            <span class="material-symbols-outlined text-[18px] text-red-500">arrow_right_alt</span>
+                                            Yield Efficiency: Low
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mt-auto pt-6 border-t border-border-light dark:border-border-dark">
+                                    <div class="bg-red-100 dark:bg-red-500/10 p-4 rounded-lg">
+                                        <p class="text-xs font-bold text-red-600 dark:text-red-400 uppercase mb-1">Mission</p>
+                                        <p class="font-bold text-text-light dark:text-text-dark">Logistics & Subsidies (OPEX)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 (Yellow) -->
+                        <div class="flex flex-col bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark shadow-xl overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+                            <div class="p-6 border-b-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="size-3 rounded-full bg-yellow-500"></div>
+                                    <h3 class="text-xl font-bold text-yellow-700 dark:text-yellow-400">Priority 2: Future Engines</h3>
+                                </div>
+                                <p class="text-xs font-bold uppercase tracking-widest text-yellow-600/70 dark:text-yellow-300/70">Status: DEVELOPING</p>
+                            </div>
+                            <div class="p-8 flex-1 flex flex-col gap-6">
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-text-light/50 dark:text-text-dark/50 mb-1">The Problem</p>
+                                    <p class="text-lg font-medium text-text-light dark:text-text-dark">Unrealized Potential</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-text-light/50 dark:text-text-dark/50 mb-2">Key Metrics</p>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start gap-2 text-sm text-text-light/80 dark:text-text-dark/80">
+                                            <span class="material-symbols-outlined text-[18px] text-yellow-500">arrow_right_alt</span>
+                                            Paddy Yield Gap: Avg +0.35
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mt-auto pt-6 border-t border-border-light dark:border-border-dark">
+                                    <div class="bg-yellow-100 dark:bg-yellow-500/10 p-4 rounded-lg">
+                                        <p class="text-xs font-bold text-yellow-600 dark:text-yellow-400 uppercase mb-1">Mission</p>
+                                        <p class="font-bold text-text-light dark:text-text-dark">Mechanization (CAPEX)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 (Purple) -->
+                        <div class="flex flex-col bg-card-light dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark shadow-xl overflow-hidden hover:-translate-y-1 transition-transform duration-300">
+                            <div class="p-6 border-b-4 border-purple-500 bg-purple-50 dark:bg-purple-900/20">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="size-3 rounded-full bg-purple-500"></div>
+                                    <h3 class="text-xl font-bold text-purple-700 dark:text-purple-400">Priority 3: National Shield</h3>
+                                </div>
+                                <p class="text-xs font-bold uppercase tracking-widest text-purple-600/70 dark:text-purple-300/70">Status: STABLE</p>
+                            </div>
+                            <div class="p-8 flex-1 flex flex-col gap-6">
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-text-light/50 dark:text-text-dark/50 mb-1">The Problem</p>
+                                    <p class="text-lg font-medium text-text-light dark:text-text-dark">Saturation</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold uppercase text-text-light/50 dark:text-text-dark/50 mb-2">Key Metrics</p>
+                                    <ul class="space-y-2">
+                                        <li class="flex items-start gap-2 text-sm text-text-light/80 dark:text-text-dark/80">
+                                            <span class="material-symbols-outlined text-[18px] text-purple-500">arrow_right_alt</span>
+                                            Population Density: Very High
+                                        </li>
+                                        <li class="flex items-start gap-2 text-sm text-text-light/80 dark:text-text-dark/80">
+                                            <span class="material-symbols-outlined text-[18px] text-purple-500">arrow_right_alt</span>
+                                            Price-to-SSR: Very Low
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="mt-auto pt-6 border-t border-border-light dark:border-border-dark">
+                                    <div class="bg-purple-100 dark:bg-purple-500/10 p-4 rounded-lg">
+                                        <p class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase mb-1">Mission</p>
+                                        <p class="font-bold text-text-light dark:text-text-dark">Maintenance</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white dark:bg-card-dark border-t border-border-light dark:border-border-dark">
+            <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <p class="text-text-light dark:text-text-dark font-semibold text-sm tracking-tight">Makan Bergizi Gratis Program</p>
+                    </div>
+                    <p class="text-sm text-text-light/60 dark:text-text-dark/60 text-center md:text-right">
+                        © Kelompok 5 u/ AOL AI
+                    </p>
+                </div>
+            </div>
+        </footer>
+    
+    <!-- Interactive Script -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // --- CONFIGURATION ---
+        // Using the 38-Province GeoJSON link you provided
+        const GEOJSON_PATH = 'https://raw.githubusercontent.com/ardian28/GeoJson-Indonesia-38-Provinsi/main/Provinsi/38%20Provinsi%20Indonesia%20-%20Provinsi.json'; 
+        const CSV_PATH = './assets/STAT-cluster_result_full.csv';
+
+        let map, geoJsonLayer;
+        let globalData = [];
+        let charts = {};
+
+        // --- 1. INITIALIZE MAP ---
+        function initMap() {
+            map = L.map('map', {
+                center: [-2.5489, 118.0149],
+                zoom: 5,
+                zoomControl: false,
+                attributionControl: false,
+                scrollWheelZoom: false,
+                minZoom: 4,
+                maxBounds: [[-15, 90], [10, 150]]
+            });
+            L.control.zoom({ position: 'topright' }).addTo(map);
+        }
+
+        // --- 2. LOAD DATA ---
+        async function loadData() {
+            return new Promise((resolve) => {
+                Papa.parse(CSV_PATH, {
+                    download: true,
+                    header: true,
+                    dynamicTyping: true,
+                    complete: function(results) {
+                        if(results.data && results.data.length > 0) {
+                            globalData = results.data.filter(row => row.year === 2023);
+                            console.log("CSV Data Loaded:", globalData.length, "rows");
+                            resolve();
+                        } else {
+                            console.error("CSV Parse Error or Empty");
+                            resolve();
+                        }
+                    },
+                    error: function(err) {
+                        console.error("CSV Load Error", err);
+                        resolve();
+                    }
+                });
+            });
+        }
+
+        // --- 3. UTILS & MATCHING ---
+        function getColor(priority) {
+            if (!priority) return '#374151'; // Dark grey default fallback
+            const p = priority.toString().replace(" ", "");
+            // Priority 1: Crisis -> RED (Should be invested)
+            if (p.includes("Priority1")) return '#EF4444'; // red-500
+            // Priority 2: Potential -> YELLOW (Neutrals)
+            if (p.includes("Priority2")) return '#EAB308'; // yellow-500
+            // Priority 3: Stable -> PURPLE (No Invest)
+            if (p.includes("Priority3")) return '#A855F7'; // purple-500
+            return '#374151';
+        }
+
+        function formatNumber(num) {
+            if (num === undefined || num === null) return "-";
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + "M";
+            if (num >= 1000) return (num / 1000).toFixed(1) + "k";
+            return num.toFixed(1);
+        }
+
+        function cleanString(str) {
+            if (!str) return "";
+            return str.toString().toUpperCase().replace("PROVINSI", "").trim();
+        }
+
+        function getPercentileString(value, key) {
+            if (value === null || value === undefined) return "";
+            
+            // Get all valid values for this key
+            const values = globalData.map(d => d[key]).filter(v => v !== null && v !== undefined).sort((a, b) => a - b);
+            
+            // Find position (rank) of the selected value
+            // We look for the first occurrence closest to the value
+            const index = values.findIndex(v => Math.abs(v - value) < 0.00001);
+            
+            if (index === -1) return "";
+
+            // Calculate percentile (0 to 100)
+            const percentile = ((index + 1) / values.length) * 100;
+
+            if (percentile >= 50) {
+                // e.g. 90th percentile = "Top 10%"
+                // e.g. 100th percentile = "Top 0%" -> adjust to "Top 1%" or "Highest"
+                let topVal = 100 - percentile;
+                // If it's literally the highest value
+                if (topVal < 1) return "Top 1%";
+                return `Top ${Math.round(topVal)}%`;
+            } else {
+                // e.g. 10th percentile = "Bottom 10%"
+                let botVal = percentile;
+                if (botVal < 1) return "Bottom 1%";
+                return `Bottom ${Math.round(botVal)}%`;
+            }
+        }
+
+        // ROBUST MATCHING: Checks all properties in GeoJSON to find a match in CSV
+        function findProvinceDataInProps(props) {
+            // 1. Try to find a property value that matches a province name in our CSV
+            for (const key in props) {
+                const val = props[key];
+                if (typeof val === 'string') {
+                    const cleanVal = cleanString(val);
+                    
+                    // Match against CSV data
+                    const matchedRow = globalData.find(d => {
+                        const cleanCsv = cleanString(d.province);
+                        
+                        // Exact match after cleaning
+                        if (cleanVal === cleanCsv) return true;
+                        
+                        // Aliases
+                        if (cleanVal === "JAKARTA RAYA" && cleanCsv === "DKI JAKARTA") return true;
+                        if (cleanVal.includes("JAKARTA") && cleanCsv.includes("JAKARTA")) return true;
+                        if (cleanVal.includes("YOGYAKARTA") && cleanCsv.includes("YOGYAKARTA")) return true;
+                        if (cleanVal.includes("BANGKA") && cleanCsv.includes("BANGKA")) return true;
+                        
+                        // Aceh Fix: Explicitly map "ACEH" to "NANGGROE ACEH DARUSSALAM" or similar containing "ACEH"
+                        if (cleanVal === "ACEH" && cleanCsv.includes("ACEH")) return true;
+
+                        // Papua Suffix Logic
+                        if (cleanVal.includes("PAPUA") && cleanCsv.includes("PAPUA")) {
+                             const suffixes = ["TENGAH", "PEGUNUNGAN", "SELATAN", "BARAT", "DAYA"];
+                             const mapSuffix = suffixes.find(s => cleanVal.includes(s));
+                             const csvSuffix = suffixes.find(s => cleanCsv.includes(s));
+                             if (mapSuffix === csvSuffix) return true;
+                        }
+                        return false;
+                    });
+                    
+                    if (matchedRow) return matchedRow;
+                }
+            }
+            return undefined;
+        }
+
+        // --- 4. MAP INTERACTION ---
+        function onProvinceClick(e) {
+            const layer = e.target;
+            const props = layer.feature.properties;
+            
+            const row = findProvinceDataInProps(props);
+
+            if (row) {
+                console.log("Selected:", row.province);
+                updateDashboard(row);
+                
+                // Reset all styles
+                if (geoJsonLayer) geoJsonLayer.eachLayer(l => {
+                    const lRow = findProvinceDataInProps(l.feature.properties);
+                    l.setStyle({ 
+                        fillColor: lRow ? getColor(lRow.investment_priority) : '#333',
+                        fillOpacity: 0.3, weight: 1, color: 'white'
+                    });
+                });
+                
+                // Highlight clicked
+                layer.setStyle({ weight: 3, color: '#fff', fillOpacity: 1, fillColor: getColor(row.investment_priority) });
+                layer.bringToFront();
+                map.flyTo(layer.getBounds().getCenter(), map.getZoom());
+            } else {
+                console.warn("No CSV data match found for clicked area properties:", props);
+            }
+        }
+        
+        function resetMap() {
+            if (geoJsonLayer) geoJsonLayer.eachLayer(l => {
+                const lRow = findProvinceDataInProps(l.feature.properties);
+                l.setStyle({ 
+                    fillColor: lRow ? getColor(lRow.investment_priority) : '#333',
+                    fillOpacity: 0.8, weight: 1, color: 'white'
+                });
+            });
+            document.getElementById('province-details').classList.add('opacity-50', 'grayscale', 'pointer-events-none');
+        }
+
+        // --- 5. DASHBOARD UPDATE ---
+        function updateDashboard(row) {
+            const detailsSection = document.getElementById('province-details');
+            detailsSection.classList.remove('opacity-50', 'grayscale', 'pointer-events-none');
+            
+            document.getElementById('selected-province-name').innerText = row.province;
+            let nicePriority = row.investment_priority.replace(/([A-Za-z]+)(\d+)/, '$1 $2');
+            const badge = document.getElementById('selected-priority-badge');
+            badge.innerText = nicePriority;
+            
+            let badgeClass = "px-4 py-2 rounded-full text-sm font-bold text-white transition-colors ";
+            // Updated Badge Colors to match new scheme
+            if (row.investment_priority.includes('1')) badgeClass += "bg-red-500";
+            else if (row.investment_priority.includes('2')) badgeClass += "bg-yellow-500";
+            else badgeClass += "bg-purple-500";
+            badge.className = badgeClass;
+
+            // Values
+            document.getElementById('val-org').innerText = (row.farmer_organization_rate * 100).toFixed(1) + '%';
+            document.getElementById('val-density').innerText = formatNumber(row.population_density);
+            document.getElementById('val-pop').innerText = formatNumber(row.population);
+            document.getElementById('val-price').innerText = row.price_to_ssr ? row.price_to_ssr.toFixed(1) : '-';
+            document.getElementById('val-commodity').innerText = row.commodity_basket_index ? row.commodity_basket_index.toFixed(1) : '-';
+
+            // Percentiles
+            document.getElementById('perc-org').innerText = getPercentileString(row.farmer_organization_rate, 'farmer_organization_rate');
+            document.getElementById('perc-density').innerText = getPercentileString(row.population_density, 'population_density');
+            document.getElementById('perc-pop').innerText = getPercentileString(row.population, 'population');
+            document.getElementById('perc-price').innerText = getPercentileString(row.price_to_ssr, 'price_to_ssr');
+            document.getElementById('perc-commodity').innerText = getPercentileString(row.commodity_basket_index, 'commodity_basket_index');
+
+            updateDistributionChart(charts.org, 'farmer_organization_rate', row.farmer_organization_rate);
+            updateDistributionChart(charts.density, 'population_density', row.population_density);
+            updateDistributionChart(charts.pop, 'population', row.population);
+            updateDistributionChart(charts.price, 'price_to_ssr', row.price_to_ssr);
+            updateDistributionChart(charts.commodity, 'commodity_basket_index', row.commodity_basket_index);
+            
+            if(window.innerWidth < 1024) detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // --- 6. CHART GENERATION ---
+        function initCharts() {
+            const commonOptions = {
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: { x: { display: false }, y: { display: false } },
+                layout: { padding: 0 }
+            };
+            charts.org = createChart('chart-org', commonOptions);
+            charts.density = createChart('chart-density', commonOptions);
+            charts.pop = createChart('chart-pop', commonOptions);
+            charts.price = createChart('chart-price', commonOptions);
+            charts.commodity = createChart('chart-commodity', commonOptions);
+        }
+
+        function createChart(id, options) {
+            return new Chart(document.getElementById(id), {
+                type: 'bar',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [], borderRadius: 4, barPercentage: 0.8 }] },
+                options: options
+            });
+        }
+
+        function updateDistributionChart(chart, key, selectedVal) {
+            let dataset = globalData.map(d => ({ val: d[key], label: d.province })).filter(item => item.val !== null).sort((a, b) => a.val - b.val);
+            const labels = dataset.map(d => d.label);
+            const data = dataset.map(d => d.val);
+            const colors = dataset.map(d => Math.abs(d.val - selectedVal) < 0.000001 ? '#0D47A1' : '#E5E7EB');
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
+            chart.data.datasets[0].backgroundColor = colors;
+            chart.update();
+        }
+
+        // --- EXECUTION ---
+        window.onload = async () => {
+            initMap();
+            initCharts();
+            await loadData();
+
+            try {
+                const res = await fetch(GEOJSON_PATH);
+                const data = await res.json();
+                document.getElementById('map-loader').style.display = 'none';
+                
+                geoJsonLayer = L.geoJSON(data, {
+                    style: function(feature) {
+                        const row = findProvinceDataInProps(feature.properties);
+                        // DEBUG: Log if we found a row for this feature
+                        if (row) {
+                           // console.log("Match found for feature:", row.province);
+                        } else {
+                           // console.warn("No match for feature props:", feature.properties);
+                        }
+                        
+                        return { 
+                            fillColor: row ? getColor(row.investment_priority) : '#333', 
+                            weight: 1, 
+                            opacity: 1, 
+                            color: 'white', 
+                            fillOpacity: 0.8 
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        layer.on({
+                            click: onProvinceClick,
+                            mouseover: (e) => { const l = e.target; l.setStyle({ weight: 2, color: '#fff' }); l.bringToFront(); },
+                            mouseout: (e) => { 
+                                // Optional reset logic
+                            }
+                        });
+                    }
+                }).addTo(map);
+            } catch (err) {
+                console.error("GeoJSON Error", err);
+                document.getElementById('map-loader').innerHTML = "<p class='text-red-500'>Error loading map data.</p>";
+            }
+        };
+    </script>
+</body>
+</html>

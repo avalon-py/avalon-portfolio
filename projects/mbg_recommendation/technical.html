@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Makan Bergizi Gratis Program - Technical</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-display bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+
+    <div class="relative flex min-h-screen w-full flex-col overflow-x-hidden">
+        
+        <!-- Header (Consistent) -->
+        <header class="sticky top-0 z-50 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md border-b border-border-light dark:border-border-dark shadow-sm">
+            <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center gap-4">
+                        <h2 class="text-text-light dark:text-text-dark text-lg font-bold leading-tight tracking-tight hidden sm:block">
+                            Makan Bergizi Gratis
+                        </h2>
+                    </div>
+                    <nav class="flex items-center gap-2">
+                        <a href="index.html" class="flex items-center justify-center rounded-lg h-10 px-6 text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/10 text-sm font-medium transition-colors">
+                            Home
+                        </a>
+                        <a href="technical.html" class="flex items-center justify-center rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold tracking-wide hover:bg-primary-hover transition-colors shadow-sm">
+                            Technical
+                        </a>
+                        <a href="result.html" class="flex items-center justify-center rounded-lg h-10 px-6 text-text-light dark:text-text-dark hover:bg-black/5 dark:hover:bg-white/10 text-sm font-medium transition-colors">
+                            Result
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1">
+            
+            <!-- Hero Section -->
+            <section class="relative min-h-[92vh] w-full hero-bg-technical flex items-center justify-center text-center py-20 px-6">
+                <div class="max-w-4xl mx-auto flex flex-col items-center gap-8">
+                    <div class="flex flex-col gap-6">
+                        <h1 class="text-white text-4xl sm:text-5xl md:text-6xl font-black leading-tight tracking-tight drop-shadow-lg">
+                            AI-Driven Regional Investment Planning
+                        </h1>
+                        <h2 class="text-white/80 text-lg sm:text-xl font-medium leading-relaxed max-w-2xl mx-auto">
+                            Utilizing spectral clustering to identify provinces with high agricultural potential and lagging economic development.
+                        </h2>
+                    </div>
+                    <a href="#overview" class="flex items-center justify-center rounded-lg h-12 px-8 bg-primary text-white text-base font-bold tracking-wide hover:bg-primary-hover transition-all transform hover:translate-y-[-2px] shadow-lg">
+                        View Methodology
+                    </a>
+                </div>
+            </section>
+
+            <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-16 flex flex-col gap-24">
+                
+                <!-- Project Overview -->
+                <section id="overview" class="scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-6 text-text-light dark:text-text-dark tracking-tight">Project Overview</h2>
+                    <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed max-w-4xl">
+                        This project introduces an AI-based recommendation system for the Makan Bergizi Gratis (MBG) program. By analyzing datasets from BMKG, BPN, and BPS, our goal is to pinpoint provinces that exhibit strong agricultural potential but are currently experiencing lagging economic development. We employ unsupervised learning, specifically spectral clustering, due to the absence of predefined target labels and the necessity of incorporating geographical proximity into the model.
+                    </p>
+                </section>
+
+                <!-- Features -->
+                <section id="features" class="scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-8 text-text-light dark:text-text-dark tracking-tight">Feature Set Used</h2>
+                    <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed mb-8">
+                        The model utilizes a set of 18 carefully selected features to capture a holistic view of each province's demographic, economic, and agricultural landscape.
+                    </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Feature Cards -->
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Population</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Total number of people.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Population Density</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Population per square kilometer.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Area of Land</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Total land area, both usable and unusable.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Area of Wetlands</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Total area of land used for crops.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Regional GDP per Capita</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Total value of goods produced per region.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Farmer Organization Rate</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">How much organized the farmers in a province are.</p>
+                        </div>
+                         <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Farmer's Terms of Trade</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">An index measuring farmer's welfare.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Temperature</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Average ambient temperature.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Farmer over Population</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Ratio of farmers to the total population.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Local Direct Investment Dominance</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">How much of the total investment is made by local investors.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Humidity</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Average ambient humidity.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Price-to-Self Sustainability Ratio</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">The average price over the aggregated sustainability of all provinces.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Soybean Yield Gap</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">The gap to the most productive province's soybean yield.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Paddy Yield Gap</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">The gap to the most productive province's paddy yield.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Layer Yield Gap</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">The gap to the most productive province's layer yield.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Rainfall Per Area</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">How much rain falls per unit area.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Rainfall Optimal Gap</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Deviation from optimal rainfall levels.</p>
+                        </div>
+                         <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Temperature Optimal Gap</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Deviation from optimal temperature levels.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Commodity Basket Index</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">An index for the average price of all commodities sold.</p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl hover:border-primary/50 transition-colors">
+                            <h3 class="font-bold text-primary mb-2">Self Sustainability Ratio</h3>
+                            <p class="text-sm text-text-light/70 dark:text-text-dark/70">Ratio between total consumption of a commodity to its production, per province.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Imputation -->
+                <section id="imputation" class="scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-8 text-text-light dark:text-text-dark tracking-tight">Data Imputation Strategy</h2>
+                    <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed mb-6">
+                        Missing data for certain provinces were handled using targeted imputation strategies to maintain data integrity and relevance.
+                    </p>
+                    <div class="flex flex-col gap-4">
+                        <details class="group bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl cursor-pointer shadow-sm">
+                            <summary class="flex items-center justify-between font-bold text-lg text-text-light dark:text-text-dark">
+                                New Papuan Provinces
+                                <span class="material-symbols-outlined text-primary transition-transform group-open:rotate-180">expand_more</span>
+                            </summary>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-base mt-4 leading-relaxed">
+                                Data for newer Papuan provinces were imputed using values from their parent province to ensure historical and geographical consistency.
+                            </p>
+                        </details>
+                        
+                        <details class="group bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl cursor-pointer shadow-sm">
+                            <summary class="flex items-center justify-between font-bold text-lg text-text-light dark:text-text-dark">
+                                DKI Jakarta
+                                <span class="material-symbols-outlined text-primary transition-transform group-open:rotate-180">expand_more</span>
+                            </summary>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-base mt-4 leading-relaxed">
+                                Missing values for DKI Jakarta were imputed using data from other similar highly urbanized provinces (Bali, Banten, etc.), reflecting its unique economic profile.
+                            </p>
+                        </details>
+
+                        <details class="group bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl cursor-pointer shadow-sm">
+                            <summary class="flex items-center justify-between font-bold text-lg text-text-light dark:text-text-dark">
+                                Kalimantan Provinces
+                                <span class="material-symbols-outlined text-primary transition-transform group-open:rotate-180">expand_more</span>
+                            </summary>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-base mt-4 leading-relaxed">
+                                Imputation for Kalimantan provinces was performed by taking the mean value across all provinces on the island of Kalimantan.
+                            </p>
+                        </details>
+                        
+                        <details class="group bg-white dark:bg-card-dark border border-border-light dark:border-border-dark p-6 rounded-xl cursor-pointer shadow-sm">
+                            <summary class="flex items-center justify-between font-bold text-lg text-text-light dark:text-text-dark">
+                                Sumatera Provinces
+                                <span class="material-symbols-outlined text-primary transition-transform group-open:rotate-180">expand_more</span>
+                            </summary>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-base mt-4 leading-relaxed">
+                                For provinces in Sumatera, missing data was filled using the mean value calculated from all other provinces on the island.
+                            </p>
+                        </details>
+                    </div>
+                </section>
+
+                <!-- Methodology -->
+                <section id="methodology" class="scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-8 text-text-light dark:text-text-dark tracking-tight">Clustering Algorithm</h2>
+                    <div class="grid md:grid-cols-2 gap-12 items-center">
+                        <div class="bg-card-light dark:bg-card-dark p-2 rounded-xl border border-border-light dark:border-border-dark shadow-lg">
+                            <img class="rounded-lg w-full h-auto object-cover" 
+                                 alt="Cluster diagram" 
+                                 src="assets/img/technical-clustering.jpg">
+                        </div>
+                        <div class="prose dark:prose-invert">
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed">
+                                The accumulated dataset is then fed into a Machine Learning algorithm. For this, we used unsupervised learning, because there is no valid or 'official' result that indicates whether or not a province is worth investing for. To put into more details, we use Graph-Based Clustering, which is often known as 'Spectral Clustering'. This approach is due to the fact that nearby provinces share common traits, and investing in 1 province should lead in an increase of investment opportunity for the surrounding provinces.
+                            </p>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed mt-4">
+                                Spectral clustering is a graph-based method that uses the Laplacian matrix and its eigenvectors to map the relational structure between data points—in this case, provinces. It is highly effective for this project because geographically close provinces often share similar climatic and economic characteristics, a nuance that traditional clustering methods might miss.
+                            </p>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed mt-4">
+                                The algorithm outputs clusters of provinces with similar economic, climatic, and agricultural traits, forming a robust basis for targeted investment recommendations.
+                            </p>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- Interpretation -->
+                <section id="interpretation" class="scroll-mt-24">
+                    <h2 class="text-3xl font-bold mb-8 text-text-light dark:text-text-dark tracking-tight">Cluster Interpretation</h2>
+                    <div class="grid lg:grid-cols-2 gap-12">
+                        <div class="flex flex-col gap-6">
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed">
+                                Cluster interpretation was not performed using PCA to avoid information loss. Instead, an XGBoost model was trained on the full feature set with cluster labels as the target.
+                            </p>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed">
+                                The resulting feature importance scores, combined with domain knowledge, were used to interpret and profile each cluster. This method identifies the key drivers for each cluster, allowing us to determine which groups exhibit high agricultural potential alongside economic underperformance.
+                            </p>
+                            <p class="text-text-light/70 dark:text-text-dark/70 text-lg leading-relaxed">
+                                From this result, we can also deduce that the algorithm successfully put emphasize on the more important things, such as the amount of farmers, the amount of people, things relating to self-sustainability ratio (balance between consumption and production), and lastly the index representing the welfare of farmers. 
+                            </p>
+                        </div>
+                        <div class="bg-white dark:bg-card-dark p-8 rounded-xl border border-border-light dark:border-border-dark shadow-sm">
+                            <h3 class="font-bold text-lg mb-6 text-text-light dark:text-text-dark">Top Feature Importance (XGBoost)</h3>
+                            <div class="flex flex-col gap-4">
+                                <!-- Bar 1 -->
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Farmer Organization Rate</span>
+                                        <span>17%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 90%"></div>
+                                    </div>
+                                </div>
+                                <!-- Bar 2 -->
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Population Density</span>
+                                        <span>8%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 51.61%"></div>
+                                    </div>
+                                </div>
+                                <!-- Bar 3 -->
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Population</span>
+                                        <span>7.8%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 48.39%"></div>
+                                    </div>
+                                </div>
+                                <!-- Bar 4 -->
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Price-to-Self Sustainability Ratio</span>
+                                        <span>7.7%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 45.16%"></div>
+                                    </div>
+                                </div>
+                                 <!-- Bar 5 -->
+                                 <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Commodity Basket Index</span>
+                                        <span>6.1%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 35.48%"></div>
+                                    </div>
+                                </div>
+                                <!-- Bar 6 -->
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Rainfall per Area</span>
+                                        <span>5.8%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 35.48%"></div>
+                                    </div>
+                                </div>
+                                <!-- Bar 7 -->
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Paddy Yield Gap</span>
+                                        <span>5.6%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 35.48%"></div>
+                                    </div>
+                                </div>
+                                <!-- Bar 8 -->
+                                <div class="flex flex-col gap-1">
+                                    <div class="flex justify-between text-xs text-text-light/60 dark:text-text-dark/60 uppercase font-semibold">
+                                        <span>Farmer's Terms of Trade</span>
+                                        <span>4.3%</span>
+                                    </div>
+                                    <div class="w-full h-3 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary progress-bar" style="--target-width: 35.48%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Source Code CTA -->
+                <section class="rounded-2xl bg-[#0d1218] text-center p-12 sm:p-16">
+                    <h2 class="text-white text-3xl font-bold tracking-tight mb-4">Source Code</h2>
+                    <p class="text-white/60 text-lg max-w-2xl mx-auto mb-8">
+                        The complete source code for this project, including the data processing notebooks and model implementation, is available on GitHub.
+                    </p>
+                    <a href="https://github.com/avalon-py/MBG-Recommendation" target="_blank" class="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-white text-black font-bold hover:bg-gray-100 transition-colors">
+                        View on GitHub
+                    </a>
+                </section>
+
+                <!-- Conclusion -->
+                <section class="rounded-2xl bg-primary/5 dark:bg-primary/5 border border-primary/10 p-12 sm:p-16 text-center">
+                    <h2 class="text-primary dark:text-primary text-3xl font-bold tracking-tight mb-4">Conclusion & Impact</h2>
+                    <p class="text-text-light/70 dark:text-text-dark/70 text-lg max-w-3xl mx-auto mb-8 leading-relaxed">
+                        By leveraging spectral clustering and interpreting results with feature importance analysis, this project provides a data-driven framework for regional investment planning. The insights generated assist policymakers in identifying priority regions, ensuring the Makan Bergizi Gratis program's resources are allocated effectively.
+                    </p>
+                    <a href="assets/Project Report.pdf" target="_blank" class="inline-flex items-center justify-center h-12 px-8 rounded-lg bg-primary text-white font-bold hover:bg-primary-hover transition-colors shadow-lg shadow-primary/30">
+                        Read whitepaper
+                    </a>
+
+                </section>
+
+            </div>
+        </main>
+
+        <!-- Footer (Consistent) -->
+        <footer class="bg-white dark:bg-card-dark border-t border-border-light dark:border-border-dark">
+            <div class="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 py-10">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <div class="flex items-center gap-3">
+                        <p class="text-text-light dark:text-text-dark font-semibold text-sm tracking-tight">Makan Bergizi Gratis Program</p>
+                    </div>
+                    <p class="text-sm text-text-light/60 dark:text-text-dark/60 text-center md:text-right">
+                        © Kelompok 5 u/ AOL AI
+                    </p>
+                </div>
+            </div>
+        </footer>
+
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

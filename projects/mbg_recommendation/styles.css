@@ -1,0 +1,79 @@
+/* Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+
+/* Base Styles */
+body {
+    font-family: 'Public Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Icon Settings */
+.material-symbols-outlined {
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 24;
+}
+
+/* Custom Backgrounds */
+.hero-bg-home {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.7) 100%), 
+    url("assets/img/home-hero.jpeg");
+    background-size: cover;
+    background-position: center;
+}
+
+.hero-bg-technical {
+    background-image: linear-gradient(rgba(17, 25, 33, 0.85) 0%, rgba(17, 25, 33, 1) 100%), 
+    url("assets/img/technical-hero.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+/* Progress Bar Animations */
+@keyframes loadProgress {
+    from { width: 0; }
+    to { width: var(--target-width); }
+}
+
+.progress-bar {
+    animation: loadProgress 1.5s ease-out forwards;
+}
+
+/* Accordion Animation Styles */
+details > summary {
+    list-style: none;
+}
+details > summary::-webkit-details-marker {
+    display: none;
+}
+details[open] summary ~ * {
+    animation: sweep .3s ease-in-out;
+}
+
+@keyframes sweep {
+    0%    {opacity: 0; transform: translateY(-10px)}
+    100%  {opacity: 1; transform: translateY(0)}
+}
+
+/* Map Container Aspect Ratio */
+.map-container {
+    width: 100%;
+    /* Use aspect-ratio for rectangular shape (16:9) instead of fixed height */
+    aspect-ratio: 16 / 9;
+    min-height: 400px; /* Ensure visibility on smaller screens */
+    border-radius: 0.75rem;
+    overflow: hidden;
+    position: relative;
+    background-color: #e5e7eb;
+}
+
+.map-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
