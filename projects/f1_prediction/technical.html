@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical Breakdown | GP Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        f1: {
+                            red: '#e10600',
+                            dark: '#15151e',
+                            carbon: '#1f1f1f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-zinc-950 text-white overflow-x-hidden selection:bg-f1-red selection:text-white">
+
+    <nav class="fixed top-0 w-full z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-display font-black tracking-tighter italic">
+                GP<span class="text-f1-red">PREDICT</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Home</a>
+                <a href="technical.html" class="text-white font-medium hover:text-f1-red transition-colors">Technical</a>
+                <a href="results.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Results</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="pt-32 pb-16 px-6 max-w-7xl mx-auto border-b border-white/10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div>
+                <header class="border-l-4 border-f1-red pl-6">
+                    <h1 class="text-4xl md:text-6xl font-display font-bold uppercase mb-4">System Architecture</h1>
+                    <p class="text-xl text-zinc-400 max-w-2xl">A transparent look at the pipeline: Data, Features, Model, and Simulation.</p>
+                </header>
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="https://github.com/avalon-py/f1-prediction" target="_blank" class="flex items-center px-4 py-2 bg-zinc-900 border border-zinc-800 rounded hover:bg-zinc-800 hover:text-white transition-colors text-zinc-400 text-sm font-bold">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    Source Code
+                </a>
+                <a href="#" class="flex items-center px-4 py-2 bg-f1-red text-white rounded border border-f1-red hover:bg-red-700 transition-colors text-sm font-bold shadow-lg shadow-red-900/20">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Whitepaper (PDF)
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+        
+        <!-- Section 1: Data Collection -->
+        <section class="mb-24 relative pl-8 border-l border-zinc-800">
+            <span class="absolute -left-3 top-0 flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 border-2 border-zinc-950 text-f1-red text-xs font-bold">1</span>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                    <h2 class="text-3xl font-display font-bold text-white mb-4">Data Collection & Ingestion</h2>
+                    <p class="text-zinc-400 text-lg leading-relaxed mb-6">
+                        The foundation of any ML model is data quality. We aggregate over 70 years of racing telemetry (1950-2024), but publicly available datasets often lack context. 
+                    </p>
+                    <p class="text-zinc-500 mb-6 leading-relaxed">
+                        To bridge this gap, we built custom <span class="text-white font-mono bg-zinc-900 px-1 rounded">Selenium</span> web scrapers to mine Wikipedia and historical weather archives. This allows us to feed the model critical contextual variables like precise track configurations, historical precipitation levels during specific race hours, and tarmac characteristics that standard APIs ignore.
+                    </p>
+                    <ul class="space-y-2 text-zinc-400 text-sm">
+                        <li class="flex items-center"><svg class="w-4 h-4 text-f1-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Kaggle Historical Dataset (Base Telemetry)</li>
+                        <li class="flex items-center"><svg class="w-4 h-4 text-f1-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Selenium Scrapers (Track Layouts, Weather)</li>
+                        <li class="flex items-center"><svg class="w-4 h-4 text-f1-red mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Temporal Masking (Prevention of Future Leakage)</li>
+                    </ul>
+                </div>
+                <div class="bg-zinc-900 rounded-xl p-6 border border-zinc-800 font-mono text-xs text-zinc-500 overflow-hidden">
+                    <div class="mb-2 text-zinc-300">// Example Scraper Logic</div>
+                    <pre class="whitespace-pre-wrap"><span class="text-purple-400">def</span> <span class="text-blue-400">scrape_weather</span>(circuit_url):
+    driver = webdriver.Chrome()
+    driver.get(circuit_url)
+    <span class="text-green-400"># Extract weather tables via XPath</span>
+    weather_data = driver.find_element(...)
+    <span class="text-purple-400">return</span> process_weather_index(weather_data)</pre>
+                    <div class="mt-4 p-4 bg-zinc-950 border border-zinc-900 rounded">
+                        <span class="block text-green-500">>> Data Ingested: 24,000+ Race Entries</span>
+                        <span class="block text-green-500">>> Scraped: 78 Circuits</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Feature Engineering -->
+        <section class="mb-24 relative pl-8 border-l border-zinc-800">
+             <span class="absolute -left-3 top-0 flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 border-2 border-zinc-950 text-f1-red text-xs font-bold">2</span>
+
+            <h2 class="text-3xl font-display font-bold text-white mb-6">Feature Engineering</h2>
+            <p class="text-zinc-400 text-lg leading-relaxed mb-8 max-w-4xl">
+                Raw telemetry is noise. We engineer features to capture the "narrative" of a race. We ensure strict temporal integrity—calculating form and history only based on data available <em>before</em> the race starts.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                <!-- Category 1 -->
+                <div class="bg-zinc-900/50 p-6 rounded-lg border border-white/5">
+                    <h3 class="text-f1-red font-bold uppercase text-xs tracking-widest mb-4">Driver Metrics</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="feature-tag">age</span>
+                        <span class="feature-tag">driver_global_history</span>
+                        <span class="feature-tag">driver_track_history</span>
+                        <span class="feature-tag">driver_form_custom</span>
+                        <span class="feature-tag">recovery_potential</span>
+                        <span class="feature-tag">championship_pressure</span>
+                    </div>
+                </div>
+
+                <!-- Category 2 -->
+                <div class="bg-zinc-900/50 p-6 rounded-lg border border-white/5">
+                    <h3 class="text-f1-red font-bold uppercase text-xs tracking-widest mb-4">Constructor & Car</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="feature-tag">position_constructor</span>
+                        <span class="feature-tag">constructor_form</span>
+                        <span class="feature-tag">constructor_global_history</span>
+                        <span class="feature-tag">constructor_track_dominance</span>
+                        <span class="feature-tag">races_with_team</span>
+                    </div>
+                </div>
+
+                <!-- Category 3 -->
+                <div class="bg-zinc-900/50 p-6 rounded-lg border border-white/5">
+                    <h3 class="text-f1-red font-bold uppercase text-xs tracking-widest mb-4">Track & Chaos</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="feature-tag">grid</span>
+                        <span class="feature-tag">position_qualifying</span>
+                        <span class="feature-tag">weather_index</span>
+                        <span class="feature-tag">technicality_index</span>
+                        <span class="feature-tag">track_chaos_factor</span>
+                        <span class="feature-tag">overtaking_difficulty</span>
+                        <span class="feature-tag">first_lap_risk</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-zinc-900 border-l-4 border-yellow-500 p-4">
+                <p class="text-sm text-zinc-400">
+                    <strong class="text-white">Note on Data Leakage:</strong> All historical averages are expanding windows. <span class="font-mono text-xs">driver_form_custom</span> calculates a weighted average of the last 5 races, decaying exponentially, ensuring the model reacts to recent performance slumps or surges.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 3: Selection & Modeling -->
+        <section class="mb-24 relative pl-8 border-l border-zinc-800">
+             <span class="absolute -left-3 top-0 flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 border-2 border-zinc-950 text-f1-red text-xs font-bold">3</span>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h2 class="text-3xl font-display font-bold text-white mb-4">Modeling & Optimization</h2>
+                    <p class="text-zinc-400 mb-6">
+                        We employ <strong>Recursive Feature Elimination with Cross-Validation (RFECV)</strong> to strip away high-collinearity features that confuse the model. We retain only the variables that impact the Gini impurity score significantly.
+                    </p>
+                    <p class="text-zinc-400 mb-6">
+                        The core engine is an <strong>XGBoost Regressor</strong>. Instead of guessing hyperparameters, we use <strong>Optuna</strong> to perform Bayesian optimization, running thousands of trials to minimize the Mean Absolute Error (MAE) across 5-fold cross-validation sets.
+                    </p>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 bg-f1-red blur-[80px] opacity-20"></div>
+                    <div class="relative bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+                        <h4 class="text-white font-bold mb-4 border-b border-white/10 pb-2">Model Specs</h4>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="block text-zinc-500 text-xs uppercase">Algorithm</span>
+                                <span class="text-white font-mono">XGBRegressor</span>
+                            </div>
+                            <div>
+                                <span class="block text-zinc-500 text-xs uppercase">Objective</span>
+                                <span class="text-white font-mono">reg:squarederror</span>
+                            </div>
+                            <div>
+                                <span class="block text-zinc-500 text-xs uppercase">Optimization</span>
+                                <span class="text-white font-mono">Optuna (TPE)</span>
+                            </div>
+                            <div>
+                                <span class="block text-zinc-500 text-xs uppercase">Validation</span>
+                                <span class="text-white font-mono">TimeSeriesSplit (5-fold)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Monte Carlo -->
+        <section class="relative pl-8 border-l border-zinc-800 border-transparent">
+             <span class="absolute -left-3 top-0 flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 border-2 border-zinc-950 text-f1-red text-xs font-bold">4</span>
+
+            <div class="bg-gradient-to-r from-zinc-900 to-zinc-950 border border-zinc-800 p-8 rounded-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-f1-red/10 rounded-full blur-[100px] pointer-events-none"></div>
+                
+                <h2 class="text-3xl font-display font-bold text-white mb-6">The Monte Carlo Simulation</h2>
+                <div class="prose prose-invert max-w-none text-zinc-400">
+                    <p>
+                        A single prediction is deterministic. Formula 1 is not. To model reality, we take the output of our XGBoost model and treat it as a "mean performance expectation."
+                    </p>
+                    <p>
+                        We then run <strong>1,000 simulations per race</strong>. In each iteration, we inject noise based on the <span class="text-f1-red font-mono">track_chaos_factor</span> (derived from historical Safety Car probabilities and DNF rates for that specific circuit) and driver consistency metrics.
+                    </p>
+                    <p>
+                        This generates a probability distribution for the leaderboard. The final result you see on the dashboard is not just the "most likely" outcome, but the median result of 1,000 parallel universes, filtering out extreme outliers while respecting the potential for chaos.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="py-10 border-t border-white/10 bg-zinc-950">
+        <div class="max-w-7xl mx-auto px-6 text-center text-zinc-600 text-sm">
+            <p>&copy; 2025 GP Predictor Project. Static Analysis.</p>
+        </div>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Prix Predictor | Chaos Quantified</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        f1: {
+                            red: '#e10600',
+                            dark: '#15151e',
+                            carbon: '#1f1f1f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-zinc-950 text-white overflow-x-hidden selection:bg-f1-red selection:text-white">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-display font-black tracking-tighter italic">
+                GP<span class="text-f1-red">PREDICT</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="text-white font-medium hover:text-f1-red transition-colors">Home</a>
+                <a href="technical.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Technical</a>
+                <a href="results.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Results</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative h-screen w-full flex flex-col items-center justify-center overflow-hidden border-b border-white/5">
+        <!-- Abstract Background -->
+        <div class="absolute inset-0 z-0">
+            <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1535136896280-94d3f233496c?q=80&w=2560&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-luminosity"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-transparent to-zinc-950"></div>
+            
+            <!-- Speed lines animation overlay -->
+            <div class="speed-lines absolute inset-0 opacity-20"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 max-w-5xl mx-auto mt-10">
+            <div class="inline-block mb-4 px-3 py-1 border border-f1-red/50 rounded-full bg-f1-red/10 backdrop-blur-sm">
+                <span class="text-f1-red text-xs font-bold tracking-widest uppercase">Season 2025 Ready</span>
+            </div>
+            
+            <h1 class="text-6xl md:text-8xl lg:text-9xl font-display font-black italic tracking-tighter mb-6 leading-[0.5]">
+                CHAOS <br>
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500">QUANTIFIED</span>
+            </h1>
+            
+            <p class="text-xl md:text-2xl text-zinc-400 max-w-2xl mx-auto mb-10 font-light">
+                Harnessing XGBoost and Monte Carlo simulations to predict the unpredictable nature of Formula 1.
+            </p>
+            
+            <div class="flex flex-col md:flex-row gap-4 justify-center">
+                <a href="results.html" class="group relative px-8 py-4 bg-f1-red text-white font-bold tracking-wider uppercase overflow-hidden skew-x-[-10deg] hover:bg-red-700 transition-colors">
+                    <span class="block skew-x-[10deg]">View Predictions</span>
+                </a>
+                <a href="#philosophy" class="group relative px-8 py-4 border border-white text-white font-bold tracking-wider uppercase overflow-hidden skew-x-[-10deg] hover:bg-white hover:text-black transition-colors">
+                    <span class="block skew-x-[10deg]">Learn More</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="absolute bottom-10 animate-bounce">
+            <svg class="w-6 h-6 text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7-7-7"></path></svg>
+        </div>
+    </header>
+
+    <!-- Project Overview Section -->
+    <section id="philosophy" class="py-24 bg-zinc-950 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-1/2 h-full bg-f1-red/5 blur-[120px]"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+                <div>
+                    <h2 class="text-f1-red font-display font-bold uppercase tracking-widest text-sm mb-4">01 // The Why</h2>
+                    <h3 class="text-4xl md:text-5xl font-display font-bold text-white mb-6 leading-tight">Racing is not math.<br>It is <span class="text-zinc-500">violence.</span></h3>
+                    <div class="space-y-6 text-lg text-zinc-400 font-light">
+                        <p>
+                            I chose this project because Formula 1 is the ultimate paradox. It is a sport defined by precision engineering, yet decided by pure chaos. A millimeter of tire wear, a sudden gust of wind at Silverstone, or a safety car in Jeddah can shatter the most robust strategy.
+                        </p>
+                        <p>
+                            Traditional statistical models fail here because they assume a linear world. They cannot account for the "Ghost in the Machine." This project is my attempt to quantify that uncertainty—to embrace the randomness rather than ignore it. By combining hard data with probabilistic simulation, we don't just predict who wins; we predict the texture of the race itself.
+                        </p>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="aspect-square rounded-2xl overflow-hidden grayscale hover:grayscale-0 transition-all duration-700 relative group">
+                         <img src="assets/img/home-chaos.jpg" class="object-cover w-full h-full opacity-80 group-hover:scale-110 transition-transform duration-700" alt="F1 Car Abstract">
+                         <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent"></div>
+                         <div class="absolute bottom-6 left-6 border-l-2 border-f1-red pl-4">
+                             <p class="text-white font-display font-bold text-xl">The Unpredictable Variable</p>
+                             <p class="text-zinc-500 text-sm">Where algorithms meet asphalt.</p>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Methodology Summary Section -->
+    <section class="py-24 bg-zinc-900/50 border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-16 md:w-2/3">
+                <h2 class="text-f1-red font-display font-bold uppercase tracking-widest text-sm mb-4">02 // The Approach</h2>
+                <h3 class="text-4xl md:text-5xl font-display font-bold text-white mb-6">From 1950 to Tomorrow.</h3>
+                <p class="text-xl text-zinc-400">
+                    We didn't just fit a line to a dataset. We built a comprehensive simulation engine that learns from over 70 years of racing heritage.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="bg-zinc-950 p-8 rounded-xl border border-zinc-800 hover:border-f1-red/50 transition-colors group">
+                    <div class="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center mb-6 group-hover:bg-f1-red group-hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3 font-display">Historical Mining</h4>
+                    <p class="text-zinc-500 leading-relaxed">
+                        Utilizing a massive dataset spanning 1950-2024. We deployed custom Selenium scrapers to extract granular track data and historical weather patterns that standard APIs miss.
+                    </p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-zinc-950 p-8 rounded-xl border border-zinc-800 hover:border-f1-red/50 transition-colors group">
+                    <div class="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center mb-6 group-hover:bg-f1-red group-hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3 font-display">Feature Alchemy</h4>
+                    <p class="text-zinc-500 leading-relaxed">
+                        We engineered 20+ proprietary features and used RFECV (Recursive Feature Elimination) to isolate the signal from the noise, feeding an XGBoost Regressor tuned via Optuna.
+                    </p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-zinc-950 p-8 rounded-xl border border-zinc-800 hover:border-f1-red/50 transition-colors group">
+                    <div class="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center mb-6 group-hover:bg-f1-red group-hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-3 font-display">Monte Carlo Engine</h4>
+                    <p class="text-zinc-500 leading-relaxed">
+                        We simulate every race 1,000 times. By injecting a specific "Chaos Factor" into our predictions, we generate probability distributions that account for crashes, failures, and miracles.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="mt-16 text-center">
+                 <a href="technical.html" class="inline-flex items-center text-white font-bold uppercase tracking-wider hover:text-f1-red transition-colors group">
+                    Deep Dive into the Technology
+                    <svg class="w-5 h-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                 </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-10 border-t border-white/10 bg-zinc-950">
+        <div class="max-w-7xl mx-auto px-6 text-center text-zinc-600 text-sm">
+            <p>&copy; 2025 GP Predictor Project. Static Analysis.</p>
+        </div>
+    </footer>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+/* Custom Scrollbar for dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #09090b; 
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3f3f46; 
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #e10600; 
+}
+
+/* Speed lines animation for hero background */
+.speed-lines {
+    background: repeating-linear-gradient(
+        90deg,
+        transparent 0,
+        transparent 50px,
+        rgba(255, 255, 255, 0.05) 50px,
+        rgba(255, 255, 255, 0.05) 51px
+    );
+    animation: moveLines 0.5s linear infinite;
+}
+
+@keyframes moveLines {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-51px); }
+}
+
+/* Accordion Transition */
+.accordion-content {
+    transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.accordion-content.active {
+    opacity: 1;
+}
+
+/* Table Row Hover */
+.table-row-hover:hover td {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Feature Tag Utility */
+.feature-tag {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background-color: rgba(39, 39, 42, 0.5); /* zinc-800 with opacity */
+    border: 1px solid rgba(63, 63, 70, 0.5); /* zinc-700 with opacity */
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    color: #d4d4d8; /* zinc-300 */
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.feature-tag:hover {
+    border-color: #e10600;
+    color: white;
+}

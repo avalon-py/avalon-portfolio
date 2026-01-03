@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results | GP Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        f1: {
+                            red: '#e10600',
+                            dark: '#15151e',
+                            carbon: '#1f1f1f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-zinc-950 text-white overflow-x-hidden selection:bg-f1-red selection:text-white">
+
+    <nav class="fixed top-0 w-full z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-display font-black tracking-tighter italic">
+                GP<span class="text-f1-red">PREDICT</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Home</a>
+                <a href="technical.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Technical</a>
+                <a href="results.html" class="text-white font-medium hover:text-f1-red transition-colors">Results</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto min-h-screen">
+        
+        <!-- Header & Year Selector -->
+        <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-white/10 pb-6 gap-6">
+            <div>
+                <h1 class="text-4xl md:text-5xl font-display font-bold uppercase mb-2">Race Predictions</h1>
+                <p class="text-zinc-400">Monte Carlo simulation results versus actual race classifications.</p>
+            </div>
+            
+            <!-- Tab Selector -->
+            <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800">
+                <button id="btn-2025" onclick="switchYear('2025')" class="px-6 py-2 rounded font-bold text-sm transition-all bg-f1-red text-white shadow-lg shadow-f1-red/20">2025</button>
+                <button id="btn-2026" onclick="switchYear('2026')" class="px-6 py-2 rounded font-bold text-sm transition-all text-zinc-400 hover:text-white">2026</button>
+            </div>
+        </div>
+
+        <!-- Filters / Legend -->
+        <div class="flex flex-wrap gap-4 mb-8 text-xs uppercase tracking-wider font-bold text-zinc-500">
+            <div class="flex items-center"><span class="w-2 h-2 rounded-full bg-green-500 mr-2"></span>Accurate (+/- 2)</div>
+            <div class="flex items-center"><span class="w-2 h-2 rounded-full bg-yellow-500 mr-2"></span>Moderate (+/- 5)</div>
+            <div class="flex items-center"><span class="w-2 h-2 rounded-full bg-red-500 mr-2"></span>Outlier (> 5)</div>
+        </div>
+
+        <!-- Race Accordion Container -->
+        <div id="races-container" class="space-y-4">
+            <!-- Content injected by script.js -->
+            <div class="text-center py-20 text-zinc-500 animate-pulse">Loading prediction data...</div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-10 border-t border-white/10 bg-zinc-950">
+        <div class="max-w-7xl mx-auto px-6 text-center text-zinc-600 text-sm">
+            <p>&copy; 2025 GP Predictor Project. Static Analysis.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
