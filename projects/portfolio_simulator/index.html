@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuantSim | Portfolio Analyzer</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              quant: {
+                bg: '#ffffff',
+                panel: '#f8f8f8',
+                border: '#e5e5e5',
+                text: '#171717',
+                subtext: '#737373',
+              }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.5s ease-out forwards',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0', transform: 'translateY(10px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #ffffff; color: #171717; }
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, #f2f2f2 1px, transparent 1px),
+                linear-gradient(to bottom, #f2f2f2 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        /* Glass effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen font-sans selection:bg-black selection:text-white text-quant-text">
+    <div class="grid-bg fixed inset-0 -z-10"></div>
+    
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 border-b border-quant-border glass h-16 flex items-center justify-between px-6 md:px-12">
+        <div class="flex items-center gap-3">
+            <div class="w-4 h-4 bg-black"></div>
+            <a href="index.html" class="font-semibold tracking-tight text-lg text-black hover:opacity-80 transition-opacity">
+                QUANTSIM
+            </a>
+        </div>
+        <div class="flex items-center gap-8 text-sm font-medium">
+            <a href="index.html" class="text-black">Home</a>
+            <a href="simulation.html" class="text-quant-subtext hover:text-black transition-colors">Simulator</a>
+            <a href="technical.html" class="text-quant-subtext hover:text-black transition-colors">Technical</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="px-6 py-24 md:py-32 md:px-12 max-w-7xl mx-auto w-full border-b border-quant-border">
+        <div class="max-w-4xl animate-fade-in">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-50 border border-gray-200 mb-8">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span class="text-[10px] uppercase font-bold tracking-widest text-quant-subtext">Monte Carlo Engine v1.0</span>
+            </div>
+            <h1 class="text-5xl md:text-7xl font-semibold tracking-tighter text-black mb-8 leading-[1.1]">
+                Stress-test your <br class="hidden md:block" />
+                financial future.
+            </h1>
+            <p class="text-xl text-quant-subtext max-w-2xl leading-relaxed mb-10">
+                QuantSim simulates 10,000 possible market scenarios to measure your portfolio's survival rate, volatility, and sequence of returns risk.
+            </p>
+            
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="main.html" class="h-12 px-8 bg-black text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-lg hover:shadow-xl group">
+                    Launch Simulator
+                    <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="technical.html" class="h-12 px-8 bg-white border border-quant-border text-black font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-50 transition-all">
+                    Read Whitepaper
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Problem / Solution -->
+    <section class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-quant-border border-b border-quant-border">
+        <div class="p-8 md:p-20 bg-white/50 hover:bg-white transition-colors">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-quant-subtext mb-6 flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i> The Problem
+            </h2>
+            <h3 class="text-2xl font-semibold mb-4 tracking-tight">Averages Lie.</h3>
+            <p class="text-quant-subtext leading-relaxed mb-8">
+                Most retirement planning tools use simple linear projections (e.g., "Stocks return 10% per year"). This ignores volatility, market crashes, and the critical "sequence of returns" risk. A portfolio that averages 10% can still go to zero if you retire into a bear market.
+            </p>
+            <div class="font-mono text-xs bg-red-50 text-red-900 p-4 border border-red-100 rounded-sm">
+                Warning: Linear models underestimate failure risk by ~40%.
+            </div>
+        </div>
+
+        <div class="p-8 md:p-20 bg-white/50 hover:bg-white transition-colors">
+            <h2 class="text-xs font-bold uppercase tracking-widest text-quant-subtext mb-6 flex items-center gap-2">
+                <i data-lucide="activity" class="w-4 h-4"></i> The Solution
+            </h2>
+            <h3 class="text-2xl font-semibold mb-4 tracking-tight">Probabilistic Modeling.</h3>
+            <p class="text-quant-subtext leading-relaxed mb-8">
+                QuantSim uses Geometric Brownian Motion with Jump Diffusion to simulate 10,000 unique market lifetimes. We model the chaotic nature of reality—including fat-tail crashes, asset correlations, and mean reversion—to show you the full distribution of possible outcomes.
+            </p>
+            <div class="font-mono text-xs bg-emerald-50 text-emerald-900 p-4 border border-emerald-100 rounded-sm">
+                Insight: Understand your "Risk of Ruin" before it happens.
+            </div>
+        </div>
+    </section>
+
+    <!-- Capabilities -->
+    <section class="max-w-7xl mx-auto w-full px-6 py-24 md:px-12 border-b border-quant-border">
+        <div class="flex flex-col md:flex-row gap-16">
+            <div class="md:w-1/3">
+                <h2 class="text-3xl font-semibold tracking-tight mb-4">Engine Capabilities</h2>
+                <p class="text-quant-subtext leading-relaxed">Built for those who demand more than a simple calculator. Our engine runs directly in your browser using high-performance JavaScript.</p>
+            </div>
+            <div class="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
+                <div class="group">
+                    <div class="w-10 h-10 bg-gray-50 border border-gray-100 flex items-center justify-center mb-4 group-hover:bg-black group-hover:text-white transition-colors">
+                        <i data-lucide="layers" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Multi-Asset Portfolios</h3>
+                    <p class="text-sm text-quant-subtext leading-relaxed">Construct portfolios with Stocks, Crypto, and Precious Metals. See how correlations impact overall risk.</p>
+                </div>
+                <div class="group">
+                    <div class="w-10 h-10 bg-gray-50 border border-gray-100 flex items-center justify-center mb-4 group-hover:bg-black group-hover:text-white transition-colors">
+                        <i data-lucide="zap" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Stress Testing</h3>
+                    <p class="text-sm text-quant-subtext leading-relaxed">Toggle "Fat Tails" to simulate 3-sigma crash events like 2008 or 2020. Test resilience against black swans.</p>
+                </div>
+                <div class="group">
+                    <div class="w-10 h-10 bg-gray-50 border border-gray-100 flex items-center justify-center mb-4 group-hover:bg-black group-hover:text-white transition-colors">
+                        <i data-lucide="trending-up" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Mean Reversion</h3>
+                    <p class="text-sm text-quant-subtext leading-relaxed">Optional Ornstein-Uhlenbeck process adjustment to simulate market valuation cycles over long timeframes.</p>
+                </div>
+                <div class="group">
+                    <div class="w-10 h-10 bg-gray-50 border border-gray-100 flex items-center justify-center mb-4 group-hover:bg-black group-hover:text-white transition-colors">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5"></i>
+                    </div>
+                    <h3 class="font-semibold mb-2">Percentile Visualization</h3>
+                    <p class="text-sm text-quant-subtext leading-relaxed">Don't just see the median. Visualize the 5th (bad luck) and 95th (good luck) percentile outcomes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why I Built This -->
+    <section class="bg-quant-panel border-b border-quant-border">
+        <div class="max-w-4xl mx-auto px-6 py-24 md:px-12 text-center">
+            <i data-lucide="code-2" class="w-10 h-10 mx-auto mb-8 text-quant-subtext"></i>
+            <h2 class="text-2xl font-semibold mb-8">Why I Built QuantSim</h2>
+            <p class="text-quant-subtext leading-relaxed text-lg mb-8 max-w-2xl mx-auto">
+                "I built this tool to bridge the gap between simple retirement calculators and institutional-grade risk management. Learning to code quantitative finance models (GBM, Covariance Matrices) helped me truly understand the mathematical nature of risk."
+            </p>
+            <div class="text-xs font-mono text-quant-subtext uppercase tracking-widest">
+                — Developer Note
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <footer class="flex-1 flex flex-col items-center justify-center py-24 px-6 bg-white">
+        <h2 class="text-3xl font-bold tracking-tight mb-8 text-center">Ready to run the numbers?</h2>
+        <div class="flex flex-col sm:flex-row gap-4">
+            <a href="main.html" class="h-14 px-10 bg-black text-white font-medium text-sm flex items-center justify-center gap-2 hover:bg-neutral-800 transition-all shadow-lg hover:shadow-xl">
+                Start Simulation
+            </a>
+            <a href="technical.html" class="h-14 px-10 bg-white border border-quant-border text-black font-medium text-sm flex items-center justify-center gap-2 hover:bg-gray-50 transition-all">
+                Technical Details
+            </a>
+        </div>
+        <div class="mt-16 pt-8 border-t border-quant-border w-full max-w-md text-center">
+            <p class="text-[10px] text-quant-subtext font-mono">
+                © 2024 QuantSim Project. Educational purposes only. Not financial advice.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
