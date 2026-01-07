@@ -1,0 +1,17 @@
+export const PREDEFINED_ASSETS = [
+  { symbol: "SPY", name: "SPY (S&P500 ETF)", cagr: 0.1033, volatility: 0.1832, type: 'equity' },
+  { symbol: "QQQ", name: "QQQ (NASDAQ ETF)", cagr: 0.0997, volatility: 0.2644, type: 'equity' },
+  { symbol: "DIA", name: "DIA (Dow Jones ETF)", cagr: 0.0867, volatility: 0.1826, type: 'equity' },
+  { symbol: "IDX", name: "IDX (JKSE ETF)", cagr: 0.0643, volatility: 0.2651, type: 'equity' },
+  { symbol: "BTC", name: "Bitcoin", cagr: 0.5062, volatility: 0.6265, type: 'crypto' },
+  { symbol: "ETH", name: "Ethereum", cagr: 0.2606, volatility: 0.7760, type: 'crypto' },
+  { symbol: "SOL", name: "Solana", cagr: 1.0399, volatility: 1.1124, type: 'crypto' },
+  { symbol: "SLV", name: "SLV (Silver ETF)", cagr: 0.0796, volatility: 0.3038, type: 'metal' },
+  { symbol: "IAU", name: "IAU (Gold ETF)", cagr: 0.1093, volatility: 0.1725, type: 'metal' },
+  { symbol: "VOO", name: "VOO (S&P500)", cagr: 0.1320, volatility: 0.1623, type: 'equity' },
+  { symbol: "VTI", name: "VTI (Total Market)", cagr: 0.0900, volatility: 0.1861, type: 'equity' },
+  { symbol: "VEA", name: "VEA (Developed Mkts)", cagr: 0.0437, volatility: 0.2070, type: 'equity' },
+  { symbol: "VWO", name: "VWO (Emerging Mkts)", cagr: 0.0633, volatility: 0.2552, type: 'equity' },
+  { symbol: "AVUV", name: "AVUV (Small Cap Value)", cagr: 0.1103, volatility: 0.2555, type: 'equity' },
+  { symbol: "AVDV", name: "AVDV (Intl SCV)", cagr: 0.1116, volatility: 0.1742, type: 'equity' },
+];

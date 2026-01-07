@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QuantSim | Technical Whitepaper</title>
+    
+    <!-- Libraries -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- MathJax Configuration -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              quant: {
+                bg: '#ffffff',
+                panel: '#f8f8f8',
+                border: '#e5e5e5',
+                text: '#171717',
+                subtext: '#737373',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+        body { background-color: #ffffff; color: #171717; }
+        .grid-bg {
+            background-image: 
+                linear-gradient(to right, #f2f2f2 1px, transparent 1px),
+                linear-gradient(to bottom, #f2f2f2 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        
+        /* MathJax Spacing Fixes */
+        mjx-container {
+            margin: 2rem 0 !important;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+        
+        /* Scroll offset for sticky header */
+        section {
+            scroll-margin-top: 120px;
+        }
+
+        /* Sidebar Link Active State Simulation */
+        .nav-link:hover { color: #171717; }
+        .nav-link.active { color: #171717; font-weight: 500; border-left-color: #171717; }
+    </style>
+  </head>
+  <body class="flex flex-col min-h-screen font-sans selection:bg-black selection:text-white text-quant-text">
+    <div class="grid-bg fixed inset-0 -z-10"></div>
+    
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 border-b border-quant-border glass h-16 flex items-center justify-between px-6 md:px-12">
+        <div class="flex items-center gap-3">
+            <div class="w-4 h-4 bg-black"></div>
+            <a href="index.html" class="font-semibold tracking-tight text-lg text-black hover:opacity-80 transition-opacity">
+                QUANTSIM
+            </a>
+        </div>
+        <div class="flex items-center gap-8 text-sm font-medium">
+            <a href="index.html" class="text-quant-subtext hover:text-black transition-colors">Home</a>
+            <a href="simulation.html" class="text-quant-subtext hover:text-black transition-colors">Simulator</a>
+            <a href="technical.html" class="text-black">Technical</a>
+        </div>
+    </nav>
+
+    <div class="flex max-w-7xl mx-auto w-full pt-12 pb-24 px-6 md:px-12 gap-16">
+        
+        <!-- Sidebar Navigation (Desktop) -->
+        <aside class="hidden lg:block w-64 shrink-0 sticky top-32 h-[calc(100vh-8rem)] overflow-y-auto pr-4">
+            <div class="text-[10px] uppercase font-bold tracking-widest text-quant-subtext mb-6">Table of Contents</div>
+            <nav class="space-y-1 relative border-l border-quant-border">
+                <a href="#portfolio-statistics" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">1. Portfolio Statistics</a>
+                <a href="#monte-carlo" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">2. Monte Carlo Simulation</a>
+                <a href="#gbm" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">3. Geometric Brownian Motion</a>
+                <a href="#fat-tail" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">4. Fat Tail Events</a>
+                <a href="#mean-reversion" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">5. Mean Reversion</a>
+                <a href="#correlations" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">6. Asset Correlations</a>
+                <a href="#risk-ruin" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">7. Risk of Ruin</a>
+                <a href="#inflation" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">8. Inflation Adjustment</a>
+                <a href="#data-sources" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">9. Data Sources</a>
+                <a href="#limitations" class="nav-link block pl-4 py-2 text-sm text-quant-subtext border-l-2 border-transparent hover:border-quant-border transition-all">10. Limitations</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0 max-w-3xl">
+            <header class="mb-20 pb-10 border-b border-quant-border">
+                <div class="inline-flex items-center gap-2 mb-4">
+                    <span class="text-xs font-bold uppercase tracking-widest text-quant-subtext">Technical Whitepaper</span>
+                </div>
+                <h1 class="text-4xl md:text-5xl font-semibold tracking-tight text-black mb-6">QuantSim Methodology</h1>
+                <p class="text-xl text-quant-subtext leading-relaxed">
+                    A deep dive into the mathematical models, stochastic processes, and assumptions driving the simulation engine.
+                </p>
+            </header>
+
+            <!-- 1. Portfolio Statistics -->
+            <section id="portfolio-statistics" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">01</span> Portfolio Statistics
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        The core of the simulation relies on accurately estimating the expected return and variance of the combined portfolio. It is insufficient to simply average the returns of the underlying assets.
+                    </p>
+                    
+                    <h3 class="font-medium text-black mt-8 text-base">Expected Return (Portfolio CAGR)</h3>
+                    <p class="text-base text-quant-subtext">
+                        The portfolio's expected return is the weighted sum of individual asset returns.
+                    </p>
+                    <div class="text-sm">
+                        $$ E[R_p] = \sum_{i=1}^{n} w_i E[R_i] $$
+                    </div>
+                    <div class="bg-gray-50 border border-quant-border p-5 rounded-sm text-sm">
+                        <span class="font-bold text-black block mb-2 font-mono text-xs uppercase tracking-wider">Example</span>
+                        A portfolio of 60% SPY (10% return) and 40% BTC (50% return):<br>
+                        $0.60(0.10) + 0.40(0.50) = 0.06 + 0.20 = 26\%$
+                    </div>
+
+                    <h3 class="font-medium text-black mt-8 text-base">Portfolio Volatility</h3>
+                    <p class="text-base text-quant-subtext">
+                        Portfolio volatility is calculated using the variance-covariance matrix to account for diversification benefits (correlation).
+                    </p>
+                    <div class="text-sm">
+                        $$ \sigma_p = \sqrt{ \sum_{i=1}^{n} \sum_{j=1}^{n} w_i w_j \sigma_i \sigma_j \rho_{ij} } $$
+                    </div>
+                    <p class="text-base text-quant-subtext">
+                        When assets are not perfectly correlated ($\rho < 1$), the combined volatility is lower than the weighted average. This is the mathematical basis of diversification.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 2. Monte Carlo Simulation -->
+            <section id="monte-carlo" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">02</span> Monte Carlo Simulation
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        Monte Carlo simulation is a computational technique that uses random sampling to solve problems that might be deterministic in principle but chaotic in practice. In finance, it allows us to model the "cone of uncertainty" regarding future asset prices.
+                    </p>
+                    
+                    <h3 class="font-medium text-black mt-8 text-base">Why 10,000 Iterations?</h3>
+                    <p class="text-base text-quant-subtext">
+                        We run 10,000 independent simulations to satisfy the <strong>Law of Large Numbers</strong>. As the number of trials increases, the distribution of results converges on the true theoretical probabilities. 10,000 is an industry standard that balances computational speed (in the browser) with statistical significance for estimating tail risks (like the 5th percentile).
+                    </p>
+
+                    <h3 class="font-medium text-black mt-8 text-base">Simulation Logic</h3>
+                    <div class="bg-black text-white p-6 rounded-sm font-mono text-sm shadow-xl">
+                        <ol class="list-decimal pl-5 space-y-2 text-neutral-400">
+                            <li><span class="text-emerald-400">Init</span>: Start with Initial Capital.</li>
+                            <li><span class="text-blue-400">Loop</span>: For Year 1 to Year N:</li>
+                            <li class="pl-4">Sample random return from distribution.</li>
+                            <li class="pl-4">Update Portfolio: $V_{new} = V_{old} \times (1 + r)$</li>
+                            <li class="pl-4">Subtract Inflation-Adjusted Withdrawal.</li>
+                            <li><span class="text-purple-400">Repeat</span>: Do this 10,000 times.</li>
+                            <li><span class="text-orange-400">Analyze</span>: Sort results to find percentiles.</li>
+                        </ol>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Geometric Brownian Motion -->
+            <section id="gbm" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">03</span> Geometric Brownian Motion (GBM)
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        The underlying stochastic process used to model asset prices is Geometric Brownian Motion. This ensures prices generally drift upwards over time but with random volatility, and crucially, prices cannot become negative.
+                    </p>
+                    
+                    <div class="text-sm">
+                        $$ \frac{dS_t}{S_t} = \mu dt + \sigma dW_t $$
+                    </div>
+                    
+                    <ul class="grid grid-cols-2 gap-4 text-sm text-quant-subtext font-mono border-t border-b border-quant-border py-4 my-6">
+                        <li>$S_t$: Portfolio Value</li>
+                        <li>$\mu$: Drift (Expected Return)</li>
+                        <li>$\sigma$: Volatility</li>
+                        <li>$dW_t$: Wiener Process</li>
+                    </ul>
+
+                    <h3 class="font-medium text-black mt-8 text-base">Discrete Time Implementation</h3>
+                    <p class="text-base text-quant-subtext">
+                        For simulation steps, we use the log-return formula derived via Itô's Lemma.
+                    </p>
+                    <div class="text-sm">
+                        $$ S_{t+\Delta t} = S_t \exp\left( (\mu - \frac{1}{2}\sigma^2)\Delta t + \sigma \sqrt{\Delta t} Z_t \right) $$
+                    </div>
+
+                    <div class="bg-amber-50 border border-amber-100 p-6 rounded-sm mt-6">
+                        <h4 class="text-amber-900 font-semibold mb-2 text-sm">Deep Dive: The Volatility Drag ($-\frac{1}{2}\sigma^2$)</h4>
+                        <p class="text-amber-800/80 text-sm leading-relaxed mb-4">
+                            You may notice the term $-\frac{1}{2}\sigma^2$ subtracted from the drift. This is a convexity correction derived from <strong>Itô's Lemma</strong>. 
+                        </p>
+                        <p class="text-amber-800/80 text-sm leading-relaxed">
+                            Mathematically, $E[e^X] = e^{E[X] + \frac{1}{2}Var(X)}$. If we didn't subtract the variance term, the expected future value of the simulation would artificially drift higher than the theoretical CAGR.
+                        </p>
+                        <p class="text-amber-800/80 text-sm leading-relaxed mt-4">
+                            <strong>Intuitive Explanation:</strong> Percentage losses hurt more than percentage gains help. A 50% loss requires a 100% gain to recover. This "Volatility Drag" pulls down the realized compound growth rate compared to the arithmetic average. High volatility portfolios ($\sigma^2$) suffer more drag.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Fat Tail Events -->
+            <section id="fat-tail" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">04</span> Fat Tail Events (Jump Diffusion)
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        Standard GBM assumes returns follow a Normal Distribution. However, real financial markets exhibit "Fat Tails" (excess kurtosis)—extreme events happen far more often than a Bell Curve predicts.
+                    </p>
+                    
+                    <div class="flex gap-4 p-4 bg-red-50 border border-red-100 items-start rounded-sm">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-800 shrink-0 mt-0.5"></i>
+                        <div class="text-sm text-red-900">
+                            <strong>Real World Context:</strong> The 1987 Black Monday crash was a ~20 sigma event under standard models. In reality, 30%+ crashes occur every 10-20 years.
+                        </div>
+                    </div>
+
+                    <h3 class="font-medium text-black mt-8 text-base">Implementation</h3>
+                    <p class="text-base text-quant-subtext">
+                        We use a simplified Jump Diffusion model. There is a fixed annual probability (e.g., 2%) of a "Jump" event occurring. If triggered, we sample from a crash distribution:
+                    </p>
+                    <div class="text-sm">
+                         $$ Z_{crash} \sim -|N(3, 0.8)| $$
+                    </div>
+                    <p class="text-base text-quant-subtext">
+                        This generates returns in the range of -30% to -60%, simulating events like 2008 (-37%) or the Dot Com bust.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 5. Mean Reversion -->
+            <section id="mean-reversion" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">05</span> Mean Reversion
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        Markets tend to cycle. Periods of exceptional returns are often followed by stagnation as valuations normalize. We model this by dynamically adjusting the drift $\mu$ based on the simulation's historical performance using an <strong>Ornstein-Uhlenbeck</strong> logic.
+                    </p>
+                    <div class="text-sm">
+                        $$ \mu_{next} = \mu_{base} + \kappa (\mu_{target} - \mu_{rolling\_actual}) $$
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
+                        <div>
+                            <h4 class="font-medium text-black text-sm mb-2">Variables</h4>
+                            <ul class="text-sm text-quant-subtext space-y-2 font-mono">
+                                <li>$\kappa$: Mean reversion speed (0.15)</li>
+                                <li>$\mu_{target}$: Expected Portfolio CAGR</li>
+                                <li>$\mu_{rolling}$: Actual CAGR of the current path</li>
+                            </ul>
+                        </div>
+                        <div class="bg-gray-50 border border-quant-border p-5 rounded-sm">
+                            <h4 class="font-medium text-black text-xs uppercase tracking-wider mb-2">Example</h4>
+                            <p class="text-sm text-quant-subtext">
+                                Target Return: 10%<br>
+                                Path Return (Last 5 yrs): 18% (Bubble)<br>
+                                <br>
+                                Adjustment: $0.15 \times (0.10 - 0.18) = -0.012$<br>
+                                <strong>Next Year Expected Drift: 8.8%</strong> (Lower than avg)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+             <!-- 6. Correlations -->
+             <section id="correlations" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">06</span> Asset Correlations
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        To accurately simulate a multi-asset portfolio, we cannot generate random returns for each asset independently. We must ensure that when Stocks fall, Crypto likely falls (High Correlation), but Gold might rise (Low/Negative Correlation).
+                    </p>
+
+                    <h3 class="font-medium text-black mt-8 text-base">Cholesky Decomposition</h3>
+                    <p class="text-base text-quant-subtext">
+                        We transform a vector of independent random variables $Z_{uncorr}$ into correlated variables $Z_{corr}$ using the Cholesky matrix $\mathbf{L}$ derived from the correlation matrix $\mathbf{\Sigma}$.
+                    </p>
+                    <div class="text-sm">
+                        $$ \mathbf{\Sigma} = \mathbf{L}\mathbf{L}^T $$
+                        $$ \mathbf{Z}_{corr} = \mathbf{L} \times \mathbf{Z}_{uncorr} $$
+                    </div>
+                    <p class="text-base text-quant-subtext">
+                        This linear algebra transformation ensures that the simulated paths maintain the statistical relationships observed in historical data.
+                    </p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <div class="p-6 border border-quant-border rounded-sm">
+                            <div class="text-3xl font-mono font-bold mb-2">0.92</div>
+                            <div class="text-xs font-bold uppercase tracking-widest text-quant-subtext mb-2">Crypto / Crypto</div>
+                            <p class="text-sm text-neutral-600">High positive correlation.</p>
+                        </div>
+                        <div class="p-6 border border-quant-border rounded-sm">
+                            <div class="text-3xl font-mono font-bold mb-2">0.88</div>
+                            <div class="text-xs font-bold uppercase tracking-widest text-quant-subtext mb-2">US Equities</div>
+                            <p class="text-sm text-neutral-600">Market beta correlation.</p>
+                        </div>
+                        <div class="p-6 bg-black text-white rounded-sm shadow-lg">
+                            <div class="text-3xl font-mono font-bold mb-2">-0.10</div>
+                            <div class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">Crypto / Gold</div>
+                            <p class="text-sm text-neutral-300">Diversification benefit.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Risk of Ruin -->
+            <section id="risk-ruin" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">07</span> Risk of Ruin
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        <strong>Definition:</strong> The probability that the portfolio value hits $0.00 (or becomes insufficient to sustain withdrawals) during the simulation period.
+                    </p>
+                    <div class="text-sm">
+                        $$ \text{Risk of Ruin} = \frac{\sum_{i=1}^{N} \mathbb{1}_{\{Min(Path_i) \le 0\}}}{N} \times 100\% $$
+                    </div>
+                    <p class="text-base text-quant-subtext">
+                        For retirees, this is the most critical metric. A portfolio with high returns but high volatility often has a higher risk of ruin than a boring, lower-return portfolio, due to <strong>Sequence of Returns Risk</strong>.
+                    </p>
+                </div>
+            </section>
+
+            <!-- 8. Inflation Adjustment -->
+            <section id="inflation" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">08</span> Inflation Adjustment
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        Inflation acts as a silent killer of wealth. We model inflation as a deterministic drag on purchasing power (default 3%). However, the simulation applies inflation in two distinct ways:
+                    </p>
+                    
+                    <div class="space-y-6 mt-4">
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-xs font-bold font-mono shrink-0">A</div>
+                            <div>
+                                <h4 class="font-medium text-black text-sm">Real vs Nominal Returns</h4>
+                                <p class="text-sm text-quant-subtext">The simulation generally displays <em>Nominal</em> portfolio values. To understand purchasing power, one must discount future values:</p>
+                                <div class="text-xs my-2 font-mono bg-gray-50 p-2 inline-block">
+                                    $$ V_{real} = \frac{V_{nominal}}{(1 + i)^t} $$
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-xs font-bold font-mono shrink-0">B</div>
+                            <div>
+                                <h4 class="font-medium text-black text-sm">Withdrawal Indexing</h4>
+                                <p class="text-sm text-quant-subtext">Crucially, if you set a monthly withdrawal of $5,000, the engine increases this amount annually by the inflation rate. In Year 20, you might be withdrawing $9,000 nominal dollars just to buy the same basket of goods.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Data Sources -->
+            <section id="data-sources" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">09</span> Data Sources & Assumptions
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <p>
+                        The default parameters for Return (CAGR) and Volatility ($\sigma$) are derived from 20-year historical data (2004-2024), sourced from Yahoo Finance and public indices.
+                    </p>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left border border-quant-border">
+                            <thead class="bg-gray-50 text-xs uppercase font-bold text-quant-subtext">
+                                <tr>
+                                    <th class="px-6 py-3 border-b border-quant-border">Asset Class</th>
+                                    <th class="px-6 py-3 border-b border-quant-border">Proxy Ticker</th>
+                                    <th class="px-6 py-3 border-b border-quant-border">Est. CAGR</th>
+                                    <th class="px-6 py-3 border-b border-quant-border">Est. Volatility</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-quant-border font-mono">
+                                <tr class="bg-white">
+                                    <td class="px-6 py-4 font-sans font-medium">US Large Cap</td>
+                                    <td class="px-6 py-4 text-quant-subtext">SPY</td>
+                                    <td class="px-6 py-4">10.2%</td>
+                                    <td class="px-6 py-4">16.5%</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="px-6 py-4 font-sans font-medium">Intl Stocks</td>
+                                    <td class="px-6 py-4 text-quant-subtext">EFA</td>
+                                    <td class="px-6 py-4">6.8%</td>
+                                    <td class="px-6 py-4">18.2%</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="px-6 py-4 font-sans font-medium">US Bonds</td>
+                                    <td class="px-6 py-4 text-quant-subtext">AGG</td>
+                                    <td class="px-6 py-4">4.1%</td>
+                                    <td class="px-6 py-4">5.5%</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="px-6 py-4 font-sans font-medium">Bitcoin</td>
+                                    <td class="px-6 py-4 text-quant-subtext">BTC-USD</td>
+                                    <td class="px-6 py-4">55.0%*</td>
+                                    <td class="px-6 py-4">78.0%</td>
+                                </tr>
+                                <tr class="bg-white">
+                                    <td class="px-6 py-4 font-sans font-medium">Gold</td>
+                                    <td class="px-6 py-4 text-quant-subtext">GLD</td>
+                                    <td class="px-6 py-4">7.5%</td>
+                                    <td class="px-6 py-4">15.0%</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="text-xs text-quant-subtext mt-2">* Bitcoin historical data is skewed by early adoption phases. We recommend being conservative with forward-looking projections.</p>
+                </div>
+            </section>
+
+            <!-- 10. Limitations -->
+            <section id="limitations" class="mb-24">
+                <h2 class="text-2xl font-semibold mb-6 flex items-center gap-3 text-black">
+                    <span class="text-quant-border font-mono text-lg">10</span> Limitations
+                </h2>
+                <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
+                    <ul class="space-y-4">
+                        <li class="flex gap-4 items-start">
+                            <div class="w-1.5 h-1.5 rounded-full bg-black mt-2.5 shrink-0"></div>
+                            <div>
+                                <strong class="text-black">Constant Correlations:</strong> We assume correlations are static. In reality, during crashes, correlations often converge to 1 (everything falls together).
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-1.5 h-1.5 rounded-full bg-black mt-2.5 shrink-0"></div>
+                            <div>
+                                <strong class="text-black">Regime Switching:</strong> The market has distinct "Bull" and "Bear" states. We currently model this via randomness rather than explicit Markov Chains.
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start">
+                            <div class="w-1.5 h-1.5 rounded-full bg-black mt-2.5 shrink-0"></div>
+                            <div>
+                                <strong class="text-black">Interest Rates:</strong> No dynamic modeling of bond yield changes or Fed policy.
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-quant-border py-12 px-6 text-center bg-white">
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+            <a href="main.html" class="text-sm font-bold uppercase tracking-widest hover:underline">Launch Simulator</a>
+            <span class="hidden sm:inline text-quant-border">|</span>
+            <a href="index.html" class="text-sm font-bold uppercase tracking-widest hover:underline">Home</a>
+        </div>
+        <p class="text-[10px] text-quant-subtext font-mono">
+            © 2024 QuantSim Project.
+        </p>
+    </footer>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
