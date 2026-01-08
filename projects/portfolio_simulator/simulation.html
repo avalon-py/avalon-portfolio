@@ -256,9 +256,12 @@
             
             <!-- Loading Overlay -->
             <div id="loading-overlay" class="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center hidden">
-                <div class="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full spinner mb-4"></div>
-                <div class="text-xs font-bold tracking-[0.2em] text-black">PROCESSING MODEL</div>
-                <div class="text-[10px] font-mono text-quant-subtext mt-2">10,000 MONTE CARLO ITERATIONS</div>
+                <div class="flex items-center gap-3 mb-4">
+                    <div id="status-indicator" class="w-2 h-2 rounded-full bg-yellow-400 animate-pulse"></div>
+                    <div id="status-text" class="text-xs font-bold tracking-[0.2em] text-black">PROCESSING MODEL</div>
+                </div>
+                <div class="w-8 h-8 border-2 border-gray-200 border-t-black rounded-full spinner"></div>
+                <div class="text-[10px] font-mono text-quant-subtext mt-4">10,000 MONTE CARLO ITERATIONS</div>
             </div>
 
             <!-- Empty State -->
