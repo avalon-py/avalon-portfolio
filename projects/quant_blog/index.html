@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantFlow | Algorithmic Trading Blog</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        quant: {
+                            bg: '#0a0a0b',
+                            card: '#121214',
+                            border: '#27272a',
+                            accent: '#00f2ea', // Cyan for data points
+                            secondary: '#71717a'
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0a0a0b;
+            color: #e4e4e7;
+        }
+        .glass-panel {
+            background: rgba(18, 18, 20, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Grid Background */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-quant-bg text-slate-200 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-quant-accent selection:text-black">
+
+    <!-- Background Animation Canvas -->
+    <canvas id="market-noise" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
+    
+    <!-- Decorative Grid Overlay -->
+    <div class="fixed inset-0 pointer-events-none z-0 bg-grid mask-image-gradient"></div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-6 py-12 md:py-20">
+        
+        <!-- Header -->
+        <header class="mb-20 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-quant-border pb-8">
+            <div>
+                <h1 class="font-mono text-4xl md:text-5xl font-bold tracking-tighter text-white mb-2">
+                    <span class="text-quant-accent">></span> QuantFlow
+                </h1>
+                <p class="text-quant-secondary font-mono text-sm uppercase tracking-widest">Algorithmic Alpha & Market Microstructure</p>
+            </div>
+        </header>
+
+        <!-- Developer's Note / Hero -->
+        <section class="mb-24 grid grid-cols-1 md:grid-cols-12 gap-8">
+            <div class="md:col-span-8">
+                <h2 class="text-2xl md:text-3xl font-light leading-relaxed mb-6">
+                    Exploring the intersection of <span class="font-mono text-quant-accent">probability</span>, 
+                    <span class="font-mono text-quant-accent">code</span>, and 
+                    <span class="font-mono text-quant-accent">market psychology</span>.
+                </h2>
+            </div>
+            <div class="md:col-span-4">
+                <div class="glass-panel p-6 rounded-lg border-l-2 border-quant-accent">
+                    <h3 class="font-mono text-xs text-quant-accent uppercase mb-3 font-bold">/// Developer's Note</h3>
+                    <p class="text-sm text-gray-400 leading-relaxed font-light">
+                        "I build these systems because I love turning raw data and chaos into something meaningful. 
+                        In the noise of the ticker tape, there is a hidden signal waiting to be decoded."
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Blog Index -->
+        <main>
+            <div class="flex items-center justify-between mb-8">
+                <h3 class="font-mono text-sm text-gray-500 uppercase tracking-widest">Latest Transmissions</h3>
+                <div class="h-px bg-quant-border flex-1 ml-6"></div>
+            </div>
+
+            <div class="space-y-4">
+                
+                <!-- Blog Post Link 1 -->
+                <a href="blog_contents/coupling_volatility/coupling_volatility.html" class="group block">
+                    <article class="glass-panel p-6 md:p-8 rounded-xl transition-all duration-300 hover:bg-white/5 hover:border-quant-accent/30 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <svg class="w-6 h-6 text-quant-accent transform rotate-45 group-hover:rotate-0 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </div>
+                        <div class="flex flex-col md:flex-row gap-4 md:items-baseline mb-3">
+                            <span class="font-mono text-xs text-quant-accent border border-quant-accent/20 px-2 py-1 rounded">ANALYSIS</span>
+                            <span class="font-mono text-xs text-gray-500">2026-02-01</span>
+                        </div>
+                        <h2 class="text-2xl font-bold text-white mb-3 group-hover:text-quant-accent transition-colors">Asset Coupling Analysis Using Hawking's Radiation</h2>
+                        <p class="text-gray-400 font-light max-w-2xl">
+                            Analysis of asset coupling detection using Hawking's Radiation Formula, along with volatilty measures.
+                        </p>
+                    </article>
+                </a>
+
+            </div>
+        </main>
+
+        <footer class="mt-24 border-t border-quant-border pt-8 flex flex-col md:flex-row justify-between items-center text-gray-600 font-mono text-xs">
+            <p>&copy; 2024 QuantFlow. All calculations performed locally.</p>
+            <div class="flex gap-4 mt-4 md:mt-0">
+                <a href="#" class="hover:text-white transition-colors">GITHUB</a>
+                <a href="#" class="hover:text-white transition-colors">TWITTER</a>
+                <a href="#" class="hover:text-white transition-colors">RSS</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

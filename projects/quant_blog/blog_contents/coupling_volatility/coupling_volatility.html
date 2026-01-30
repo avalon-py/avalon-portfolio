@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Event Horizon - QuantFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax Config -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        quant: {
+                            bg: '#050505',
+                            card: '#0F0F11',
+                            border: '#1F1F22',
+                            accent: '#00f2ea',
+                            accentDim: 'rgba(0, 242, 234, 0.1)',
+                            danger: '#ff2a6d'
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #e4e4e7; }
+        
+        .grid-bg {
+            background-size: 60px 60px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 17, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(0, 242, 234, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px -10px rgba(0, 242, 234, 0.1);
+        }
+
+        /* Timeline connector */
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 20px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #27272a, transparent);
+        }
+        @media (min-width: 768px) {
+            .timeline-line::before {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f2ea; 
+        }
+
+        .glitch-hover:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #00f2ea;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen relative selection:bg-quant-accent selection:text-black overflow-x-hidden">
+
+    <!-- Ambient Background Lighting -->
+    <div class="fixed top-0 left-0 w-[500px] h-[500px] bg-quant-accent/5 rounded-full blur-[120px] pointer-events-none -translate-x-1/2 -translate-y-1/2 z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none translate-x-1/2 translate-y-1/2 z-0"></div>
+    <div class="fixed inset-0 grid-bg z-0 pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-6 flex justify-between items-center mix-blend-difference">
+        <a href="index.html" class="font-mono text-xs font-bold tracking-widest hover:text-quant-accent transition-colors">
+            <span class="text-quant-accent">&lt;</span> BACK_TO_INDEX
+        </a>
+        <div class="flex items-center gap-4">
+            <span class="font-mono text-[10px] uppercase tracking-[0.3em] opacity-50">System: Online</span>
+        </div>
+    </nav>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-6 pt-32 pb-24">
+        
+        <!-- Hero Section -->
+        <header class="mb-20 md:mb-28 border-b border-white/5 pb-12">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
+                <div>
+                    <span class="inline-block px-3 py-1 mb-6 text-[10px] font-mono font-bold uppercase tracking-widest text-black bg-quant-accent rounded-sm">
+                        Methodology Report
+                    </span>
+                    <h1 class="text-6xl md:text-8xl font-black text-white leading-[0.85] tracking-tighter uppercase mb-4">
+                        Event<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-gray-200 glitch-hover cursor-default">Horizon.</span>
+                    </h1>
+                </div>
+                <div class="md:text-right max-w-xs space-y-2">
+                    <p class="font-mono text-xs text-gray-500 uppercase tracking-widest">Assets</p>
+                    <p class="text-sm text-gray-300 font-mono">JKSE / SPX / GOLD / BTC</p>
+                    <p class="font-mono text-xs text-gray-500 uppercase tracking-widest mt-4">Range</p>
+                    <p class="text-sm text-gray-300 font-mono">2017 - 2025</p>
+                </div>
+            </div>
+            
+            <p class="text-xl md:text-2xl text-gray-400 font-light leading-relaxed max-w-4xl">
+                A physics-inspired analysis of cross-asset dynamics, treating financial assets as coupled particles in a thermodynamic system. <span class="text-white">When volatility spikes, does diversification evaporate?</span>
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+            
+            <!-- Sidebar Navigation / Metadata -->
+            <aside class="hidden lg:block lg:col-span-3 lg:sticky lg:top-32 h-fit space-y-12">
+                <div>
+                    <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-600 mb-4">Framework</h3>
+                    <ul class="space-y-3 font-mono text-xs text-gray-400">
+                        <li><a href="#framework" class="hover:text-quant-accent transition-colors cursor-pointer">> Theoretical Basis</a></li>
+                        <li><a href="#methodology" class="hover:text-quant-accent transition-colors cursor-pointer">> Methodology Deep Dive</a></li>
+                        <li><a href="#visualization" class="hover:text-quant-accent transition-colors cursor-pointer">> Visualization</a></li>
+                        <li><a href="#findings" class="hover:text-quant-accent transition-colors cursor-pointer">> Key Findings</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-600 mb-4">Export</h3>
+                    <button onclick="alert('PDF export functionality coming soon! For now, use browser Print to PDF.')" class="w-full py-3 border border-white/10 hover:border-quant-accent/50 hover:bg-quant-accent/5 text-xs font-mono uppercase tracking-widest transition-all rounded flex items-center justify-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        PDF Report
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <article class="lg:col-span-9 space-y-24">
+                
+                <!-- 1. Methodology -->
+                <section id="framework">
+                    <div class="flex items-center gap-4 mb-8">
+                        <span class="font-mono text-quant-accent text-xl">01</span>
+                        <h2 class="text-3xl font-bold text-white">Theoretical Framework</h2>
+                    </div>
+                    
+                    <div class="prose prose-invert prose-lg max-w-none text-gray-400 font-light">
+                        <p class="mb-8">
+                            This analysis draws parallels between statistical mechanics and market behavior. We define three core metrics that govern the system:
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                            <!-- Metric 1 -->
+                            <div class="glass-card p-8 rounded-xl relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-6 h-6 text-quant-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                                </div>
+                                <h3 class="text-white font-bold text-lg mb-2">Coupling Mass</h3>
+                                <div class="font-serif text-2xl text-white mb-4">$$ m_{eff}(t) $$</div>
+                                <p class="text-sm leading-relaxed">
+                                    Calculated as the mean squared pairwise difference across all assets.
+                                    <br><br>
+                                    <span class="text-quant-accent">High Mass:</span> Assets move independently (Diversified).
+                                    <br>
+                                    <span class="text-quant-danger">Low Mass:</span> Assets move together (Systemic Risk).
+                                </p>
+                            </div>
+
+                            <!-- Metric 2 -->
+                            <div class="glass-card p-8 rounded-xl relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-6 h-6 text-quant-danger" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.879 16.121A3 3 0 1012.015 11L11 14H9c0 .768.293 1.536.879 2.121z" /></svg>
+                                </div>
+                                <h3 class="text-white font-bold text-lg mb-2">Instability Temperature</h3>
+                                <div class="font-serif text-2xl text-white mb-4">$$ T(t) = \frac{1}{m_{eff}(t) + \epsilon} $$</div>
+                                <p class="text-sm leading-relaxed">
+                                    Inverse of coupling mass. Represents market "heat" or chaos level.
+                                    <br><br>
+                                    <span class="text-quant-danger">High T:</span> Unstable/Chaotic (Divergence).
+                                    <br>
+                                    <span class="text-quant-accent">Low T:</span> Synchronized (Risk-on/Crash).
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Volatility Metric Card -->
+                        <div class="glass-card p-8 rounded-xl mb-12 border-l-4 border-purple-500">
+                            <div class="flex items-start gap-4">
+                                <div class="p-3 bg-purple-500/10 rounded-lg">
+                                    <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-white font-bold text-lg mb-2">Market Volatility Measure</h3>
+                                    <div class="font-serif text-xl text-white mb-3">$$ \sigma(t) = \text{std}(\mathbf{r}_t) \text{ smoothed over 20 days} $$</div>
+                                    <p class="text-sm leading-relaxed text-gray-400">
+                                        Calculated as the <strong class="text-white">standard deviation across all four assets</strong> at each time point, then smoothed with a 20-day rolling window. This captures <strong class="text-purple-400">systemic market turbulence</strong> rather than individual asset volatility.
+                                        <br><br>
+                                        <span class="text-purple-400">High σ:</span> Entire market is fluctuating wildly (shown as solid red background).
+                                        <br>
+                                        <span class="text-gray-500">Low σ:</span> Calm markets (transparent red, nearly invisible).
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white/5 rounded-lg p-6 border-l-2 border-quant-accent">
+                            <h4 class="font-mono text-xs text-quant-accent uppercase tracking-widest mb-4">Data Universe</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div>
+                                    <div class="text-white font-bold">^JKSE</div>
+                                    <div class="text-xs text-gray-500">Jakarta Composite Index</div>
+                                </div>
+                                <div>
+                                    <div class="text-white font-bold">^GSPC</div>
+                                    <div class="text-xs text-gray-500">S&P 500</div>
+                                </div>
+                                <div>
+                                    <div class="text-white font-bold">GC=F</div>
+                                    <div class="text-xs text-gray-500">Gold</div>
+                                </div>
+                                <div>
+                                    <div class="text-white font-bold">BTC-USD</div>
+                                    <div class="text-xs text-gray-500">Bitcoin</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Methodology Deep Dive -->
+                <section id="methodology">
+                    <div class="flex items-center gap-4 mb-8">
+                        <span class="font-mono text-quant-accent text-xl">02</span>
+                        <h2 class="text-3xl font-bold text-white">Critical Insights: The Paradoxes</h2>
+                    </div>
+
+                    <!-- Diversification Failure -->
+                        <div class="flex items-start gap-4 mb-6">
+                            <div class="flex-1">
+                                <p class="text-gray-300 leading-relaxed mb-6">
+                                    Modern Portfolio Theory assumes <strong class="text-white">stable correlations</strong> between assets. This analysis reveals a fatal flaw: <strong class="text-red-400">correlations spike to 1 precisely when you need diversification most</strong>.
+                                </p>
+                                
+                                <div class="space-y-4">
+                                    <div class="bg-black/40 rounded-lg p-5 border border-red-500/20">
+                                        <div class="font-mono text-xs text-red-400 mb-2">MARCH 2020 - COVID CRASH</div>
+                                        <div class="text-white font-bold mb-2">Complete Coupling Collapse</div>
+                                        <p class="text-sm text-gray-400">
+                                            All four assets fell simultaneously. Gold (traditional safe haven) initially declined 12%. Bitcoin crashed 50% in days. S&P 500 and JKSE plummeted in lockstep. 
+                                            <br><br>
+                                            <strong class="text-white">Result:</strong> A "diversified" portfolio of these 4 assets would have provided <strong class="text-red-400">zero protection</strong>.
+                                        </p>
+                                    </div>
+
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div class="bg-black/40 rounded p-4 border border-white/5">
+                                            <div class="text-gray-500 text-xs mb-1">Normal Times</div>
+                                            <div class="text-white font-bold text-2xl mb-1">ρ ≈ 0.3-0.6</div>
+                                            <div class="text-xs text-gray-400">Moderate correlation</div>
+                                        </div>
+                                        <div class="bg-red-500/10 rounded p-4 border border-red-500/30">
+                                            <div class="text-red-400 text-xs mb-1 font-bold">Crisis Mode</div>
+                                            <div class="text-white font-bold text-2xl mb-1">ρ → 1.0</div>
+                                            <div class="text-xs text-gray-400">Everything falls together</div>
+                                        </div>
+                                        <div class="bg-black/40 rounded p-4 border border-white/5">
+                                            <div class="text-gray-500 text-xs mb-1">Recovery</div>
+                                            <div class="text-white font-bold text-2xl mb-1">ρ → varies</div>
+                                            <div class="text-xs text-gray-400">Decoupling resumes</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-6 p-5 bg-quant-accent/5 border border-quant-accent/30 rounded-lg">
+                                        <div class="font-mono text-xs text-quant-accent mb-2">KEY IMPLICATION</div>
+                                        <p class="text-sm text-gray-300">
+                                            Traditional buy-and-hold diversification is <strong class="text-white">regime-dependent</strong>. Portfolios must be <strong class="text-quant-accent">dynamically rebalanced</strong> based on coupling metrics. When m_eff drops (synchronization increases), risk management requires:
+                                        </p>
+                                        <ul class="mt-3 space-y-1 text-sm text-gray-400 ml-4">
+                                            <li>• Position size reduction across all assets</li>
+                                            <li>• Migration to truly uncorrelated strategies (vol arbitrage, market neutral)</li>
+                                            <li>• Tail risk hedging (options, VIX futures)</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </section>
+
+                <!-- 3. Visualization -->
+                <section id="visualization">
+                    <div class="flex items-center gap-4 mb-8">
+                        <span class="font-mono text-quant-accent text-xl">03</span>
+                        <h2 class="text-3xl font-bold text-white">Visualization Components</h2>
+                    </div>
+
+                    <!-- Video Toggle Controls -->
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                        <div class="flex gap-6 border-b border-white/10 w-full md:w-auto">
+                            <button id="btn-core" onclick="setVideoMode('core')" class="font-mono text-xs font-bold uppercase tracking-widest pb-3 border-b-2 border-quant-accent text-white transition-all hover:text-quant-accent">
+                                Core Universe (4)
+                            </button>
+                            <button id="btn-advanced" onclick="setVideoMode('advanced')" class="font-mono text-xs font-bold uppercase tracking-widest pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-all hover:border-white/30">
+                                Extended Universe (8)
+                            </button>
+                        </div>
+                        <div class="font-mono text-[10px] text-gray-500 uppercase tracking-widest">
+                            Render: v2.1.4 // Physics_Engine
+                        </div>
+                    </div>
+
+                    <!-- Video Container -->
+                    <div class="glass-card p-2 rounded-xl mb-4 border border-white/10 relative overflow-hidden">
+                        <div class="aspect-video bg-gradient-to-br from-gray-900 to-black rounded-lg flex items-center justify-center relative">
+                            <video id="viz-video" controls loop muted playsinline class="w-full h-full object-cover rounded-lg bg-black/80">
+                                <source id="viz-source" src="coupling_volatility.mp4" type="video/mp4">
+                            </video>
+                             <!-- Overlay for Advanced Mode -->
+                             <div id="mode-badge" class="hidden absolute top-4 right-4 bg-purple-500/20 backdrop-blur border border-purple-500/50 text-purple-200 px-2 py-1 rounded text-[10px] font-mono font-bold tracking-widest">
+                                +4 ASSETS // HIGH_LOAD
+                            </div>
+                        </div>
+                        <div class="absolute top-5 left-5 bg-black/60 backdrop-blur-md px-3 py-1 rounded border border-white/10 flex items-center gap-2 pointer-events-none">
+                            <div class="w-1.5 h-1.5 bg-quant-danger rounded-full animate-pulse"></div>
+                            <span class="font-mono text-[10px] text-white tracking-widest">LIVE_RENDER // 60FPS</span>
+                        </div>
+                    </div>
+
+                    <!-- Contextual Note for Advanced Mode -->
+                    <div id="advanced-note" class="hidden mb-8 p-4 rounded-lg bg-purple-900/10 border border-purple-500/20 flex items-start gap-4">
+                        <div class="p-2 bg-purple-500/20 rounded-full shrink-0">
+                            <svg class="w-4 h-4 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-sm mb-1">Extended Universe Loaded</h4>
+                            <p class="text-xs text-gray-400 leading-relaxed">
+                                You are viewing the <span class="text-purple-400">Advanced Model</span> which includes 4 additional asset classes (NASDAQ, Dow Jones, Silver, and Ethereum). 
+                                Notice that despite the broader diversification, the <strong>singularity spikes</strong> (yellow/red zones) remain consistent with the Core model during crash events. 
+                                <span class="italic text-gray-500">The methodology below refers to the Core 4 assets, but the physics hold universal.</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                        <div class="p-4 border border-white/5 rounded bg-white/5">
+                            <h4 class="font-bold text-white text-sm mb-2">3D Manifold (Top-Left)</h4>
+                            <p class="text-xs text-gray-400">Surface plot of returns. Height (Z-axis) represents returns modulated by temperature. Reveals regime shifts.</p>
+                        </div>
+                        <div class="p-4 border border-white/5 rounded bg-white/5">
+                            <h4 class="font-bold text-white text-sm mb-2">Temp Plot (Top-Right)</h4>
+                            <p class="text-xs text-gray-400">Time series of instability $T(t)$. Normalized [0,1]. Shows chaos vs stability transitions.</p>
+                        </div>
+                        <div class="p-4 border border-white/5 rounded bg-white/5">
+                            <h4 class="font-bold text-white text-sm mb-2">Price & Volatility (Bottom)</h4>
+                            <p class="text-xs text-gray-400">Price trajectories with Red Background intensity indicating systemic volatility levels.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Findings (Timeline) -->
+                <section id="findings" class="relative timeline-line">
+                    <div class="flex items-center gap-4 mb-12">
+                        <span class="font-mono text-quant-accent text-xl">04</span>
+                        <h2 class="text-3xl font-bold text-white">Key Findings & Events</h2>
+                    </div>
+
+                    <div class="space-y-12">
+                        
+                        <!-- Period 1 -->
+                        <div class="relative flex flex-col md:flex-row md:items-center gap-6 md:gap-12 group">
+                            <div class="md:w-1/2 md:text-right">
+                                <div class="font-mono text-xs text-quant-accent mb-1">2017 - 2018</div>
+                                <h3 class="text-xl font-bold text-white">Early Bitcoin Era</h3>
+                                <p class="text-sm text-gray-400 mt-2">Bitcoin shows extreme independence (Paradoxically "stable" in divergence). The bubble peaked at $19k while traditional assets clustered.</p>
+                            </div>
+                            <div class="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-quant-card border border-quant-accent z-10"></div>
+                            <div class="md:w-1/2 glass-card p-4 rounded border-l-2 border-quant-accent md:border-l-0 md:border-r-2">
+                                <span class="text-xs font-mono text-gray-500 uppercase">Remarkable Event</span>
+                                <div class="text-white font-bold">Dec 2017: Bitcoin Bubble</div>
+                                <div class="text-xs text-gray-400 mt-1">BTC diverges dramatically. Temperature spikes indicate chaos.</div>
+                            </div>
+                        </div>
+
+                        <!-- Period 2 (COVID) -->
+                        <div class="relative flex flex-col md:flex-row-reverse md:items-center gap-6 md:gap-12 group">
+                            <div class="md:w-1/2">
+                                <div class="font-mono text-xs text-quant-danger mb-1">MARCH 2020</div>
+                                <h3 class="text-xl font-bold text-white">The COVID-19 Crash</h3>
+                                <p class="text-sm text-gray-400 mt-2">The most dramatic coupling event. All four assets crashed simultaneously. Temperature dropped to near-zero.</p>
+                            </div>
+                            <div class="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-quant-danger shadow-[0_0_15px_rgba(255,42,109,0.5)] z-10"></div>
+                            <div class="md:w-1/2 glass-card p-4 rounded border-l-2 border-quant-danger bg-quant-danger/5">
+                                <span class="text-xs font-mono text-quant-danger uppercase">CRITICAL FAILURE</span>
+                                <div class="text-white font-bold">Diversification Evaporated</div>
+                                <div class="text-xs text-gray-400 mt-1">Manifold shows vertical cliff. Traditional safe havens failed to protect.</div>
+                            </div>
+                        </div>
+
+                        <!-- Period 3 -->
+                        <div class="relative flex flex-col md:flex-row md:items-center gap-6 md:gap-12 group">
+                            <div class="md:w-1/2 md:text-right">
+                                <div class="font-mono text-xs text-quant-accent mb-1">2020 - 2021</div>
+                                <h3 class="text-xl font-bold text-white">Post-Pandemic Recovery</h3>
+                                <p class="text-sm text-gray-400 mt-2">Rapid decoupling. Bitcoin leads recovery, diverging sharply upward. Volatility moderates.</p>
+                            </div>
+                            <div class="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-quant-card border border-gray-600 z-10"></div>
+                            <div class="md:w-1/2 glass-card p-4 rounded border-l-2 border-gray-600 md:border-l-0 md:border-r-2">
+                                <div class="text-white font-bold">The Digital Gold Thesis</div>
+                                <div class="text-xs text-gray-400 mt-1">BTC showed negative correlation with traditional markets by late 2020.</div>
+                            </div>
+                        </div>
+
+                         <!-- Period 4 -->
+                         <div class="relative flex flex-col md:flex-row-reverse md:items-center gap-6 md:gap-12 group">
+                            <div class="md:w-1/2">
+                                <div class="font-mono text-xs text-gray-500 mb-1">2021 - 2022</div>
+                                <h3 class="text-xl font-bold text-white">Inflation Shock</h3>
+                                <p class="text-sm text-gray-400 mt-2">Gold and Bitcoin move in tandem (inflation hedges). Temperature oscillates wildly.</p>
+                            </div>
+                            <div class="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-quant-card border border-gray-600 z-10"></div>
+                            <div class="md:w-1/2 glass-card p-4 rounded border-l-2 border-gray-600">
+                                <span class="text-xs font-mono text-gray-500 uppercase">May 2022</span>
+                                <div class="text-white font-bold">Terra/LUNA Collapse</div>
+                                <div class="text-xs text-gray-400 mt-1">Violent re-coupling. Systemic stress.</div>
+                            </div>
+                        </div>
+
+                         <!-- Period 5 -->
+                         <div class="relative flex flex-col md:flex-row md:items-center gap-6 md:gap-12 group">
+                            <div class="md:w-1/2 md:text-right">
+                                <div class="font-mono text-xs text-blue-400 mb-1">MARCH 2023</div>
+                                <h3 class="text-xl font-bold text-white">Banking Crisis</h3>
+                                <p class="text-sm text-gray-400 mt-2">Counter-intuitive: BTC rallies while equities fall. Gold rises (flight to safety).</p>
+                            </div>
+                            <div class="hidden md:flex items-center justify-center absolute left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-quant-card border border-blue-400 z-10"></div>
+                            <div class="md:w-1/2 glass-card p-4 rounded border-l-2 border-blue-400 md:border-l-0 md:border-r-2">
+                                <div class="text-white font-bold">Tech Hedge Narrative</div>
+                                <div class="text-xs text-gray-400 mt-1">Bitcoin decouples from "Risk Asset" to "Banking Alternative".</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- 5. Statistical Insights -->
+                <section>
+                    <div class="flex items-center gap-4 mb-8">
+                        <span class="font-mono text-quant-accent text-xl">05</span>
+                        <h2 class="text-3xl font-bold text-white">Statistical Insights</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="glass-card p-8 rounded-xl">
+                            <h3 class="font-mono text-xs text-quant-danger uppercase mb-4 tracking-widest">High Coupling (T → 0)</h3>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-white font-bold">Mar 2020</span>
+                                    <span class="text-gray-500 text-sm">COVID-19 Crash</span>
+                                </li>
+                                <li class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-white font-bold">May 2022</span>
+                                    <span class="text-gray-500 text-sm">Crypto/Equity Bear</span>
+                                </li>
+                                <li class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-white font-bold">Dec 2018</span>
+                                    <span class="text-gray-500 text-sm">Global Growth Scare</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="glass-card p-8 rounded-xl">
+                            <h3 class="font-mono text-xs text-quant-accent uppercase mb-4 tracking-widest">High Decoupling (T → 1)</h3>
+                            <ul class="space-y-3">
+                                <li class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-white font-bold">Dec 2017</span>
+                                    <span class="text-gray-500 text-sm">Bitcoin Bubble</span>
+                                </li>
+                                <li class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-white font-bold">Mar 2023</span>
+                                    <span class="text-gray-500 text-sm">Banking Crisis</span>
+                                </li>
+                                <li class="flex justify-between border-b border-white/5 pb-2">
+                                    <span class="text-white font-bold">Nov 2021</span>
+                                    <span class="text-gray-500 text-sm">Bitcoin ATH</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 6. Conclusions -->
+                <section class="mb-24">
+                    <div class="glass-card p-10 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/10">
+                        <h2 class="text-3xl font-bold text-white mb-6">Conclusions</h2>
+                        <div class="prose prose-invert prose-lg text-gray-300">
+                            <p>
+                                The physics-inspired framework reveals that <strong class="text-white">financial markets exhibit thermodynamic-like behavior</strong>, with distinct hot (chaotic) and cold (synchronized) phases.
+                            </p>
+                            <ul class="space-y-2 mt-4">
+                                <li>Market coupling is highly time-variant, invalidating static correlation assumptions.</li>
+                                <li>Crisis periods exhibit extreme synchronization, destroying diversification benefits.</li>
+                                <li>Bitcoin's role is evolving from pure speculation to an alternative asset class.</li>
+                                <li>Geographic diversification (IHSG) provided better protection than Bitcoin pre-2023.</li>
+                                <li>Volatility and coupling are distinct phenomena—high volatility ≠ high coupling necessarily.</li>
+                            </ul>
+                            <p class="mt-8 italic text-quant-accent border-l-4 border-quant-accent pl-4">
+                                "This analysis challenges the fundamental assumption of Modern Portfolio Theory that asset correlations are stable. Portfolios must be dynamically adjusted based on market regime detection."
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer -->
+                <footer class="border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center text-xs font-mono text-gray-600">
+                    <div class="flex items-center gap-2 mb-4 md:mb-0">
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span>ANALYSIS COMPLETE</span>
+                    </div>
+                    <button onclick="alert('Dataset download functionality: Export your data from the Python script or contact the author.')" class="hover:text-white transition-colors cursor-pointer">
+                        DOWNLOAD DATASETS
+                    </button>
+                </footer>
+
+            </article>
+        </div>
+        
+    </div>
+
+    <!-- Smooth scroll script -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Video Toggle Logic
+        function setVideoMode(mode) {
+            const video = document.getElementById('viz-video');
+            const source = document.getElementById('viz-source');
+            const btnCore = document.getElementById('btn-core');
+            const btnAdv = document.getElementById('btn-advanced');
+            const note = document.getElementById('advanced-note');
+            const badge = document.getElementById('mode-badge');
+
+            if (mode === 'core') {
+                source.src = 'coupling_volatility.mp4';
+                // Update Button Styles
+                btnCore.className = 'font-mono text-xs font-bold uppercase tracking-widest pb-3 border-b-2 border-quant-accent text-white transition-all hover:text-quant-accent';
+                btnAdv.className = 'font-mono text-xs font-bold uppercase tracking-widest pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-all hover:border-white/30';
+                // Hide Advanced UI
+                note.classList.add('hidden');
+                badge.classList.add('hidden');
+            } else {
+                source.src = 'advanced_coupling_volatility.mp4';
+                // Update Button Styles
+                btnAdv.className = 'font-mono text-xs font-bold uppercase tracking-widest pb-3 border-b-2 border-quant-accent text-white transition-all hover:text-quant-accent';
+                btnCore.className = 'font-mono text-xs font-bold uppercase tracking-widest pb-3 border-b-2 border-transparent text-gray-500 hover:text-white transition-all hover:border-white/30';
+                // Show Advanced UI
+                note.classList.remove('hidden');
+                badge.classList.remove('hidden');
+            }
+            
+            video.load();
+            video.play();
+        }
+    </script>
+
+</body>
+</html>
