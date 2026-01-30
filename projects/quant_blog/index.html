@@ -54,7 +54,16 @@
 <link rel="stylesheet" href="/index.css">
 </head>
 <body class="bg-quant-bg text-slate-200 font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-quant-accent selection:text-black">
-
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-6 flex justify-between items-center mix-blend-difference">
+        <a href="/index.html" class="font-mono text-xs font-bold tracking-widest hover:text-quant-accent transition-colors">
+            <span class="text-quant-accent">&lt;</span> BACK_TO_INDEX
+        </a>
+        <div class="flex items-center gap-4">
+            <span class="font-mono text-[10px] uppercase tracking-[0.3em] opacity-50">System: Online</span>
+        </div>
+    </nav>
+    
     <!-- Background Animation Canvas -->
     <canvas id="market-noise" class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
     
