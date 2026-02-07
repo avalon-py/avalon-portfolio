@@ -28,13 +28,13 @@ import {
 // ============================================
 // REPLACE THIS WITH YOUR OWN FIREBASE CONFIG
 const firebaseConfig = {
-    apiKey: "AIzaSyAJ4XxKytAUvrAOBbcUR8f-mls_IfIZkxA",
-    authDomain: "game24-multiplayer-4b38a.firebaseapp.com",
-    projectId: "game24-multiplayer-4b38a",
-    storageBucket: "game24-multiplayer-4b38a.firebasestorage.app",
-    messagingSenderId: "965076056957",
-    appId: "1:965076056957:web:41692a8300d95641096a14",
-    measurementId: "G-EX5XH8YQY8"
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Initialize Firebase
@@ -687,4 +687,5 @@ elements.playAgainBtn.addEventListener('click', () => {
     elements.gameMessage.textContent = '';
     
     showScreen('menu');
+
 });
