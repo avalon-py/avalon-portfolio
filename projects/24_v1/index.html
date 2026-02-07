@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>24 Game - Ranked Multiplayer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>🎮 24 Game - Ranked PvP</h1>
+            <div class="user-stats" id="userStats">
+                <p>Rating: <span id="userRating">---</span></p>
+                <p>W/L: <span id="userWins">0</span>/<span id="userLosses">0</span></p>
+            </div>
+        </header>
+
+        <!-- Menu Screen -->
+        <div id="menuScreen" class="screen">
+            <div class="menu">
+                <button id="findMatchBtn" class="btn-primary">Find Match</button>
+                <div class="rules">
+                    <h3>How to Play:</h3>
+                    <p>🎯 Use +, -, *, / to combine 4 numbers to make 24</p>
+                    <p>📝 Example: (8+8)+(3+5) = 24</p>
+                    <p>⚡ First to solve wins!</p>
+                    <p>🏆 Win to increase your rating</p>
+                </div>
+                <div class="leaderboard" id="leaderboard">
+                    <h3>🏆 Top Players</h3>
+                    <div id="leaderboardList">Loading...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Searching Screen -->
+        <div id="searchingScreen" class="screen hidden">
+            <div class="searching">
+                <div class="spinner"></div>
+                <p id="searchMessage">Searching for opponent...</p>
+                <button id="cancelSearchBtn" class="btn-secondary">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="gameScreen" class="screen hidden">
+            <div class="game-area">
+                <div class="game-info">
+                    <div class="player-info">
+                        <p>You: <span id="yourRating">---</span></p>
+                    </div>
+                    <p class="timer">⏱️ <span id="timeLeft">60</span>s</p>
+                    <div class="player-info">
+                        <p>Opponent: <span id="opponentRating">---</span></p>
+                    </div>
+                </div>
+
+                <div class="status-indicators">
+                    <div class="status-box">
+                        <p>You: <span id="yourStatus">⏳ Solving...</span></p>
+                    </div>
+                    <div class="status-box">
+                        <p>Opponent: <span id="opponentStatus">⏳ Solving...</span></p>
+                    </div>
+                </div>
+                
+                <div class="cards" id="cardsContainer">
+                    <!-- Cards will be inserted here -->
+                </div>
+                
+                <div class="input-area">
+                    <input
+                        type="text"
+                        id="expressionInput"
+                        placeholder="e.g., (8+8)+(3+5)"
+                        autocomplete="off"
+                    />
+                    <button id="submitBtn" class="btn-primary">Submit</button>
+                </div>
+                
+                <p id="gameMessage" class="message"></p>
+
+                <div class="hint-area">
+                    <button id="addNumberBtn" class="btn-hint">Add Number to Expression</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="resultScreen" class="screen hidden">
+            <div class="result">
+                <h2 id="resultTitle"></h2>
+                <div class="result-details">
+                    <div class="solution-box">
+                        <h4>Your Solution:</h4>
+                        <p id="yourSolution">---</p>
+                        <p id="yourTime"></p>
+                    </div>
+                    <div class="solution-box">
+                        <h4>Opponent's Solution:</h4>
+                        <p id="opponentSolution">---</p>
+                        <p id="opponentTime"></p>
+                    </div>
+                </div>
+                <div class="rating-change" id="ratingChange"></div>
+                <button id="playAgainBtn" class="btn-primary">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module" src="app.js"></script>
+</body>
+</html>
