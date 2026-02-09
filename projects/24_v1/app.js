@@ -131,21 +131,18 @@ const elements = {
 // ============================================
 // LOCAL STORAGE FOR SESSION
 // ============================================
-function saveSession(username, uid) {
+function saveSession(username) {
     localStorage.setItem('game24_username', username);
-    localStorage.setItem('game24_uid', uid);
 }
 
 function getSession() {
     return {
-        username: localStorage.getItem('game24_username'),
-        uid: localStorage.getItem('game24_uid')
+        username: localStorage.getItem('game24_username')
     };
 }
 
 function clearSession() {
     localStorage.removeItem('game24_username');
-    localStorage.removeItem('game24_uid');
 }
 
 // ============================================
@@ -229,20 +226,14 @@ authElements.loginBtn.addEventListener('click', async () => {
             return;
         }
         
-        // IMPORTANT: Save session BEFORE signing in
-        // This way onAuthStateChanged can read it immediately
-        const tempUid = 'temp_' + Date.now();
-        saveSession(username, tempUid);
+        // FIXED: Save session BEFORE signing in so onAuthStateChanged can read it
+        saveSession(username);
         
-        // Now sign in
-        const userCredential = await signInAnonymously(auth);
+        // Now sign in (this will trigger onAuthStateChanged)
+        await signInAnonymously(auth);
         
-        // Update session with real UID
-        saveSession(username, userCredential.user.uid);
-        
-        // Update account with new UID
+        // Update account with last login time
         await updateDoc(doc(db, 'accounts', accountDoc.id), {
-            lastUid: userCredential.user.uid,
             lastLogin: serverTimestamp()
         });
         
@@ -250,7 +241,7 @@ authElements.loginBtn.addEventListener('click', async () => {
         
     } catch (error) {
         console.error('Login error:', error);
-        clearSession(); // Clear temp session on error
+        clearSession(); // Clear session on error
         showAuthMessage('login', 'Login failed: ' + error.message, true);
         authElements.loginBtn.disabled = false;
         authElements.loginBtn.textContent = 'Login';
@@ -306,15 +297,11 @@ authElements.signupBtn.addEventListener('click', async () => {
         // Hash password
         const passwordHash = await hashPassword(password);
         
-        // IMPORTANT: Save session FIRST
-        const tempUid = 'temp_' + Date.now();
-        saveSession(username, tempUid);
+        // FIXED: Save session FIRST
+        saveSession(username);
         
-        // Create anonymous auth
-        const userCredential = await signInAnonymously(auth);
-        
-        // Update session with real UID
-        saveSession(username, userCredential.user.uid);
+        // Create anonymous auth (this will trigger onAuthStateChanged)
+        await signInAnonymously(auth);
         
         // Create account document
         const accountId = `account_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -322,7 +309,6 @@ authElements.signupBtn.addEventListener('click', async () => {
             username: username,
             passwordHash: passwordHash,
             createdAt: serverTimestamp(),
-            lastUid: userCredential.user.uid,
             lastLogin: serverTimestamp()
         });
         
@@ -330,7 +316,7 @@ authElements.signupBtn.addEventListener('click', async () => {
         
     } catch (error) {
         console.error('Signup error:', error);
-        clearSession(); // Clear temp session on error
+        clearSession(); // Clear session on error
         showAuthMessage('signup', 'Signup failed: ' + error.message, true);
         authElements.signupBtn.disabled = false;
         authElements.signupBtn.textContent = 'Sign Up';
@@ -581,13 +567,13 @@ onAuthStateChanged(auth, async (user) => {
         // Check session
         const session = getSession();
         
-        if (session.username && session.uid === user.uid) {
-            // Registered user - use saved username
-            await loadOrCreateUserProfile(user.uid, session.username);
+        if (session.username) {
+            // Registered user - use username as consistent ID (FIXED!)
+            await loadOrCreateUserProfile(session.username, session.username);
             authElements.userDisplayName.textContent = session.username;
             isGuest = false;
         } else if (isGuest) {
-            // Explicit guest mode
+            // Explicit guest mode - use Firebase UID for guests
             await loadOrCreateUserProfile(user.uid, 'Guest');
             authElements.userDisplayName.textContent = 'Guest';
         } else {
@@ -605,12 +591,15 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-async function loadOrCreateUserProfile(uid, displayName) {
+async function loadOrCreateUserProfile(userId, displayName) {
+    // FIXED: Use username as document ID for registered users, Firebase UID for guests
     const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
     
     if (userSnap.exists()) {
         userProfile = userSnap.data();
+        // Ensure userId is set correctly
+        userProfile.userId = userId;
         // Update displayName if it changed
         if (userProfile.displayName !== displayName) {
             await updateDoc(userRef, { displayName: displayName });
@@ -619,7 +608,7 @@ async function loadOrCreateUserProfile(uid, displayName) {
     } else {
         // Create new profile with provided displayName
         userProfile = {
-            uid,
+            userId: userId,
             displayName: displayName,
             rating: 1200,
             wins: 0,
@@ -658,7 +647,8 @@ async function loadLeaderboard() {
         
         snapshot.forEach((doc) => {
             const data = doc.data();
-            const isCurrentUser = doc.id === userProfile.userId;
+            // FIXED: Compare using userId instead of Firebase UID
+            const isCurrentUser = doc.id === userProfile?.userId;
             const displayName = data.displayName || 'Player';
             html += `
                 <div class="leaderboard-item" style="${isCurrentUser ? 'background: #e3f2fd; font-weight: bold;' : ''}">
@@ -690,6 +680,9 @@ async function findMatch() {
     showScreen('searching');
     
     try {
+        // FIXED: Use userProfile.userId instead of currentUser.uid
+        const myUserId = userProfile.userId;
+        
         // Check for waiting players
         const waitingRef = collection(db, 'waiting');
         const q = query(waitingRef, where('searching', '==', true));
@@ -698,7 +691,7 @@ async function findMatch() {
         let foundOpponent = false;
         
         snapshot.forEach(async (docSnap) => {
-            if (docSnap.id !== userProfile.userId && !foundOpponent) {
+            if (docSnap.id !== myUserId && !foundOpponent) {
                 foundOpponent = true;
                 const opponentId = docSnap.id;
                 
@@ -706,20 +699,20 @@ async function findMatch() {
                 await deleteDoc(doc(db, 'waiting', opponentId));
                 
                 // Create game
-                await createGame(userProfile.userId, opponentId);
+                await createGame(myUserId, opponentId);
             }
         });
         
         if (!foundOpponent) {
             // Add to waiting queue
-            await setDoc(doc(db, 'waiting', userProfile.userId), {
+            await setDoc(doc(db, 'waiting', myUserId), {
                 searching: true,
                 rating: userProfile.rating,
                 timestamp: serverTimestamp()
             });
             
             // Listen for game creation
-            waitingUnsubscribe = onSnapshot(doc(db, 'users', userProfile.userId), async (snapshot) => {
+            waitingUnsubscribe = onSnapshot(doc(db, 'users', myUserId), async (snapshot) => {
                 const data = snapshot.data();
                 if (data?.currentGame) {
                     if (waitingUnsubscribe) waitingUnsubscribe();
@@ -790,7 +783,7 @@ async function startGameListener() {
             gameData = data;
             cards = data.cards;
             
-            // Load opponent profile
+            // Load opponent profile - FIXED: use userId
             const opponentId = data.player1 === userProfile.userId ? data.player2 : data.player1;
             const opponentSnap = await getDoc(doc(db, 'users', opponentId));
             opponent = opponentSnap.data();
@@ -1011,7 +1004,7 @@ async function handleGameEnd() {
         // Calculate ELO
         const eloChange = calculateEloChange(userProfile.rating, opponent.rating);
         
-        // Update database
+        // Update database - FIXED: use userId
         await updateDoc(doc(db, 'users', userProfile.userId), {
             rating: increment(eloChange.winnerChange),
             wins: increment(1),
@@ -1036,7 +1029,7 @@ async function handleGameEnd() {
         // Calculate ELO
         const eloChange = calculateEloChange(opponent.rating, userProfile.rating);
         
-        // Update database
+        // Update database - FIXED: use userId
         await updateDoc(doc(db, 'users', userProfile.userId), {
             rating: increment(eloChange.loserChange),
             losses: increment(1),
