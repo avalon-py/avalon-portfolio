@@ -571,13 +571,19 @@ onAuthStateChanged(auth, async (user) => {
         const session = getSession();
         
         if (session.username && session.uid === user.uid) {
-            // Has account
+            // Registered user - use saved username
             await loadOrCreateUserProfile(user.uid, session.username);
             authElements.userDisplayName.textContent = session.username;
+            isGuest = false;
         } else if (isGuest) {
-            // Guest
+            // Explicit guest mode
             await loadOrCreateUserProfile(user.uid, 'Guest');
             authElements.userDisplayName.textContent = 'Guest';
+        } else {
+            // Unknown - shouldn't happen, treat as guest
+            await loadOrCreateUserProfile(user.uid, 'Guest');
+            authElements.userDisplayName.textContent = 'Guest';
+            isGuest = true;
         }
         
         await loadLeaderboard();
@@ -588,14 +594,19 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-async function loadOrCreateUserProfile(uid) {
+async function loadOrCreateUserProfile(uid, displayName) {
     const userRef = doc(db, 'users', uid);
     const userSnap = await getDoc(userRef);
     
     if (userSnap.exists()) {
         userProfile = userSnap.data();
+        // Update displayName if it changed
+        if (userProfile.displayName !== displayName) {
+            await updateDoc(userRef, { displayName: displayName });
+            userProfile.displayName = displayName;
+        }
     } else {
-        const displayName = currentUser.displayName || (isGuest ? 'Guest' : 'Player');
+        // Create new profile with provided displayName
         userProfile = {
             uid,
             displayName: displayName,
@@ -1072,3 +1083,4 @@ elements.playAgainBtn.addEventListener('click', () => {
     
     showScreen('menu');
 });
+
