@@ -229,13 +229,18 @@ authElements.loginBtn.addEventListener('click', async () => {
             return;
         }
         
-        // Login successful - create anonymous session
+        // IMPORTANT: Save session BEFORE signing in
+        // This way onAuthStateChanged can read it immediately
+        const tempUid = 'temp_' + Date.now();
+        saveSession(username, tempUid);
+        
+        // Now sign in
         const userCredential = await signInAnonymously(auth);
         
-        // Link to existing account
+        // Update session with real UID
         saveSession(username, userCredential.user.uid);
         
-        // Update account with new UID (in case they login from different device)
+        // Update account with new UID
         await updateDoc(doc(db, 'accounts', accountDoc.id), {
             lastUid: userCredential.user.uid,
             lastLogin: serverTimestamp()
@@ -245,6 +250,7 @@ authElements.loginBtn.addEventListener('click', async () => {
         
     } catch (error) {
         console.error('Login error:', error);
+        clearSession(); // Clear temp session on error
         showAuthMessage('login', 'Login failed: ' + error.message, true);
         authElements.loginBtn.disabled = false;
         authElements.loginBtn.textContent = 'Login';
@@ -300,8 +306,15 @@ authElements.signupBtn.addEventListener('click', async () => {
         // Hash password
         const passwordHash = await hashPassword(password);
         
+        // IMPORTANT: Save session FIRST
+        const tempUid = 'temp_' + Date.now();
+        saveSession(username, tempUid);
+        
         // Create anonymous auth
         const userCredential = await signInAnonymously(auth);
+        
+        // Update session with real UID
+        saveSession(username, userCredential.user.uid);
         
         // Create account document
         const accountId = `account_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -313,13 +326,11 @@ authElements.signupBtn.addEventListener('click', async () => {
             lastLogin: serverTimestamp()
         });
         
-        // Save session
-        saveSession(username, userCredential.user.uid);
-        
         showAuthMessage('signup', 'Account created!', false);
         
     } catch (error) {
         console.error('Signup error:', error);
+        clearSession(); // Clear temp session on error
         showAuthMessage('signup', 'Signup failed: ' + error.message, true);
         authElements.signupBtn.disabled = false;
         authElements.signupBtn.textContent = 'Sign Up';
@@ -1083,4 +1094,3 @@ elements.playAgainBtn.addEventListener('click', () => {
     
     showScreen('menu');
 });
-
