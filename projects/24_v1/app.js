@@ -2,8 +2,8 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { 
     getAuth, 
-    signInAnonymously, 
-    onAuthStateChanged 
+    signInAnonymously,
+    onAuthStateChanged
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 import { 
     getFirestore, 
@@ -26,14 +26,31 @@ import {
 // ============================================
 // FIREBASE CONFIGURATION
 // ============================================
-// REPLACE THIS WITH YOUR OWN FIREBASE CONFIG
-const res = await fetch('./firebase.config.json');
-const firebaseConfig = await res.json();
+const firebaseConfig = {
+    apiKey: "AIzaSyAJ4XxKytAUvrAOBbcUR8f-mls_IfIZkxA",
+    authDomain: "game24-multiplayer-4b38a.firebaseapp.com",
+    projectId: "game24-multiplayer-4b38a",
+    storageBucket: "game24-multiplayer-4b38a.firebasestorage.app",
+    messagingSenderId: "965076056957",
+    appId: "1:965076056957:web:41692a8300d95641096a14",
+    measurementId: "G-EX5XH8YQY8"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// ============================================
+// SIMPLE PASSWORD HASHING (Client-side)
+// ============================================
+async function hashPassword(password) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
 
 // ============================================
 // GAME STATE
@@ -50,15 +67,37 @@ let gameStartTime = null;
 let waitingUnsubscribe = null;
 let gameUnsubscribe = null;
 let selectedCards = [];
+let isGuest = false;
 
 // ============================================
 // DOM ELEMENTS
 // ============================================
 const screens = {
+    auth: document.getElementById('authScreen'),
     menu: document.getElementById('menuScreen'),
     searching: document.getElementById('searchingScreen'),
     game: document.getElementById('gameScreen'),
     result: document.getElementById('resultScreen')
+};
+
+const authElements = {
+    loginTab: document.getElementById('loginTab'),
+    signupTab: document.getElementById('signupTab'),
+    guestTab: document.getElementById('guestTab'),
+    loginForm: document.getElementById('loginForm'),
+    signupForm: document.getElementById('signupForm'),
+    guestForm: document.getElementById('guestForm'),
+    loginUsername: document.getElementById('loginEmail'), // Repurposing email field
+    loginPassword: document.getElementById('loginPassword'),
+    loginBtn: document.getElementById('loginBtn'),
+    loginMessage: document.getElementById('loginMessage'),
+    signupUsername: document.getElementById('signupUsername'),
+    signupPassword: document.getElementById('signupPassword'),
+    signupBtn: document.getElementById('signupBtn'),
+    signupMessage: document.getElementById('signupMessage'),
+    guestBtn: document.getElementById('guestBtn'),
+    logoutBtn: document.getElementById('logoutBtn'),
+    userDisplayName: document.getElementById('userDisplayName')
 };
 
 const elements = {
@@ -74,7 +113,9 @@ const elements = {
     userWins: document.getElementById('userWins'),
     userLosses: document.getElementById('userLosses'),
     yourRating: document.getElementById('yourRating'),
+    yourName: document.getElementById('yourName'),
     opponentRating: document.getElementById('opponentRating'),
+    opponentName: document.getElementById('opponentName'),
     yourStatus: document.getElementById('yourStatus'),
     opponentStatus: document.getElementById('opponentStatus'),
     resultTitle: document.getElementById('resultTitle'),
@@ -86,6 +127,254 @@ const elements = {
     leaderboardList: document.getElementById('leaderboardList'),
     addNumberBtn: document.getElementById('addNumberBtn')
 };
+
+// ============================================
+// LOCAL STORAGE FOR SESSION
+// ============================================
+function saveSession(username, uid) {
+    localStorage.setItem('game24_username', username);
+    localStorage.setItem('game24_uid', uid);
+}
+
+function getSession() {
+    return {
+        username: localStorage.getItem('game24_username'),
+        uid: localStorage.getItem('game24_uid')
+    };
+}
+
+function clearSession() {
+    localStorage.removeItem('game24_username');
+    localStorage.removeItem('game24_uid');
+}
+
+// ============================================
+// AUTHENTICATION UI
+// ============================================
+
+// Tab switching
+authElements.loginTab.addEventListener('click', () => {
+    setActiveTab('login');
+});
+
+authElements.signupTab.addEventListener('click', () => {
+    setActiveTab('signup');
+});
+
+authElements.guestTab.addEventListener('click', () => {
+    setActiveTab('guest');
+});
+
+function setActiveTab(tab) {
+    // Reset tab buttons
+    authElements.loginTab.classList.remove('active');
+    authElements.signupTab.classList.remove('active');
+    authElements.guestTab.classList.remove('active');
+    
+    // Hide all forms
+    authElements.loginForm.classList.add('hidden');
+    authElements.signupForm.classList.add('hidden');
+    authElements.guestForm.classList.add('hidden');
+    
+    // Show selected
+    if (tab === 'login') {
+        authElements.loginTab.classList.add('active');
+        authElements.loginForm.classList.remove('hidden');
+    } else if (tab === 'signup') {
+        authElements.signupTab.classList.add('active');
+        authElements.signupForm.classList.remove('hidden');
+    } else if (tab === 'guest') {
+        authElements.guestTab.classList.add('active');
+        authElements.guestForm.classList.remove('hidden');
+    }
+}
+
+// Login
+authElements.loginBtn.addEventListener('click', async () => {
+    const username = authElements.loginUsername.value.trim();
+    const password = authElements.loginPassword.value;
+    
+    if (!username || !password) {
+        showAuthMessage('login', 'Please enter username and password', true);
+        return;
+    }
+    
+    authElements.loginBtn.disabled = true;
+    authElements.loginBtn.textContent = 'Logging in...';
+    
+    try {
+        // Hash password
+        const passwordHash = await hashPassword(password);
+        
+        // Check if username exists
+        const accountsRef = collection(db, 'accounts');
+        const q = query(accountsRef, where('username', '==', username));
+        const snapshot = await getDocs(q);
+        
+        if (snapshot.empty) {
+            showAuthMessage('login', 'Username not found', true);
+            authElements.loginBtn.disabled = false;
+            authElements.loginBtn.textContent = 'Login';
+            return;
+        }
+        
+        const accountDoc = snapshot.docs[0];
+        const accountData = accountDoc.data();
+        
+        // Verify password
+        if (accountData.passwordHash !== passwordHash) {
+            showAuthMessage('login', 'Wrong password', true);
+            authElements.loginBtn.disabled = false;
+            authElements.loginBtn.textContent = 'Login';
+            return;
+        }
+        
+        // Login successful - create anonymous session
+        const userCredential = await signInAnonymously(auth);
+        
+        // Link to existing account
+        saveSession(username, userCredential.user.uid);
+        
+        // Update account with new UID (in case they login from different device)
+        await updateDoc(doc(db, 'accounts', accountDoc.id), {
+            lastUid: userCredential.user.uid,
+            lastLogin: serverTimestamp()
+        });
+        
+        showAuthMessage('login', 'Login successful!', false);
+        
+    } catch (error) {
+        console.error('Login error:', error);
+        showAuthMessage('login', 'Login failed: ' + error.message, true);
+        authElements.loginBtn.disabled = false;
+        authElements.loginBtn.textContent = 'Login';
+    }
+});
+
+// Signup
+authElements.signupBtn.addEventListener('click', async () => {
+    const username = authElements.signupUsername.value.trim();
+    const password = authElements.signupPassword.value;
+    
+    if (!username) {
+        showAuthMessage('signup', 'Please enter a username', true);
+        return;
+    }
+    
+    if (username.length < 3) {
+        showAuthMessage('signup', 'Username must be at least 3 characters', true);
+        return;
+    }
+    
+    if (username.length > 20) {
+        showAuthMessage('signup', 'Username must be less than 20 characters', true);
+        return;
+    }
+    
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        showAuthMessage('signup', 'Username can only contain letters, numbers, and underscores', true);
+        return;
+    }
+    
+    if (!password || password.length < 6) {
+        showAuthMessage('signup', 'Password must be at least 6 characters', true);
+        return;
+    }
+    
+    authElements.signupBtn.disabled = true;
+    authElements.signupBtn.textContent = 'Creating account...';
+    
+    try {
+        // Check if username already exists
+        const accountsRef = collection(db, 'accounts');
+        const q = query(accountsRef, where('username', '==', username));
+        const snapshot = await getDocs(q);
+        
+        if (!snapshot.empty) {
+            showAuthMessage('signup', 'Username already taken', true);
+            authElements.signupBtn.disabled = false;
+            authElements.signupBtn.textContent = 'Sign Up';
+            return;
+        }
+        
+        // Hash password
+        const passwordHash = await hashPassword(password);
+        
+        // Create anonymous auth
+        const userCredential = await signInAnonymously(auth);
+        
+        // Create account document
+        const accountId = `account_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        await setDoc(doc(db, 'accounts', accountId), {
+            username: username,
+            passwordHash: passwordHash,
+            createdAt: serverTimestamp(),
+            lastUid: userCredential.user.uid,
+            lastLogin: serverTimestamp()
+        });
+        
+        // Save session
+        saveSession(username, userCredential.user.uid);
+        
+        showAuthMessage('signup', 'Account created!', false);
+        
+    } catch (error) {
+        console.error('Signup error:', error);
+        showAuthMessage('signup', 'Signup failed: ' + error.message, true);
+        authElements.signupBtn.disabled = false;
+        authElements.signupBtn.textContent = 'Sign Up';
+    }
+});
+
+// Guest login
+authElements.guestBtn.addEventListener('click', async () => {
+    authElements.guestBtn.disabled = true;
+    authElements.guestBtn.textContent = 'Connecting...';
+    
+    try {
+        isGuest = true;
+        clearSession(); // Clear any saved session
+        await signInAnonymously(auth);
+    } catch (error) {
+        alert('Failed to connect as guest: ' + error.message);
+        authElements.guestBtn.disabled = false;
+        authElements.guestBtn.textContent = 'Continue as Guest';
+    }
+});
+
+// Logout
+authElements.logoutBtn.addEventListener('click', async () => {
+    try {
+        clearSession();
+        await auth.signOut();
+        showScreen('auth');
+        authElements.logoutBtn.style.display = 'none';
+        isGuest = false;
+        location.reload(); // Refresh to clear state
+    } catch (error) {
+        console.error('Logout error:', error);
+    }
+});
+
+function showAuthMessage(form, message, isError) {
+    const messageEl = form === 'login' ? authElements.loginMessage : authElements.signupMessage;
+    messageEl.textContent = message;
+    messageEl.className = isError ? 'auth-message error' : 'auth-message success';
+}
+
+// Allow Enter key to submit
+authElements.loginUsername.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') authElements.loginBtn.click();
+});
+authElements.loginPassword.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') authElements.loginBtn.click();
+});
+authElements.signupUsername.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') authElements.signupPassword.focus();
+});
+authElements.signupPassword.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') authElements.signupBtn.click();
+});
 
 // ============================================
 // GAME 24 LOGIC
@@ -139,6 +428,85 @@ function generateCards() {
     return [8, 8, 3, 5]; // (8+8)+(3+5) = 24
 }
 
+// Safe math expression evaluator (no eval!)
+function safeMathEval(expr) {
+    // Remove all whitespace
+    expr = expr.replace(/\s+/g, '');
+    
+    // Tokenize the expression
+    const tokens = expr.match(/(\d+\.?\d*|[+\-*/()])/g);
+    if (!tokens) return null;
+    
+    let pos = 0;
+    
+    function peek() {
+        return tokens[pos];
+    }
+    
+    function consume() {
+        return tokens[pos++];
+    }
+    
+    function parseExpression() {
+        let result = parseTerm();
+        
+        while (peek() === '+' || peek() === '-') {
+            const op = consume();
+            const right = parseTerm();
+            if (result === null || right === null) return null;
+            result = op === '+' ? result + right : result - right;
+        }
+        
+        return result;
+    }
+    
+    function parseTerm() {
+        let result = parseFactor();
+        
+        while (peek() === '*' || peek() === '/') {
+            const op = consume();
+            const right = parseFactor();
+            if (result === null || right === null) return null;
+            if (op === '/' && right === 0) return null;
+            result = op === '*' ? result * right : result / right;
+        }
+        
+        return result;
+    }
+    
+    function parseFactor() {
+        const token = peek();
+        
+        if (token === '(') {
+            consume(); // consume '('
+            const result = parseExpression();
+            if (peek() !== ')') return null;
+            consume(); // consume ')'
+            return result;
+        }
+        
+        if (token === '-') {
+            consume(); // consume '-'
+            const result = parseFactor();
+            return result === null ? null : -result;
+        }
+        
+        if (/^\d+\.?\d*$/.test(token)) {
+            consume();
+            return parseFloat(token);
+        }
+        
+        return null;
+    }
+    
+    const result = parseExpression();
+    
+    // Make sure we consumed all tokens
+    if (pos !== tokens.length) return null;
+    
+    return result;
+}
+
 // Evaluate expression and check if it equals 24
 function evaluateExpression(expr, cards) {
     try {
@@ -165,8 +533,12 @@ function evaluateExpression(expr, cards) {
             return { valid: false, result: null, error: 'Invalid characters! Use only +, -, *, /, (, )' };
         }
         
-        // Evaluate the expression
-        const result = eval(expr);
+        // Evaluate the expression using safe parser (NO eval!)
+        const result = safeMathEval(expr);
+        
+        if (result === null) {
+            return { valid: false, result: null, error: 'Invalid expression format!' };
+        }
         
         return { valid: true, result, error: null };
     } catch (error) {
@@ -187,7 +559,6 @@ function calculateEloChange(winnerRating, loserRating, K = 32) {
         loserChange: Math.round(K * (0 - expectedLoser))
     };
 }
-
 // ============================================
 // AUTHENTICATION
 // ============================================
@@ -197,8 +568,17 @@ onAuthStateChanged(auth, async (user) => {
         currentUser = user;
         await loadOrCreateUserProfile(user.uid);
         await loadLeaderboard();
+        
+        // Update display name
+        const displayName = user.displayName || (isGuest ? 'Guest' : 'Player');
+        authElements.userDisplayName.textContent = displayName;
+        authElements.logoutBtn.style.display = 'block';
+        
+        // Show menu screen
+        showScreen('menu');
     } else {
-        await signInAnonymously(auth);
+        // Show auth screen
+        showScreen('auth');
     }
 });
 
@@ -209,8 +589,10 @@ async function loadOrCreateUserProfile(uid) {
     if (userSnap.exists()) {
         userProfile = userSnap.data();
     } else {
+        const displayName = currentUser.displayName || (isGuest ? 'Guest' : 'Player');
         userProfile = {
             uid,
+            displayName: displayName,
             rating: 1200,
             wins: 0,
             losses: 0,
@@ -227,6 +609,7 @@ function updateUserStatsDisplay() {
     elements.userWins.textContent = userProfile.wins;
     elements.userLosses.textContent = userProfile.losses;
     elements.yourRating.textContent = userProfile.rating;
+    elements.yourName.textContent = userProfile.displayName || 'You';
 }
 
 // ============================================
@@ -248,10 +631,11 @@ async function loadLeaderboard() {
         snapshot.forEach((doc) => {
             const data = doc.data();
             const isCurrentUser = doc.id === currentUser.uid;
+            const displayName = data.displayName || 'Player';
             html += `
                 <div class="leaderboard-item" style="${isCurrentUser ? 'background: #e3f2fd; font-weight: bold;' : ''}">
                     <span class="leaderboard-rank">#${rank}</span>
-                    <span>${isCurrentUser ? 'You' : 'Player'}</span>
+                    <span>${isCurrentUser ? 'You (' + displayName + ')' : displayName}</span>
                     <span>${data.rating} (${data.wins}W/${data.losses}L)</span>
                 </div>
             `;
@@ -384,6 +768,7 @@ async function startGameListener() {
             opponent = opponentSnap.data();
             
             elements.opponentRating.textContent = opponent.rating;
+            elements.opponentName.textContent = opponent.displayName || 'Opponent';
             
             // Update status indicators
             updateGameStatus();
@@ -680,6 +1065,4 @@ elements.playAgainBtn.addEventListener('click', () => {
     elements.gameMessage.textContent = '';
     
     showScreen('menu');
-
 });
-
