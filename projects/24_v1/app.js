@@ -26,8 +26,15 @@ import {
 // ============================================
 // FIREBASE CONFIGURATION
 // ============================================
-const res = await fetch('./firebase.config.json');
-const firebaseConfig = await res.json();
+const firebaseConfig = {
+    apiKey: "AIzaSyAJ4XxKytAUvrAOBbcUR8f-mls_IfIZkxA",
+    authDomain: "game24-multiplayer-4b38a.firebaseapp.com",
+    projectId: "game24-multiplayer-4b38a",
+    storageBucket: "game24-multiplayer-4b38a.firebasestorage.app",
+    messagingSenderId: "965076056957",
+    appId: "1:965076056957:web:41692a8300d95641096a14",
+    measurementId: "G-EX5XH8YQY8"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -559,18 +566,24 @@ function calculateEloChange(winnerRating, loserRating, K = 32) {
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUser = user;
-        await loadOrCreateUserProfile(user.uid);
+        
+        // Check session
+        const session = getSession();
+        
+        if (session.username && session.uid === user.uid) {
+            // Has account
+            await loadOrCreateUserProfile(user.uid, session.username);
+            authElements.userDisplayName.textContent = session.username;
+        } else if (isGuest) {
+            // Guest
+            await loadOrCreateUserProfile(user.uid, 'Guest');
+            authElements.userDisplayName.textContent = 'Guest';
+        }
+        
         await loadLeaderboard();
-        
-        // Update display name
-        const displayName = user.displayName || (isGuest ? 'Guest' : 'Player');
-        authElements.userDisplayName.textContent = displayName;
         authElements.logoutBtn.style.display = 'block';
-        
-        // Show menu screen
         showScreen('menu');
     } else {
-        // Show auth screen
         showScreen('auth');
     }
 });
@@ -1059,4 +1072,3 @@ elements.playAgainBtn.addEventListener('click', () => {
     
     showScreen('menu');
 });
-
