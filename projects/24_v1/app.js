@@ -26,15 +26,8 @@ import {
 // ============================================
 // FIREBASE CONFIGURATION
 // ============================================
-const firebaseConfig = {
-    apiKey: "AIzaSyAJ4XxKytAUvrAOBbcUR8f-mls_IfIZkxA",
-    authDomain: "game24-multiplayer-4b38a.firebaseapp.com",
-    projectId: "game24-multiplayer-4b38a",
-    storageBucket: "game24-multiplayer-4b38a.firebasestorage.app",
-    messagingSenderId: "965076056957",
-    appId: "1:965076056957:web:41692a8300d95641096a14",
-    measurementId: "G-EX5XH8YQY8"
-};
+const res = await fetch('./firebase.config.json');
+const firebaseConfig = await res.json();
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -1066,3 +1059,4 @@ elements.playAgainBtn.addEventListener('click', () => {
     
     showScreen('menu');
 });
+
