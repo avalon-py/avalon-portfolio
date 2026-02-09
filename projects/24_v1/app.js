@@ -606,7 +606,7 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 async function loadOrCreateUserProfile(uid, displayName) {
-    const userRef = doc(db, 'users', uid);
+    const userRef = doc(db, 'users', userId);
     const userSnap = await getDoc(userRef);
     
     if (userSnap.exists()) {
@@ -658,7 +658,7 @@ async function loadLeaderboard() {
         
         snapshot.forEach((doc) => {
             const data = doc.data();
-            const isCurrentUser = doc.id === currentUser.uid;
+            const isCurrentUser = doc.id === userProfile.userId;
             const displayName = data.displayName || 'Player';
             html += `
                 <div class="leaderboard-item" style="${isCurrentUser ? 'background: #e3f2fd; font-weight: bold;' : ''}">
@@ -698,7 +698,7 @@ async function findMatch() {
         let foundOpponent = false;
         
         snapshot.forEach(async (docSnap) => {
-            if (docSnap.id !== currentUser.uid && !foundOpponent) {
+            if (docSnap.id !== userProfile.userId && !foundOpponent) {
                 foundOpponent = true;
                 const opponentId = docSnap.id;
                 
@@ -706,20 +706,20 @@ async function findMatch() {
                 await deleteDoc(doc(db, 'waiting', opponentId));
                 
                 // Create game
-                await createGame(currentUser.uid, opponentId);
+                await createGame(userProfile.userId, opponentId);
             }
         });
         
         if (!foundOpponent) {
             // Add to waiting queue
-            await setDoc(doc(db, 'waiting', currentUser.uid), {
+            await setDoc(doc(db, 'waiting', userProfile.userId), {
                 searching: true,
                 rating: userProfile.rating,
                 timestamp: serverTimestamp()
             });
             
             // Listen for game creation
-            waitingUnsubscribe = onSnapshot(doc(db, 'users', currentUser.uid), async (snapshot) => {
+            waitingUnsubscribe = onSnapshot(doc(db, 'users', userProfile.userId), async (snapshot) => {
                 const data = snapshot.data();
                 if (data?.currentGame) {
                     if (waitingUnsubscribe) waitingUnsubscribe();
@@ -742,7 +742,7 @@ async function cancelSearch() {
     }
     
     try {
-        await deleteDoc(doc(db, 'waiting', currentUser.uid));
+        await deleteDoc(doc(db, 'waiting', userProfile.userId));
     } catch (error) {
         console.error('Error canceling search:', error);
     }
@@ -791,7 +791,7 @@ async function startGameListener() {
             cards = data.cards;
             
             // Load opponent profile
-            const opponentId = data.player1 === currentUser.uid ? data.player2 : data.player1;
+            const opponentId = data.player1 === userProfile.userId ? data.player2 : data.player1;
             const opponentSnap = await getDoc(doc(db, 'users', opponentId));
             opponent = opponentSnap.data();
             
@@ -815,7 +815,7 @@ async function startGameListener() {
 }
 
 function updateGameStatus() {
-    const isPlayer1 = gameData.player1 === currentUser.uid;
+    const isPlayer1 = gameData.player1 === userProfile.userId;
     const mySolution = isPlayer1 ? gameData.player1Solution : gameData.player2Solution;
     const opponentSolution = isPlayer1 ? gameData.player2Solution : gameData.player1Solution;
     
@@ -895,7 +895,7 @@ function startTimer() {
 async function handleTimeout() {
     if (!gameData || gameData.status === 'completed') return;
     
-    const isPlayer1 = gameData.player1 === currentUser.uid;
+    const isPlayer1 = gameData.player1 === userProfile.userId;
     const mySolution = isPlayer1 ? gameData.player1Solution : gameData.player2Solution;
     const opponentSolution = isPlayer1 ? gameData.player2Solution : gameData.player1Solution;
     
@@ -946,7 +946,7 @@ async function submitSolution() {
     
     // Correct solution!
     const solveTime = 60 - timeLeft;
-    const isPlayer1 = gameData.player1 === currentUser.uid;
+    const isPlayer1 = gameData.player1 === userProfile.userId;
     
     const updateData = {
         [isPlayer1 ? 'player1Solution' : 'player2Solution']: expression,
@@ -959,11 +959,11 @@ async function submitSolution() {
     if (opponentSolution) {
         // Both solved, faster wins
         const opponentTime = isPlayer1 ? gameData.player2Time : gameData.player1Time;
-        updateData.winner = solveTime < opponentTime ? currentUser.uid : (isPlayer1 ? gameData.player2 : gameData.player1);
+        updateData.winner = solveTime < opponentTime ? userProfile.userId : (isPlayer1 ? gameData.player2 : gameData.player1);
         updateData.status = 'completed';
     } else {
         // First to solve wins
-        updateData.winner = currentUser.uid;
+        updateData.winner = userProfile.userId;
         updateData.status = 'completed';
     }
     
@@ -991,7 +991,7 @@ async function handleGameEnd() {
     
     showScreen('result');
     
-    const isPlayer1 = gameData.player1 === currentUser.uid;
+    const isPlayer1 = gameData.player1 === userProfile.userId;
     const opponentId = isPlayer1 ? gameData.player2 : gameData.player1;
     
     // Display solutions
@@ -1005,14 +1005,14 @@ async function handleGameEnd() {
     elements.opponentTime.textContent = opponentTime !== null ? `Time: ${opponentTime}s` : '';
     
     // Determine result
-    if (gameData.winner === currentUser.uid) {
+    if (gameData.winner === userProfile.userId) {
         elements.resultTitle.textContent = '🎉 You Won!';
         
         // Calculate ELO
         const eloChange = calculateEloChange(userProfile.rating, opponent.rating);
         
         // Update database
-        await updateDoc(doc(db, 'users', currentUser.uid), {
+        await updateDoc(doc(db, 'users', userProfile.userId), {
             rating: increment(eloChange.winnerChange),
             wins: increment(1),
             currentGame: null
@@ -1037,7 +1037,7 @@ async function handleGameEnd() {
         const eloChange = calculateEloChange(opponent.rating, userProfile.rating);
         
         // Update database
-        await updateDoc(doc(db, 'users', currentUser.uid), {
+        await updateDoc(doc(db, 'users', userProfile.userId), {
             rating: increment(eloChange.loserChange),
             losses: increment(1),
             currentGame: null
@@ -1058,7 +1058,7 @@ async function handleGameEnd() {
     } else {
         elements.resultTitle.textContent = '🤝 Draw';
         
-        await updateDoc(doc(db, 'users', currentUser.uid), { currentGame: null });
+        await updateDoc(doc(db, 'users', userProfile.userId), { currentGame: null });
         await updateDoc(doc(db, 'users', opponentId), { currentGame: null });
         
         elements.ratingChange.textContent = 'No rating change';
@@ -1070,7 +1070,7 @@ async function handleGameEnd() {
     
     // Clean up
     try {
-        await deleteDoc(doc(db, 'waiting', currentUser.uid));
+        await deleteDoc(doc(db, 'waiting', userProfile.userId));
     } catch (error) {
         // Ignore if doesn't exist
     }
