@@ -561,32 +561,44 @@ function calculateEloChange(winnerRating, loserRating, K = 32) {
 // ============================================
 
 onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        currentUser = user;
-        
-        // Check session
-        const session = getSession();
-        
-        if (session.username) {
-            // Registered user - use username as consistent ID (FIXED!)
-            await loadOrCreateUserProfile(session.username, session.username);
-            authElements.userDisplayName.textContent = session.username;
-            isGuest = false;
-        } else if (isGuest) {
-            // Explicit guest mode - use Firebase UID for guests
-            await loadOrCreateUserProfile(user.uid, 'Guest');
-            authElements.userDisplayName.textContent = 'Guest';
+    try {
+        if (user) {
+            currentUser = user;
+            console.log('Auth state changed - user logged in:', user.uid);
+            
+            // Check session
+            const session = getSession();
+            console.log('Session data:', session);
+            
+            if (session.username) {
+                // Registered user - use username as consistent ID (FIXED!)
+                console.log('Loading registered user:', session.username);
+                await loadOrCreateUserProfile(session.username, session.username);
+                authElements.userDisplayName.textContent = session.username;
+                isGuest = false;
+            } else if (isGuest) {
+                // Explicit guest mode - use Firebase UID for guests
+                console.log('Loading guest user with UID:', user.uid);
+                await loadOrCreateUserProfile(user.uid, 'Guest');
+                authElements.userDisplayName.textContent = 'Guest';
+            } else {
+                // Unknown - shouldn't happen, treat as guest
+                console.log('Unknown user, treating as guest');
+                await loadOrCreateUserProfile(user.uid, 'Guest');
+                authElements.userDisplayName.textContent = 'Guest';
+                isGuest = true;
+            }
+            
+            await loadLeaderboard();
+            authElements.logoutBtn.style.display = 'block';
+            showScreen('menu');
         } else {
-            // Unknown - shouldn't happen, treat as guest
-            await loadOrCreateUserProfile(user.uid, 'Guest');
-            authElements.userDisplayName.textContent = 'Guest';
-            isGuest = true;
+            console.log('Auth state changed - user logged out');
+            showScreen('auth');
         }
-        
-        await loadLeaderboard();
-        authElements.logoutBtn.style.display = 'block';
-        showScreen('menu');
-    } else {
+    } catch (error) {
+        console.error('Error in onAuthStateChanged:', error);
+        alert('Authentication error: ' + error.message);
         showScreen('auth');
     }
 });
