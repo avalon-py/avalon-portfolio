@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCursorGlow();
     initHeaderScroll();
     initMobileMenu();
+    initProjectDates(); // ← added
 });
 
 // --- Three.js Scene ---
@@ -118,7 +119,6 @@ function initCursorGlow() {
     const glowEl = document.getElementById('cursor-glow');
     
     window.addEventListener('mousemove', (e) => {
-        // Reduced opacity from 0.06 to 0.025 and size from 600px to 500px for subtler effect
         glowEl.style.background = `radial-gradient(500px circle at ${e.clientX}px ${e.clientY}px, rgba(19, 91, 236, 0.025), transparent 50%)`;
     });
 }
@@ -166,5 +166,28 @@ function initMobileMenu() {
             btn.innerHTML = '<i data-lucide="menu" class="w-7 h-7"></i>';
             lucide.createIcons();
         });
+    });
+}
+
+// --- Project Dates ---
+function initProjectDates() {
+    document.querySelectorAll('[data-updated]').forEach(article => {
+        const dateEl = article.querySelector('.updated-date');
+        if (!dateEl) return;
+
+        const updated = new Date(article.getAttribute('data-updated')); // ← the fix: parse from attribute
+        const diffDays = Math.floor((new Date() - updated) / (1000 * 60 * 60 * 24));
+        const diffMonths = Math.floor(diffDays / 30);
+        const diffYears = Math.floor(diffDays / 365);
+
+        let label;
+        if (diffDays === 0)        label = 'Updated today';
+        else if (diffDays === 1)   label = 'Updated 1 day ago';
+        else if (diffDays < 30)    label = `Updated ${diffDays} days ago`;
+        else if (diffMonths < 12)  label = `Updated ${diffMonths} month${diffMonths > 1 ? 's' : ''} ago`;
+        else if (diffYears === 1)  label = 'Updated 1 year ago';
+        else                       label = `Updated ${diffYears} years ago`;
+
+        dateEl.innerHTML = `<div class="w-1.5 h-1.5 rounded-full bg-green-500/50"></div>${label}`;
     });
 }
