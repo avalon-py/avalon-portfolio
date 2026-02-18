@@ -454,7 +454,7 @@
                   <div class="flex items-center justify-between pt-6 border-t border-gray-800">
                     <div class="flex items-center gap-2">
                       <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span class="text-xs font-medium text-gray-500">Active Project</span>
+                      <span class="text-xs font-medium text-gray-500">Finished Project</span>
                     </div>
                     <div class="flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
                       <span>View Project</span>
@@ -539,6 +539,79 @@
               </a>
             </article>
 
+            <!-- Project 3: Speech2Market -->
+            <article class="group relative bg-gradient-to-br from-card-dark to-[#0a0f18] rounded-2xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20">
+              <a href="projects/speech2market/index.html" class="block">
+                <!-- Image Header -->
+                <div class="relative h-64 overflow-hidden">
+                  <div 
+                    class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    style="background-image: url('projects/speech2market/assets/img/thumbnail.jpg')"
+                  >
+                    <div class="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/50 to-transparent"></div>
+                  </div>
+                  
+                  <!-- Floating Badge -->
+                  <div class="absolute top-4 right-4 flex gap-2">
+                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
+                      Economics
+                    </span>
+                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
+                      Investment
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Content -->
+                <div class="p-8 relative z-10">
+                  <!-- Title & Meta -->
+                  <div class="mb-6">
+                    <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors leading-tight">
+                      Effects of FED's Speeches to Asset Price Action
+                    </h3>
+                    <div class="flex items-center gap-3 text-sm text-gray-500">
+                      <span class="flex items-center gap-1.5">
+                        <i data-lucide="code-2" class="w-4 h-4"></i>
+                        Python
+                      </span>
+                      <span class="w-1 h-1 rounded-full bg-gray-700"></span>
+                      <span class="flex items-center gap-1.5">
+                        <i data-lucide="calendar" class="w-4 h-4"></i>
+                        Updated 1 day ago
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Description -->
+                  <p class="text-gray-400 leading-relaxed mb-6 text-base">
+                    This project attempts to create model(s) that can utilize The FED's speech transcript, macroeconomic indicators, and lagged past asset prices as a predictor for 
+                    t+3, t+7, and t+30 of several assets (S&P500, Gold, 10Y Treasury Yield, etc.) by using FinBERT by ProsusAI for neural embedding and XGBRegressor as the ML Regressor
+                  </p>
+
+                  <!-- Tech Stack -->
+                  <div class="flex flex-wrap gap-2 mb-6">
+                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">BERT</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">FRED API</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">XGBRegressor</span>
+                  </div>
+
+                  <!-- Footer -->
+                  <div class="flex items-center justify-between pt-6 border-t border-gray-800">
+                    <div class="flex items-center gap-2">
+                      <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                      <span class="text-xs font-medium text-gray-500">Finished Project</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
+                      <span>View Project</span>
+                      <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Glow Effect -->
+                <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10"></div>
+              </a>
+            </article>
           </div>
         </div>
       </section>
