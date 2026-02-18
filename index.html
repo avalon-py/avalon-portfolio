@@ -16,20 +16,6 @@
     <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Three.js Import Map -->
-    <script type="importmap">
-{
-  "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "react": "https://esm.sh/react@^19.2.3",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "@react-three/fiber": "https://esm.sh/@react-three/fiber@^9.4.2",
-    "@react-three/drei": "https://esm.sh/@react-three/drei@^10.7.7",
-    "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
-  }
-}
-</script>
-
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
 
@@ -56,6 +42,45 @@
         },
       }
     </script>
+
+    <style>
+      /* Animated title cycling */
+      #title-cycler {
+        display: block !important;
+        position: relative !important;
+        overflow: hidden !important;
+        height: 5rem !important;
+        width: 100vw;
+        max-width: 900px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .title-word {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        white-space: nowrap;
+        font-weight: 900;
+        /* gradient must live on each span individually */
+        background: linear-gradient(90deg, #135bec, #60a5fa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: transform, opacity;
+      }
+
+      .title-word.state-active {
+        height: 10rem;
+      }
+
+      .title-word.state-above  { opacity: 0; transform: translateY(-110%); }
+      .title-word.state-active { opacity: 1; transform: translateY(0%); }
+      .title-word.state-below  { opacity: 0; transform: translateY(110%); }
+    </style>
+
   <link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-background-dark text-white relative selection:bg-primary/30 selection:text-white overflow-x-hidden">
@@ -122,82 +147,57 @@
       
       <!-- Hero Section -->
       <section class="relative w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 pt-32 pb-20 md:pt-48 md:pb-32">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
-          
-          <!-- Left Content -->
-          <div class="flex flex-col gap-8 order-2 lg:order-1 relative z-10">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit backdrop-blur-sm">
-              <span class="relative flex h-2 w-2">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
-              <span class="text-xs font-semibold text-primary uppercase tracking-wide">Available for hire</span>
-            </div>
-  
-            <h1 class="text-5xl md:text-6xl lg:text-7xl font-black leading-tight tracking-tight text-white">
-              Data Scientist & <br />
-              <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-blue-400">
-                Finance-Banking Enthusiast
-              </span>
-            </h1>
-  
-            <p class="text-lg text-gray-400 max-w-lg leading-relaxed border-l-2 border-gray-800 pl-6">
-              Building intelligent systems at the intersection of AI and Finance. 
-              Enthusiastic in algorithmic trading, risk modeling, and predictive analytics.
-            </p>
-  
-            <div class="flex flex-wrap gap-4 pt-2">
-              <a href="#projects" class="group flex items-center justify-center gap-2 h-12 px-8 rounded-lg bg-primary text-white font-bold hover:bg-blue-600 transition-all shadow-[0_0_20px_rgba(19,91,236,0.3)] hover:shadow-[0_0_30px_rgba(19,91,236,0.5)]">
-                View Projects
-                <i data-lucide="arrow-right" class="w-[18px] group-hover:translate-x-1 transition-transform"></i>
-              </a>
-              <a href="#contact" class="flex items-center justify-center h-12 px-8 rounded-lg bg-gray-800 text-white font-bold hover:bg-gray-700 transition-all border border-gray-700">
-                Contact Me
-              </a>
-            </div>
-  
-            <div class="flex gap-6 pt-4 text-gray-500">
-              <a href="#" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
-                <i data-lucide="github" class="w-6 h-6"></i>
-              </a>
-              <a href="#" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
-                <i data-lucide="linkedin" class="w-6 h-6"></i>
-              </a>
-              <a href="#" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
-                <i data-lucide="instagram" class="w-6 h-6"></i>
-              </a>
-            </div>
+        <div class="flex flex-col items-center gap-8 text-center">
+
+          <!-- Available Badge -->
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+            </span>
+            <span class="text-xs font-semibold text-primary uppercase tracking-wide">Available for hire</span>
           </div>
-  
-          <!-- Right 3D Visual -->
-          <div class="order-1 lg:order-2 flex justify-center lg:justify-end relative">
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
-            
-            <div class="relative w-full aspect-square max-w-[500px] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-[#131a26] to-[#0a0f18] border border-gray-800 group">
-               <!-- 3D Scene Container -->
-               <div id="canvas-container" class="absolute inset-0 z-10 w-full h-full"></div>
-               
-               <!-- Overlay Content on the Card -->
-               <div class="absolute bottom-0 left-0 w-full p-8 bg-gradient-to-t from-background-dark via-background-dark/80 to-transparent z-20 pointer-events-none">
-                  <div class="flex items-center gap-3 mb-2">
-                     <div class="h-px flex-grow bg-gradient-to-r from-transparent to-primary/50"></div>
-                     <span class="text-xs font-mono text-primary">NEURAL_NET_V1.0</span>
-                  </div>
-                  <div class="flex justify-between items-end">
-                      <div>
-                          <div class="text-white font-bold text-xl">System Active</div>
-                          <div class="text-gray-400 text-sm">Real-time data processing</div>
-                      </div>
-                      <div class="flex gap-1">
-                          <div class="w-1 h-4 bg-primary animate-pulse"></div>
-                          <div class="w-1 h-6 bg-primary/60 animate-pulse delay-75"></div>
-                          <div class="w-1 h-3 bg-primary/40 animate-pulse delay-150"></div>
-                      </div>
-                  </div>
-               </div>
-            </div>
+
+          <!-- Headline -->
+          <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-tight max-w-4xl">
+            <span class="text-white">Hi! I'm Stefano Budi</span>
+            <br />
+            <!-- Animated word container -->
+            <span id="title-cycler" class="mt-2 md:mt-4">
+              <!-- Words injected by JS -->
+            </span>
+          </h1>
+
+          <!-- Description -->
+          <p class="text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed">
+            Building intelligent systems at the intersection of AI and Finance.
+            Enthusiastic in algorithmic trading, risk modeling, and predictive analytics.
+          </p>
+
+          <!-- CTA Buttons -->
+          <div class="flex flex-wrap justify-center gap-4 pt-2">
+            <a href="#projects" class="group flex items-center justify-center gap-2 h-12 px-8 rounded-lg bg-primary text-white font-bold hover:bg-blue-600 transition-all shadow-[0_0_20px_rgba(19,91,236,0.3)] hover:shadow-[0_0_30px_rgba(19,91,236,0.5)]">
+              View Projects
+              <i data-lucide="arrow-right" class="w-[18px] group-hover:translate-x-1 transition-transform"></i>
+            </a>
+            <a href="#contact" class="flex items-center justify-center h-12 px-8 rounded-lg bg-gray-800 text-white font-bold hover:bg-gray-700 transition-all border border-gray-700">
+              Contact Me
+            </a>
           </div>
-  
+
+          <!-- Social Links -->
+          <div class="flex gap-6 pt-4 text-gray-500">
+            <a href="#" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
+              <i data-lucide="github" class="w-6 h-6"></i>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
+              <i data-lucide="linkedin" class="w-6 h-6"></i>
+            </a>
+            <a href="#" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
+              <i data-lucide="instagram" class="w-6 h-6"></i>
+            </a>
+          </div>
+
         </div>
       </section>
 
@@ -226,7 +226,7 @@
                 <i data-lucide="brain-circuit" class="w-[18px] mr-2.5 text-orange-500 transition-transform group-hover:scale-110"></i>
                 <span class="text-sm font-medium text-gray-300 group-hover:text-white">PyTorch</span>
               </div>
-              <!-- R -->
+              <!-- Tensorflow -->
               <div class="group flex h-10 items-center px-5 rounded-lg bg-card-dark border border-gray-800 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-default shadow-sm hover:shadow-lg hover:shadow-primary/10">
                 <i data-lucide="bar-chart-3" class="w-[18px] mr-2.5 text-yellow-400 transition-transform group-hover:scale-110"></i>
                 <span class="text-sm font-medium text-gray-300 group-hover:text-white">Tensorflow</span>
@@ -395,7 +395,6 @@
             <!-- Project 1: MBG Recommendation -->
             <article class="group relative bg-gradient-to-br from-card-dark to-[#0a0f18] rounded-2xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20" data-updated="2025-11-21">
               <a href="projects/mbg_recommendation/index.html" class="block">
-                <!-- Image Header -->
                 <div class="relative h-64 overflow-hidden">
                   <div 
                     class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -403,18 +402,13 @@
                   >
                     <div class="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/50 to-transparent"></div>
                   </div>
-                  
-                  <!-- Floating Badge -->
                   <div class="absolute top-4 right-4 flex gap-2">
                     <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
                       Clustering
                     </span>
                   </div>
                 </div>
-
-                <!-- Content -->
                 <div class="p-8 relative z-10">
-                  <!-- Title & Meta -->
                   <div class="mb-6">
                     <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors leading-tight">
                       Investment Priority Recommendation for Makan Bergizi Gratis Program
@@ -425,26 +419,19 @@
                         Python
                       </span>
                       <span class="w-1 h-1 rounded-full bg-gray-700"></span>
-                      <span class="updated-date flex items-center gap-1.5">
-                      </span>
+                      <span class="updated-date flex items-center gap-1.5"></span>
                     </div>
                   </div>
-
-                  <!-- Description -->
                   <p class="text-gray-400 leading-relaxed mb-6 text-base">
                     This project attempts to help the Makan Bergizi Gratis (MBG) program (initiated by Indonesian President Prabowo Subianto)
                     by developing an investment priority mapping based on economic and farmland data, in order to overcome the disparity of food 
                     prices across provinces of Indonesia.
                   </p>
-
-                  <!-- Tech Stack -->
                   <div class="flex flex-wrap gap-2 mb-6">
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">K-Means</span>
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Scikit-learn</span>
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Data Analysis</span>
                   </div>
-
-                  <!-- Footer -->
                   <div class="flex items-center justify-between pt-6 border-t border-gray-800">
                     <div class="flex items-center gap-2">
                       <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -456,8 +443,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Glow Effect -->
                 <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10"></div>
               </a>
             </article>
@@ -465,7 +450,6 @@
             <!-- Project 2: F1 Prediction -->
             <article class="group relative bg-gradient-to-br from-card-dark to-[#0a0f18] rounded-2xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20" data-updated="2026-01-05">
               <a href="projects/f1_prediction/index.html" class="block">
-                <!-- Image Header -->
                 <div class="relative h-64 overflow-hidden">
                   <div 
                     class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -473,18 +457,13 @@
                   >
                     <div class="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/50 to-transparent"></div>
                   </div>
-                  
-                  <!-- Floating Badge -->
                   <div class="absolute top-4 right-4 flex gap-2">
                     <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
                       Regression
                     </span>
                   </div>
                 </div>
-
-                <!-- Content -->
                 <div class="p-8 relative z-10">
-                  <!-- Title & Meta -->
                   <div class="mb-6">
                     <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors leading-tight">
                       F1 Race Result Prediction (2025) with Monte Carlo Simulation
@@ -495,25 +474,18 @@
                         Python
                       </span>
                       <span class="w-1 h-1 rounded-full bg-gray-700"></span>
-                      <span class="updated-date flex items-center gap-1.5">
-                      </span>
+                      <span class="updated-date flex items-center gap-1.5"></span>
                     </div>
                   </div>
-
-                  <!-- Description -->
                   <p class="text-gray-400 leading-relaxed mb-6 text-base">
                     This project attempts to create a model that can predict the result of an F1 race. This project uses Monte Carlo simulations, injecting weather 
                     and DNF chaos, with RFECV feature selection and Optuna-driven hyperparameter tuning for robust, probabilistic performance.
                   </p>
-
-                  <!-- Tech Stack -->
                   <div class="flex flex-wrap gap-2 mb-6">
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Monte Carlo</span>
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Optuna</span>
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">RFECV</span>
                   </div>
-
-                  <!-- Footer -->
                   <div class="flex items-center justify-between pt-6 border-t border-gray-800">
                     <div class="flex items-center gap-2">
                       <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -525,8 +497,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Glow Effect -->
                 <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10"></div>
               </a>
             </article>
@@ -534,7 +504,6 @@
             <!-- Project 3: Speech2Market -->
             <article class="group relative bg-gradient-to-br from-card-dark to-[#0a0f18] rounded-2xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20" data-updated="2026-02-18">
               <a href="projects/speech2market/index.html" class="block">
-                <!-- Image Header -->
                 <div class="relative h-64 overflow-hidden">
                   <div 
                     class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -542,18 +511,13 @@
                   >
                     <div class="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/50 to-transparent"></div>
                   </div>
-                  
-                  <!-- Floating Badge -->
                   <div class="absolute top-4 right-4 flex gap-2">
                     <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
                       Economics
                     </span>
                   </div>
                 </div>
-
-                <!-- Content -->
                 <div class="p-8 relative z-10">
-                  <!-- Title & Meta -->
                   <div class="mb-6">
                     <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors leading-tight">
                       Effects of FED's Speeches to Asset Price Action
@@ -564,25 +528,18 @@
                         Python
                       </span>
                       <span class="w-1 h-1 rounded-full bg-gray-700"></span>
-                      <span class="updated-date flex items-center gap-1.5">
-                      </span>
+                      <span class="updated-date flex items-center gap-1.5"></span>
                     </div>
                   </div>
-
-                  <!-- Description -->
                   <p class="text-gray-400 leading-relaxed mb-6 text-base">
                     This project attempts to create model(s) that can utilize The FED's speech transcript, macroeconomic indicators, and lagged past asset prices as a predictor for 
-                    t+3, t+7, and t+30 of several assets (S&P500, Gold, 10Y Treasury Yield, etc.) by using FinBERT by ProsusAI for neural embedding and XGBRegressor as the ML Regressor
+                    t+3, t+7, and t+30 of several assets (S&P500, Gold, 10Y Treasury Yield, etc.) by using FinBERT by ProsusAI for neural embedding and XGBRegressor as the ML Regressor.
                   </p>
-
-                  <!-- Tech Stack -->
                   <div class="flex flex-wrap gap-2 mb-6">
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">BERT</span>
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">FRED API</span>
                     <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">XGBRegressor</span>
                   </div>
-
-                  <!-- Footer -->
                   <div class="flex items-center justify-between pt-6 border-t border-gray-800">
                     <div class="flex items-center gap-2">
                       <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
@@ -594,8 +551,6 @@
                     </div>
                   </div>
                 </div>
-
-                <!-- Glow Effect -->
                 <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10"></div>
               </a>
             </article>
@@ -606,11 +561,8 @@
       <!-- QuantFlow Blog Section -->
       <section id="quantflow" class="w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 py-24">
         <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card-dark via-[#0d121c] to-card-dark border border-gray-800 p-12 md:p-16 lg:p-20">
-          <!-- Background Decorative Elements -->
           <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-50"></div>
           <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl opacity-50"></div>
-          
-          <!-- Content -->
           <div class="relative z-10 max-w-3xl mx-auto text-center">
             <div class="flex items-center justify-center gap-3 mb-6">
               <div class="p-3 bg-primary/10 rounded-xl">
@@ -618,12 +570,10 @@
               </div>
               <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-white">QuantFlow</h2>
             </div>
-            
             <p class="text-gray-400 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
               Deep dives into quantitative analysis, financial modeling, and algorithmic trading strategies. 
               Exploring the mathematics and code behind modern finance.
             </p>
-            
             <a href="projects/quant_blog/index.html" class="group inline-flex items-center justify-center gap-3 h-14 px-10 rounded-xl bg-primary text-white font-bold hover:bg-blue-600 transition-all shadow-[0_0_30px_rgba(19,91,236,0.3)] hover:shadow-[0_0_40px_rgba(19,91,236,0.5)] hover:scale-105 active:scale-95">
               <span>Explore Blog</span>
               <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
@@ -655,14 +605,12 @@
   
               <div class="p-8 bg-card-dark rounded-2xl border border-gray-800 relative overflow-hidden group">
                   <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-                  
                   <h4 class="font-bold text-white mb-6 flex items-center gap-3">
                       <div class="p-2 bg-primary/10 rounded-lg text-primary">
                           <i data-lucide="graduation-cap" class="w-5 h-5"></i>
                       </div>
                       Education
                   </h4>
-                  
                   <div class="space-y-6 relative z-10">
                       <div class="group/edu pl-4 border-l-2 border-gray-800 hover:border-primary transition-colors">
                           <p class="font-semibold text-white group-hover/edu:text-primary transition-colors">Computer Science, with Major Focus of Data Science</p>
@@ -679,10 +627,7 @@
             <!-- Experience Column -->
             <div class="lg:col-span-7 lg:pl-10">
               <h2 class="text-3xl font-bold tracking-tight text-white mb-10">Experience</h2>
-              
               <div class="relative border-l border-gray-800 ml-3 space-y-12 pb-4">
-                
-                <!-- Item 1 -->
                 <div class="relative pl-10 group">
                   <div class="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-primary border-4 border-[#0d121c] shadow-[0_0_10px_rgba(19,91,236,0.5)]"></div>
                   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
@@ -754,7 +699,6 @@
     </footer>
 
     <!-- Main Logic -->
-    <script type="module" src="script.js"></script>
-  <script type="module" src="/index.tsx"></script>
+    <script src="script.js"></script>
 </body>
 </html>
