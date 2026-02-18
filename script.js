@@ -1,123 +1,65 @@
-import * as THREE from 'three';
-
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize Lucide Icons
     lucide.createIcons();
 
     // Init Logic
-    initThreeScene();
+    initTitleCycler();
     initCursorGlow();
     initHeaderScroll();
     initMobileMenu();
-    initProjectDates(); // ← added
+    initProjectDates();
 });
 
-// --- Three.js Scene ---
-function initThreeScene() {
-    const container = document.getElementById('canvas-container');
-    if (!container) return;
+// --- Animated Title Cycler ---
+function initTitleCycler() {
+    const wrapper = document.getElementById('title-cycler');
+    if (!wrapper) return;
 
-    const scene = new THREE.Scene();
-    // Add Fog to blend edges
-    scene.fog = new THREE.Fog('#131a26', 2, 8); // Matches card bg color roughly
+    const titles = [
+        'Data Science',
+        'Machine Learning',
+        'Artificial Intelligence',
+        'Quantitative Analysis',
+        'Finance Banking',
+        'Investment',
+    ];
 
-    const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 100);
-    camera.position.z = 5;
+    // Build a span per word; first is active, rest start below (ready to slide in)
+    const spans = titles.map((title, i) => {
+        const span = document.createElement('span');
+        span.className = 'title-word ' + (i === 0 ? 'state-active' : 'state-below');
+        span.textContent = title;
+        wrapper.appendChild(span);
+        return span;
+    });
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(container.clientWidth, container.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    container.appendChild(renderer.domElement);
+    let current = 0;
 
-    // Particles
-    const particleGeometry = new THREE.BufferGeometry();
-    const count = 300;
-    const positions = new Float32Array(count * 3);
-    const radius = 2.2;
+    function advance() {
+        const prev = current;
+        current = (current + 1) % titles.length;
 
-    for (let i = 0; i < count; i++) {
-        const theta = THREE.MathUtils.randFloatSpread(360);
-        const phi = THREE.MathUtils.randFloatSpread(360);
+        // Outgoing word slides up and fades
+        spans[prev].className = 'title-word state-above';
 
-        const x = radius * Math.sin(theta) * Math.cos(phi);
-        const y = radius * Math.sin(theta) * Math.sin(phi);
-        const z = radius * Math.cos(theta);
+        // Incoming word slides in from below
+        spans[current].className = 'title-word state-active';
 
-        positions[i * 3] = x;
-        positions[i * 3 + 1] = y;
-        positions[i * 3 + 2] = z;
+        // After transition finishes, reset outgoing to below so it can re-enter later
+        setTimeout(() => {
+            spans[prev].className = 'title-word state-below';
+        }, 520);
     }
 
-    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-    const particleMaterial = new THREE.PointsMaterial({
-        color: 0x135bec,
-        size: 0.05,
-        transparent: true,
-        sizeAttenuation: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending
-    });
-
-    const particles = new THREE.Points(particleGeometry, particleMaterial);
-    
-    // Wireframe Sphere (Icosahedron)
-    const geometry = new THREE.IcosahedronGeometry(1, 2);
-    const material = new THREE.MeshBasicMaterial({ 
-        color: 0x135bec, 
-        wireframe: true, 
-        transparent: true, 
-        opacity: 0.05 
-    });
-    const wireframeSphere = new THREE.Mesh(geometry, material);
-    wireframeSphere.scale.set(1.8, 1.8, 1.8);
-
-    const group = new THREE.Group();
-    group.add(particles);
-    group.add(wireframeSphere);
-    group.rotation.z = Math.PI / 4;
-    scene.add(group);
-
-    // Ambient Light
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    scene.add(ambientLight);
-
-    // Animation Loop
-    const clock = new THREE.Clock();
-
-    function animate() {
-        requestAnimationFrame(animate);
-
-        const delta = clock.getDelta();
-        const time = clock.getElapsedTime();
-
-        // Rotation
-        group.rotation.x -= delta / 50;
-        group.rotation.y -= delta / 15;
-
-        // Breathing effect
-        const scale = 1 + Math.sin(time * 0.5) * 0.05;
-        group.scale.set(scale, scale, scale);
-
-        renderer.render(scene, camera);
-    }
-
-    animate();
-
-    // Resize Handler
-    window.addEventListener('resize', () => {
-        if (!container) return;
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-    });
+    setInterval(advance, 1800);
 }
 
 // --- Cursor Glow Effect ---
 function initCursorGlow() {
     const glowEl = document.getElementById('cursor-glow');
-    
+    if (!glowEl) return;
+
     window.addEventListener('mousemove', (e) => {
         glowEl.style.background = `radial-gradient(500px circle at ${e.clientX}px ${e.clientY}px, rgba(19, 91, 236, 0.025), transparent 50%)`;
     });
@@ -126,7 +68,8 @@ function initCursorGlow() {
 // --- Header Scroll Effect ---
 function initHeaderScroll() {
     const header = document.getElementById('main-header');
-    
+    if (!header) return;
+
     window.addEventListener('scroll', () => {
         if (window.scrollY > 20) {
             header.classList.add('bg-background-dark/90', 'backdrop-blur-md', 'border-b', 'border-gray-800', 'py-3');
@@ -175,7 +118,7 @@ function initProjectDates() {
         const dateEl = article.querySelector('.updated-date');
         if (!dateEl) return;
 
-        const updated = new Date(article.getAttribute('data-updated')); // ← the fix: parse from attribute
+        const updated = new Date(article.getAttribute('data-updated'));
         const diffDays = Math.floor((new Date() - updated) / (1000 * 60 * 60 * 24));
         const diffMonths = Math.floor(diffDays / 30);
         const diffYears = Math.floor(diffDays / 365);
