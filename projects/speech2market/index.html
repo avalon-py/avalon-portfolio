@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - FED Speech on Price</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        zinc: {
+                            950: '#09090b',
+                            900: '#18181b',
+                            800: '#27272a',
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/index.css">
+</head>
+<body class="bg-zinc-950 text-white min-h-screen flex flex-col font-sans antialiased selection:bg-indigo-500/30">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/10 bg-zinc-950/50 backdrop-blur-xl supports-[backdrop-filter]:bg-zinc-950/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                    <a href="index.html" class="font-bold text-xl tracking-tighter hover:text-indigo-400 transition-colors">SPEECH<span class="text-indigo-500">2MARKET</span></a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-1">
+                        <a href="index.html" class="bg-white/10 text-white px-4 py-2 rounded-full text-sm font-medium transition-all border border-white/10 hover:border-white/20">Home</a>
+                        <a href="technical.html" class="text-zinc-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">Technical</a>
+                        <a href="result.html" class="text-zinc-400 hover:text-white hover:bg-white/5 px-4 py-2 rounded-full text-sm font-medium transition-all">Result</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button id="mobile-menu-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none">
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden border-t border-zinc-800 bg-zinc-950" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="bg-zinc-800 text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="technical.html" class="text-zinc-300 hover:bg-zinc-800 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Technical</a>
+                <a href="result.html" class="text-zinc-300 hover:bg-zinc-800 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Result</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="home-page" class="flex-grow flex flex-col relative">
+        
+        <!-- Hero Section -->
+        <section class="relative h-[90vh] w-full flex flex-col items-center justify-center overflow-hidden border-b border-white/5 bg-zinc-950">
+            
+            <!-- Spotlight / Aurora Effect -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-indigo-600/20 rounded-[100%] blur-[100px] opacity-50 pointer-events-none animate-aurora mix-blend-screen"></div>
+            <div class="absolute bottom-0 right-0 w-[800px] h-[600px] bg-purple-600/10 rounded-[100%] blur-[120px] opacity-30 pointer-events-none"></div>
+
+            <!-- Background Grid (Dot Pattern) -->
+            <div class="absolute inset-0 bg-dot-white opacity-[0.15] pointer-events-none mask-image-gradient"></div>
+            <!-- Radial Fade for Grid -->
+            <div class="absolute inset-0 bg-zinc-950 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] pointer-events-none"></div>
+            
+            <!-- Corner Accents -->
+            <div class="absolute top-32 left-8 md:left-20 w-px h-24 bg-gradient-to-b from-transparent via-zinc-700 to-transparent opacity-50"></div>
+            <div class="absolute bottom-32 right-8 md:right-20 w-px h-24 bg-gradient-to-b from-transparent via-zinc-700 to-transparent opacity-50"></div>
+
+            <!-- Main Text Container (Shutter) -->
+            <div class="relative z-10 w-full px-4 md:px-12 flex flex-col items-center">
+                
+                <!-- Badge -->
+                <div class="mb-8 inline-flex items-center rounded-full border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300 backdrop-blur-md">
+                    <span class="mr-2 flex h-2 w-2 relative">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                    </span>
+                    NLP Financial Analysis Pipeline
+                </div>
+
+                <!-- Shutter Text Hook -->
+                <div id="shutter-container" class="flex flex-wrap justify-center items-center w-full select-none cursor-default text-center gap-x-3 gap-y-2 md:gap-y-4 max-w-7xl">
+                    <!-- JS Injected Text -->
+                </div>
+
+                <!-- Subtitle -->
+                <p class="mt-8 text-lg md:text-xl text-zinc-400 max-w-3xl text-center leading-relaxed">
+                    Quantifying the impact of The Federal Reserve's Speeches on Global Assets using <span class="text-zinc-200 font-semibold">Multimodal Transformer Embeddings</span> and Histogram Gradient Boosting Regressor.
+                </p>
+
+            </div>
+        </section>
+
+        <!-- Project Overview - Bento Grid Style -->
+        <section class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32">
+            
+            <div class="mb-16 md:text-center max-w-3xl mx-auto">
+                <h2 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-6">
+                    Beyond the Headlines.<br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Deep Semantic Alpha.</span>
+                </h2>
+                <p class="text-lg text-zinc-400 leading-relaxed">
+                    Financial markets react not just to policy decisions, but to the <em>nuance</em> of communication. We built a multimodal pipeline to decode this signal.
+                </p>
+            </div>
+
+            <!-- Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Card 1: Language -->
+                <div class="bento-card group relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/40 p-8 hover:bg-zinc-900/60 transition-colors">
+                    <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                    <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                             <svg class="w-6 h-6 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">Semantic Analysis</h3>
+                        <p class="text-sm text-zinc-400 leading-relaxed">
+                            Ingesting 25+ years of FED speeches. Using <span class="text-indigo-300">FinBERT</span> to extract 600-dimensional embeddings representing tone, hawkishness, and risk framing.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2: Macro (Span 2 cols on desktop?) No, let's keep even for symmetry or make middle standout -->
+                <div class="bento-card group relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/40 p-8 hover:bg-zinc-900/60 transition-colors md:mt-12">
+                     <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                     <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6 text-purple-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">Macro Context</h3>
+                        <p class="text-sm text-zinc-400 leading-relaxed">
+                            Aligning semantic signals with hard economic data from <span class="text-purple-300">FRED</span>. Unemployment, GDP, and Interest Rates provide the ground truth regime.
+                        </p>
+                     </div>
+                </div>
+
+                <!-- Card 3: Market -->
+                <div class="bento-card group relative overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-900/40 p-8 hover:bg-zinc-900/60 transition-colors">
+                     <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                     <div class="relative z-10">
+                        <div class="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg class="w-6 h-6 text-emerald-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-3">Volatility Forecasting</h3>
+                        <p class="text-sm text-zinc-400 leading-relaxed">
+                            Modeling future returns and volatility (VIX) across SPX, Gold, and Treasuries using <span class="text-emerald-300">Gradient Boosting</span> regression on the combined feature set.
+                        </p>
+                     </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Area / Call to Action -->
+            <div class="mt-24 text-center border-t border-zinc-900 pt-12">
+                <p class="text-zinc-500 text-sm mb-4">Ready to dive deeper?</p>
+                <a href="technical.html" class="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-full text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10 transition-all hover:scale-105 shadow-lg shadow-indigo-500/20">
+                    Explore the Architecture
+                    <svg class="w-5 h-5 ml-2 -mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </a>
+            </div>
+
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technical - FED Speech on Price</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        zinc: {
+                            950: '#09090b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-zinc-950 text-white min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="font-bold text-xl tracking-tighter hover:text-indigo-400 transition-colors">SPEECH<span class="text-indigo-500">2MARKET</span></a>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="index.html" class="text-zinc-300 hover:bg-zinc-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Home</a>
+                        <a href="technical.html" class="bg-zinc-800 text-white px-3 py-2 rounded-md text-sm font-medium">Technical</a>
+                        <a href="result.html" class="text-zinc-300 hover:bg-zinc-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Result</a>
+                    </div>
+                </div>
+                <div class="-mr-2 flex md:hidden">
+                    <button id="mobile-menu-btn" type="button" class="inline-flex items-center justify-center p-2 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 focus:outline-none">
+                        <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="hidden md:hidden border-t border-zinc-800 bg-zinc-950" id="mobile-menu">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="index.html" class="text-zinc-300 hover:bg-zinc-800 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
+                <a href="technical.html" class="bg-zinc-800 text-white block px-3 py-2 rounded-md text-base font-medium">Technical</a>
+                <a href="result.html" class="text-zinc-300 hover:bg-zinc-800 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Result</a>
+            </div>
+        </div>
+    </nav>
+
+    <div id="technical-page" class="flex-grow flex flex-col pt-16">
+        
+        <!-- Scroll Animation Hero Section -->
+        <section id="scroll-container" class="relative h-[110vh] flex flex-col items-center justify-start pt-20 overflow-hidden bg-zinc-950 border-b border-zinc-800">
+            <!-- Background effects -->
+            <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-zinc-950/0 to-zinc-950 pointer-events-none"></div>
+
+            <div class="relative z-10 w-full perspective-1000 px-4">
+                <!-- Header -->
+                <div id="scroll-header" class="max-w-5xl mx-auto text-center mb-12 will-change-transform">
+                    <h1 class="text-4xl font-semibold text-white">
+                        Unleash the power of <br />
+                        <span class="text-4xl md:text-[6rem] font-bold mt-2 leading-none text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">
+                            Data Pipelines
+                        </span>
+                    </h1>
+                </div>
+
+                <!-- 3D Card -->
+                <div id="scroll-card" class="max-w-5xl mx-auto h-[30rem] md:h-[40rem] w-full border-4 border-zinc-700 p-2 md:p-6 bg-zinc-900 rounded-[30px] shadow-2xl origin-center will-change-transform transform-style-3d">
+                    <div class="h-full w-full overflow-hidden rounded-2xl bg-zinc-950 relative">
+                         <!-- Dashboard Placeholder -->
+                         <img 
+                            src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2670&auto=format&fit=crop" 
+                            alt="Technical Architecture" 
+                            class="w-full h-full object-cover opacity-60 hover:opacity-90 transition-opacity duration-500"
+                         />
+                         <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent"></div>
+                         <div class="absolute bottom-6 left-6 right-6">
+                            <div class="bg-black/50 backdrop-blur-md border border-white/10 p-4 rounded-xl font-mono text-xs md:text-sm">
+                                <p class="text-indigo-300">>> initializing_pipeline...</p>
+                                <p class="text-emerald-400">>> architecture: FinBERT + HistGradientBoosting</p>
+                                <p class="text-blue-300">>> status: operational</p>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Orbital Timeline Section - Grid Layout -->
+        <section id="orbital-section" class="relative w-full h-screen bg-black overflow-hidden flex flex-col lg:flex-row">
+             
+             <!-- Left Side: Interactive Solar System -->
+             <div class="relative flex-grow h-[60vh] lg:h-full lg:w-3/5 flex items-center justify-center">
+                 
+                 <!-- Instruction Hint -->
+                 <div class="absolute top-8 left-8 text-zinc-500 text-xs uppercase tracking-widest pointer-events-none z-20 bg-black/50 p-2 rounded border border-zinc-800">
+                    Interactive Pipeline
+                 </div>
+
+                 <!-- Orbital Container -->
+                 <div id="orbital-container" class="relative w-full h-full flex items-center justify-center cursor-pointer">
+                     
+                     <!-- Deep Space Nebula Background (Now Rotating) -->
+                     <div class="absolute w-[800px] h-[800px] bg-indigo-900/10 rounded-full blur-[100px] animate-[spin_120s_linear_infinite] pointer-events-none"></div>
+                     <div class="absolute w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[80px] animate-pulse-custom pointer-events-none" style="animation-delay: 1s;"></div>
+
+                     <!-- Central Sun/Core (SCALED UP Massive) -->
+                     <div class="absolute z-10 flex items-center justify-center pointer-events-none">
+                        <!-- Outer Glow (Increased to 220px) -->
+                        <div class="w-56 h-56 rounded-full bg-gradient-to-br from-indigo-500 via-purple-500 to-blue-500 animate-pulse-custom flex items-center justify-center shadow-[0_0_120px_rgba(99,102,241,0.6)]">
+                            <!-- Inner Ring Ping (Increased) -->
+                            <div class="absolute w-64 h-64 rounded-full border border-white/30 animate-ping-custom opacity-70"></div>
+                            <!-- Core White Center (Increased to 24px/6rem) -->
+                            <div class="w-24 h-24 rounded-full bg-white/95 backdrop-blur-md z-20 shadow-[0_0_60px_white]"></div>
+                        </div>
+                     </div>
+
+                     <!-- Orbit Ring Visuals -->
+                     <!-- Main Orbit -->
+                     <div class="absolute w-[450px] h-[450px] md:w-[500px] md:h-[500px] rounded-full border border-white/10 opacity-60 pointer-events-none"></div>
+                     <!-- Outer Dashed -->
+                     <div class="absolute w-[600px] h-[600px] md:w-[700px] md:h-[700px] rounded-full border border-indigo-500/20 opacity-40 pointer-events-none border-dashed animate-[spin_60s_linear_infinite]"></div>
+                     <!-- Inner Faint -->
+                     <div class="absolute w-[250px] h-[250px] md:w-[350px] md:h-[350px] rounded-full border border-white/5 opacity-30 pointer-events-none"></div>
+                     <!-- Far Outer -->
+                     <div class="absolute w-[800px] h-[800px] md:w-[900px] md:h-[900px] rounded-full border border-white/5 opacity-20 pointer-events-none"></div>
+
+                     <!-- Nodes will be injected here by JS -->
+                     <div id="orbital-nodes-layer" class="absolute inset-0 w-full h-full pointer-events-none"></div>
+                 </div>
+             </div>
+
+             <!-- Right Side: Detail Panel (The "Beside" Square) -->
+             <div class="relative w-full lg:w-2/5 h-[40vh] lg:h-full border-t lg:border-t-0 lg:border-l border-zinc-800 bg-zinc-900/30 backdrop-blur-xl p-8 flex flex-col justify-center">
+                 <div id="orbital-info-panel" class="opacity-0 translate-x-10 transition-all duration-700 ease-out h-full max-h-[600px]">
+                     <!-- Content injected via JS -->
+                     <div class="text-center text-zinc-500 h-full flex flex-col items-center justify-center">
+                         <p class="uppercase tracking-widest text-sm mb-2">Select a Node</p>
+                         <p class="text-2xl font-bold text-zinc-700">Explore the Pipeline</p>
+                     </div>
+                 </div>
+             </div>
+        </section>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
