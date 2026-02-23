@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Geometry of Fear - QuantFlow</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- MathJax Config -->
+    <script>
+        window.MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                processEscapes: true
+            }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        quant: {
+                            bg: '#050505',
+                            card: '#0F0F11',
+                            border: '#1F1F22',
+                            accent: '#00f2ea',
+                            accentDim: 'rgba(0, 242, 234, 0.1)',
+                            danger: '#ff2a6d',
+                            warning: '#facc15'
+                        }
+                    },
+                    backgroundImage: {
+                        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #e4e4e7; }
+        
+        .grid-bg {
+            background-size: 60px 60px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        }
+
+        .glass-card {
+            background: rgba(15, 15, 17, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(0, 242, 234, 0.4);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px -10px rgba(0, 242, 234, 0.1);
+        }
+
+        /* Timeline connector */
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 20px;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, #27272a, transparent);
+        }
+        @media (min-width: 768px) {
+            .timeline-line::before {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00f2ea; 
+        }
+
+        .glitch-hover:hover {
+            animation: glitch 0.3s cubic-bezier(.25, .46, .45, .94) both infinite;
+            color: #00f2ea;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen relative selection:bg-quant-accent selection:text-black overflow-x-hidden">
+
+    <!-- Ambient Background Lighting -->
+    <div class="fixed top-0 left-0 w-[500px] h-[500px] bg-quant-accent/5 rounded-full blur-[120px] pointer-events-none -translate-x-1/2 -translate-y-1/2 z-0"></div>
+    <div class="fixed bottom-0 right-0 w-[500px] h-[500px] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none translate-x-1/2 translate-y-1/2 z-0"></div>
+    <div class="fixed inset-0 grid-bg z-0 pointer-events-none"></div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 left-0 w-full z-50 px-6 py-6 flex justify-between items-center mix-blend-difference">
+        <a href="index.html" class="font-mono text-xs font-bold tracking-widest hover:text-quant-accent transition-colors">
+            <span class="text-quant-accent">&lt;</span> BACK_TO_INDEX
+        </a>
+        <div class="flex items-center gap-4">
+            <span class="font-mono text-[10px] uppercase tracking-[0.3em] opacity-50">Status: Live</span>
+        </div>
+    </nav>
+
+    <div class="relative z-10 max-w-6xl mx-auto px-6 pt-32 pb-24">
+        
+        <!-- Hero Section -->
+        <header class="mb-20 md:mb-28 border-b border-white/5 pb-12">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-8">
+                <div>
+                    <span class="inline-block px-3 py-1 mb-6 text-[10px] font-mono font-bold uppercase tracking-widest text-black bg-quant-accent rounded-sm">
+                        Market Analysis
+                    </span>
+                    <h1 class="text-5xl md:text-7xl font-black text-white leading-[0.9] tracking-tighter uppercase mb-4">
+                        The Geometry<br>
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-gray-500 to-gray-200 glitch-hover cursor-default">Of Fear.</span>
+                    </h1>
+                </div>
+                <div class="md:text-right max-w-xs space-y-2">
+                    <p class="font-mono text-xs text-gray-500 uppercase tracking-widest">Asset</p>
+                    <p class="text-sm text-gray-300 font-mono">S&P 500 (SPX)</p>
+                    <p class="font-mono text-xs text-gray-500 uppercase tracking-widest mt-4">Snapshot</p>
+                    <p class="text-sm text-gray-300 font-mono">Feb 23, 2026. 10:09:44 AM EST</p>
+                    <p class="font-mono text-xs text-gray-500 uppercase tracking-widest mt-4">Spot Price</p>
+                    <p class="text-sm text-quant-danger font-mono font-bold">6885.70</p>
+                </div>
+            </div>
+            
+            <p class="text-xl md:text-2xl text-gray-400 font-light leading-relaxed max-w-4xl">
+                Price is just a number. The <span class="text-white">Volatility Surface</span> is the hidden landscape of risk. We inverted 2,913 option contracts to map the market's true anxiety.
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20">
+            
+            <!-- Sidebar Navigation / Metadata -->
+            <aside class="hidden lg:block lg:col-span-3 lg:sticky lg:top-32 h-fit space-y-12">
+                <div>
+                    <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-600 mb-4">Structure</h3>
+                    <ul class="space-y-3 font-mono text-xs text-gray-400">
+                        <li><a href="#methodology" class="hover:text-quant-accent transition-colors cursor-pointer">> The Engine Room</a></li>
+                        <li><a href="#analysis" class="hover:text-quant-accent transition-colors cursor-pointer">> The Red Wall</a></li>
+                        <li><a href="#anomalies" class="hover:text-quant-accent transition-colors cursor-pointer">> 0DTE Anomalies</a></li>
+                        <li><a href="#takeaway" class="hover:text-quant-accent transition-colors cursor-pointer">> Quant's Takeaway</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-mono text-[10px] uppercase tracking-[0.2em] text-gray-600 mb-4">Data Specs</h3>
+                    <div class="space-y-2 font-mono text-[10px] text-gray-500">
+                        <div class="flex justify-between">
+                            <span>Contracts</span>
+                            <span class="text-gray-300">2,913</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Strikes</span>
+                            <span class="text-gray-300">2000 - 9200</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Expirations</span>
+                            <span class="text-gray-300">0 - 3.5 Years</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <article class="lg:col-span-9 space-y-24">
+                
+                <!-- 1. Methodology -->
+                <section id="methodology">
+                    <div class="flex items-center gap-4 mb-8">
+                        <span class="font-mono text-quant-accent text-xl">01</span>
+                        <h2 class="text-3xl font-bold text-white">The Engine Room</h2>
+                    </div>
+                    
+                    <div class="prose prose-invert prose-lg max-w-none text-gray-400 font-light">
+                        <p class="mb-8">
+                            To build the surface, we don't just "plot data." We have to reverse-engineer the market's expectations using the Black-Scholes inversion. It's like un-baking a cake to find out exactly how much sugar (volatility) was used.
+                        </p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                            <!-- Metric 1 -->
+                            <div class="glass-card p-8 rounded-xl relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-6 h-6 text-quant-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                                </div>
+                                <h3 class="text-white font-bold text-lg mb-2">Black-Scholes Inversion</h3>
+                                <div class="font-serif text-xl text-white mb-4">$$ C_{mkt} - C_{BS}(\sigma) = 0 $$</div>
+                                <p class="text-sm leading-relaxed">
+                                    We aren't solving for price. We know the price. We solve for $\sigma$ (Implied Volatility).
+                                    <br><br>
+                                    <span class="text-quant-accent">Brent's Method:</span> Standard Newton-Raphson is too unstable for the jagged reality of OTM options. Brent's method guarantees convergence without derivatives.
+                                </p>
+                            </div>
+
+                            <!-- Metric 2 -->
+                            <div class="glass-card p-8 rounded-xl relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 p-4 opacity-30 group-hover:opacity-100 transition-opacity">
+                                    <svg class="w-6 h-6 text-quant-warning" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                </div>
+                                <h3 class="text-white font-bold text-lg mb-2">Vectorization</h3>
+                                <div class="font-serif text-xl text-white mb-4">$$ \mathbf{V} = f(\mathbf{S}, \mathbf{K}, \mathbf{T}) $$</div>
+                                <p class="text-sm leading-relaxed">
+                                    Processing 2,913 contracts individually is slow.
+                                    <br><br>
+                                    <span class="text-quant-warning">NumPy:</span> We vectorized the entire chain. No `for` loops. The entire surface calculates in milliseconds, allowing real-time risk assessment.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Interpolation Card -->
+                        <div class="glass-card p-8 rounded-xl mb-12 border-l-4 border-purple-500">
+                            <div class="flex items-start gap-4">
+                                <div class="p-3 bg-purple-500/10 rounded-lg">
+                                    <svg class="w-6 h-6 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
+                                </div>
+                                <div class="flex-1">
+                                    <h3 class="text-white font-bold text-lg mb-2">Cubic Spline Interpolation</h3>
+                                    <p class="text-sm leading-relaxed text-gray-400">
+                                        Market data is discrete and noisy. The world is continuous.
+                                        <br><br>
+                                        We used <code class="text-purple-300 bg-purple-900/30 px-1 rounded">scipy.interpolate.griddata</code> with the <strong>cubic</strong> method to fit a smooth manifold over the scattered strike/expiry points. This reveals the hidden topology between the trades.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Analysis -->
+                <section id="analysis">
+                    <div class="flex items-center gap-4 mb-8">
+                        <span class="font-mono text-quant-accent text-xl">02</span>
+                        <h2 class="text-3xl font-bold text-white">The Red Wall (Spot: 6885.70)</h2>
+                    </div>
+
+                    <div class="glass-card rounded-2xl overflow-hidden mb-12 border border-white/10">
+                        <div class="bg-quant-card p-4 border-b border-white/5 flex justify-between items-center">
+                            <span class="font-mono text-[10px] uppercase tracking-widest text-gray-500">Live_Interactive_Manifold.exe</span>
+                            <div class="flex gap-2">
+                                <div class="w-2 h-2 rounded-full bg-red-500/50"></div>
+                                <div class="w-2 h-2 rounded-full bg-yellow-500/50"></div>
+                                <div class="w-2 h-2 rounded-full bg-green-500/50"></div>
+                            </div>
+                        </div>
+                        <div class="relative w-full h-[500px] md:h-[600px] lg:h-[650px] overflow-hidden">
+                            <iframe 
+                                src="iframe.html" 
+                                class="absolute inset-0 w-full h-full border-none"
+                                scrolling="no"
+                                style="overflow:hidden;"
+                                title="S&P 500 Volatility Surface">
+                            </iframe>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-4 mb-6">
+                        <div class="flex-1">
+                            <p class="text-gray-300 leading-relaxed mb-6">
+                                The dominant feature of the surface is the vertical plane at <strong class="text-quant-danger">6885.70</strong>. This is the "At-The-Money" (ATM) anchor.
+                            </p>
+                            
+                            <div class="space-y-4">
+                                <div class="bg-black/40 rounded-lg p-5 border border-red-500/20">
+                                    <div class="font-mono text-xs text-red-400 mb-2">THE VOLATILITY SMIRK</div>
+                                    <div class="text-white font-bold mb-2">Downside Protection Bias</div>
+                                    <p class="text-sm text-gray-400">
+                                        Notice how the surface curls upwards as strikes decrease (to the left of the Red Wall). This is the "Smirk".
+                                        <br><br>
+                                        <strong class="text-white">Translation:</strong> Puts are more expensive than Calls. The market fears a crash more than it anticipates a melt-up. It takes the stairs up, but the elevator down.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- 3. Anomalies -->
+                <section id="anomalies">
+                    <div class="flex items-center gap-4 mb-8">
+                        <span class="font-mono text-quant-accent text-xl">03</span>
+                        <h2 class="text-3xl font-bold text-white">0DTE Anomalies</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="glass-card p-8 rounded-xl border-t-4 border-quant-accent">
+                            <h3 class="font-mono text-xs text-quant-accent uppercase mb-4 tracking-widest">The Gamma Trap</h3>
+                            <div class="text-4xl font-bold text-white mb-2">1.50 IV</div>
+                            <div class="text-xs text-gray-500 mb-4">Implied Volatility @ 0 Days to Expiration</div>
+                            <p class="text-sm text-gray-400 leading-relaxed">
+                                At the very short end of the curve (0-2 Days), volatility spikes massively to 150%.
+                                <br><br>
+                                This is the <strong class="text-white">0DTE (Zero Days to Expiration)</strong> phenomenon. Traders are paying massive premiums for immediate gamma exposure. It's the "Known Unknown" zone—pure event risk.
+                            </p>
+                        </div>
+
+                        <div class="glass-card p-8 rounded-xl border-t-4 border-gray-600">
+                            <h3 class="font-mono text-xs text-gray-500 uppercase mb-4 tracking-widest">Temporal Distortion</h3>
+                            <div class="text-4xl font-bold text-white mb-2">T vs Days</div>
+                            <div class="text-xs text-gray-500 mb-4">Human Readability</div>
+                            <p class="text-sm text-gray-400 leading-relaxed">
+                                The Black-Scholes equation thinks in Years ($T=1.0$). Humans think in Days ($T=365$).
+                                <br><br>
+                                Our dashboard converts the $T$ parameter back to "Days to Expiration" for the visualization. The math doesn't care, but your brain does.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 4. Takeaway -->
+                <section id="takeaway" class="mb-24">
+                    <div class="glass-card p-10 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/10">
+                        <h2 class="text-3xl font-bold text-white mb-6">Quant's Takeaway</h2>
+                        <div class="prose prose-invert prose-lg text-gray-300">
+                            <p>
+                                The surface on Feb 23, 2026 (10:09 AM EST), tells a story of <strong class="text-white">nervous optimism</strong>.
+                            </p>
+                            <ul class="space-y-2 mt-4">
+                                <li><strong>Skew is steep:</strong> Investors are heavily hedging tail risk.</li>
+                                <li><strong>Term Structure is inverted at the short end:</strong> Immediate fear is higher than long-term uncertainty.</li>
+                                <li><strong>Liquidity is clustered:</strong> The 0DTE complex is absorbing a massive amount of the daily variance budget.</li>
+                            </ul>
+                            <p class="mt-8 italic text-quant-accent border-l-4 border-quant-accent pl-4">
+                                "Price discounts every available information in the market."
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Footer -->
+                <footer class="border-t border-white/10 pt-12 flex flex-col md:flex-row justify-between items-center text-xs font-mono text-gray-600">
+                    <div class="flex items-center gap-2 mb-4 md:mb-0">
+                        <div class="w-2 h-2 bg-quant-accent rounded-full animate-pulse"></div>
+                        <span>SYSTEM: OPTIMAL</span>
+                    </div>
+                </footer>
+
+            </article>
+        </div>
+        
+    </div>
+
+    <!-- Smooth scroll script -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
