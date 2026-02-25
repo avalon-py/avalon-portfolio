@@ -776,11 +776,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
         window.addEventListener('resize', resize);
 
-        // Init
-        resize();
+        // Fix: wait for layout to settle before first render
+        setTimeout(resize, 100);
         animate();
-    }
 
+        // Also re-render when section scrolls into view for the first time
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    resize();
+                    observer.disconnect();
+                }
+            });
+        }, { threshold: 0.1 });
+
+        observer.observe(canvas);
+    }
     initParticleText();
 });
 
