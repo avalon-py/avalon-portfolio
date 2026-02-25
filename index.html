@@ -1,712 +1,315 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Stefano Budi - Data Scientist & Finance-Banking Enthusiast</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts -->
+    <title>Stefano Budi | Creative Developer & Data Scientist</title>
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="thumbnail/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="thumbnail/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="thumbnail/favicon-16x16.png">
-    <link rel="manifest" href="thumbnail/site.webmanifest">
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
 
-    <!-- Custom Styles -->
-    <link rel="stylesheet" href="style.css">
+    <nav class="navbar">
+      <div class="logo">SB.</div>
+      <div class="nav-links">
+        <a href="#work" class="nav-link">Work</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </div>
+    </nav>
 
-    <!-- Tailwind Config -->
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              primary: "#135bec",
-              "background-light": "#f6f6f8",
-              "background-dark": "#0a0f18",
-              "card-dark": "#131a26",
-              "card-light": "#ffffff",
-            },
-            fontFamily: {
-              display: ["Inter", "sans-serif"]
-            },
-            animation: {
-              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            }
-          },
-        },
-      }
-    </script>
+    <main>
+      <!-- Global Liquid Canvas -->
+      <div id="liquid-canvas-container">
+        <canvas id="liquid-canvas"></canvas>
+      </div>
 
-    <style>
-      /* Animated title cycling */
-      #title-cycler {
-        display: block !important;
-        position: relative !important;
-        overflow: hidden !important;
-        height: 5rem !important;
-        width: 100vw;
-        max-width: 900px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-
-      .title-word {
-        position: absolute;
-        left: 0;
-        right: 0;
-        text-align: center;
-        white-space: nowrap;
-        font-weight: 900;
-        /* gradient must live on each span individually */
-        background: linear-gradient(90deg, #135bec, #60a5fa);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        transition: opacity 0.45s ease, transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-        will-change: transform, opacity;
-      }
-
-      .title-word.state-active {
-        height: 10rem;
-      }
-
-      .title-word.state-above  { opacity: 0; transform: translateY(-110%); }
-      .title-word.state-active { opacity: 1; transform: translateY(0%); }
-      .title-word.state-below  { opacity: 0; transform: translateY(110%); }
-    </style>
-
-  <link rel="stylesheet" href="/index.css">
-</head>
-  <body class="bg-background-dark text-white relative selection:bg-primary/30 selection:text-white overflow-x-hidden">
-    
-    <!-- Cursor Glow Effect -->
-    <div id="cursor-glow" class="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"></div>
-
-    <!-- Header -->
-    <header id="main-header" class="fixed top-0 z-50 w-full transition-all duration-300 py-5 bg-transparent">
-      <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16">
-        <div class="flex items-center justify-between">
-          <!-- Logo -->
-          <div class="flex items-center gap-3 group cursor-pointer">
-            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all duration-300">
-              <i data-lucide="terminal" class="w-6 h-6 stroke-[2.5]"></i>
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="hero-title">
+            <div class="hero-line">
+              <span class="hero-word">Stefano Budi</span>
             </div>
-            <h2 class="text-xl font-bold tracking-tight text-white">Stefano Budi</h2>
-          </div>
-
-          <!-- Desktop Nav -->
-          <div class="hidden md:flex items-center gap-8">
-            <nav class="flex gap-6">
-              <a href="#projects" class="nav-link text-sm font-medium text-gray-400 hover:text-primary transition-colors relative group">
-                Projects
-                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-              </a>
-              <a href="#experience" class="nav-link text-sm font-medium text-gray-400 hover:text-primary transition-colors relative group">
-                Experience
-                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-              </a>
-              <a href="#contact" class="nav-link text-sm font-medium text-gray-400 hover:text-primary transition-colors relative group">
-                Contact
-                <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full"></span>
-              </a>
-            </nav>
-            <button class="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg text-sm font-bold hover:bg-gray-100 transition-all shadow-lg hover:scale-105 active:scale-95">
-              <span>Resume</span>
-              <i data-lucide="download" class="w-4 h-4"></i>
-            </button>
-          </div>
-
-          <!-- Mobile Toggle -->
-          <div class="md:hidden">
-            <button id="menu-toggle" class="text-gray-400 hover:text-white transition-colors">
-              <i data-lucide="menu" class="w-7 h-7"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Mobile Menu -->
-      <div id="mobile-menu" class="hidden md:hidden absolute top-full left-0 w-full bg-background-dark border-b border-gray-800 p-6 animate-in slide-in-from-top-5">
-        <nav class="flex flex-col gap-4">
-           <a href="#projects" class="mobile-link text-lg font-medium text-gray-400 hover:text-primary transition-colors">Projects</a>
-           <a href="#experience" class="mobile-link text-lg font-medium text-gray-400 hover:text-primary transition-colors">Experience</a>
-           <a href="#contact" class="mobile-link text-lg font-medium text-gray-400 hover:text-primary transition-colors">About</a>
-           <div class="h-px bg-gray-800 my-2"></div>
-           <button class="bg-primary text-white w-full py-3 rounded-lg font-bold">Download Resume</button>
-        </nav>
-      </div>
-    </header>
-
-    <main class="flex-grow flex flex-col items-center w-full relative z-10">
-      
-      <!-- Hero Section -->
-      <section class="relative w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 pt-32 pb-20 md:pt-48 md:pb-32">
-        <div class="flex flex-col items-center gap-8 text-center">
-
-          <!-- Available Badge -->
-          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm">
-            <span class="relative flex h-2 w-2">
-              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            <span class="text-xs font-semibold text-primary uppercase tracking-wide">Available for hire</span>
-          </div>
-
-          <!-- Headline -->
-          <h1 class="text-5xl md:text-7xl font-black tracking-tight leading-tight max-w-4xl">
-            <span class="text-white">Hi! I'm Stefano Budi</span>
-            <br />
-            <!-- Animated word container -->
-            <span id="title-cycler" class="mt-2 md:mt-4">
-              <!-- Words injected by JS -->
-            </span>
+            <div class="hero-line scroller-container">
+              <div class="vertical-scroller">
+                <span class="scroller-item italic-accent">Data Science</span>
+                <span class="scroller-item italic-accent">Quant</span>
+                <span class="scroller-item italic-accent">AI & ML</span>
+                <span class="scroller-item italic-accent">Finance</span>
+                <span class="scroller-item italic-accent">Economics</span>
+              </div>
+            </div>
+            <div class="hero-line">
+              <span class="hero-word">Enthusiast</span>
+            </div>
           </h1>
-
-          <!-- Description -->
-          <p class="text-lg md:text-xl text-gray-400 max-w-2xl leading-relaxed">
-            Building intelligent systems at the intersection of AI and Finance.
-            Enthusiastic in algorithmic trading, risk modeling, and predictive analytics.
-          </p>
-
-          <!-- CTA Buttons -->
-          <div class="flex flex-wrap justify-center gap-4 pt-2">
-            <a href="#projects" class="group flex items-center justify-center gap-2 h-12 px-8 rounded-lg bg-primary text-white font-bold hover:bg-blue-600 transition-all shadow-[0_0_20px_rgba(19,91,236,0.3)] hover:shadow-[0_0_30px_rgba(19,91,236,0.5)]">
-              View Projects
-              <i data-lucide="arrow-right" class="w-[18px] group-hover:translate-x-1 transition-transform"></i>
-            </a>
-            <a href="#contact" class="flex items-center justify-center h-12 px-8 rounded-lg bg-gray-800 text-white font-bold hover:bg-gray-700 transition-all border border-gray-700">
-              Contact Me
-            </a>
-          </div>
-
-          <!-- Social Links -->
-          <div class="flex gap-6 pt-4 text-gray-500">
-            <a href="https://github.com/avalon-py" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
-              <i data-lucide="github" class="w-6 h-6"></i>
-            </a>
-            <a href="https://www.linkedin.com/in/stefano-budi/" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
-              <i data-lucide="linkedin" class="w-6 h-6"></i>
-            </a>
-            <a href="#" class="hover:text-primary transition-colors hover:scale-110 transform duration-200">
-              <i data-lucide="https://www.instagram.com/stefano_budi/" class="w-6 h-6"></i>
-            </a>
-          </div>
-
-        </div>
-      </section>
-
-      <!-- Skills Section -->
-      <section id="skills" class="w-full bg-[#0d121c] border-y border-gray-800">
-        <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 py-16">
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-8">
-            <div class="flex flex-col gap-2">
-               <h2 class="text-2xl font-bold tracking-tight text-white">Technical Arsenal</h2>
-               <p class="text-sm text-gray-400">Core technologies & frameworks</p>
-            </div>
-            
-            <div class="flex flex-wrap gap-3">
-              <!-- Python -->
-              <div class="group flex h-10 items-center px-5 rounded-lg bg-card-dark border border-gray-800 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-default shadow-sm hover:shadow-lg hover:shadow-primary/10">
-                <i data-lucide="code-2" class="w-[18px] mr-2.5 text-blue-400 transition-transform group-hover:scale-110"></i>
-                <span class="text-sm font-medium text-gray-300 group-hover:text-white">Python</span>
-              </div>
-              <!-- Pandas -->
-              <div class="group flex h-10 items-center px-5 rounded-lg bg-card-dark border border-gray-800 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-default shadow-sm hover:shadow-lg hover:shadow-primary/10">
-                <i data-lucide="table" class="w-[18px] mr-2.5 text-green-400 transition-transform group-hover:scale-110"></i>
-                <span class="text-sm font-medium text-gray-300 group-hover:text-white">Pandas</span>
-              </div>
-              <!-- PyTorch -->
-              <div class="group flex h-10 items-center px-5 rounded-lg bg-card-dark border border-gray-800 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-default shadow-sm hover:shadow-lg hover:shadow-primary/10">
-                <i data-lucide="brain-circuit" class="w-[18px] mr-2.5 text-orange-500 transition-transform group-hover:scale-110"></i>
-                <span class="text-sm font-medium text-gray-300 group-hover:text-white">PyTorch</span>
-              </div>
-              <!-- Tensorflow -->
-              <div class="group flex h-10 items-center px-5 rounded-lg bg-card-dark border border-gray-800 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-default shadow-sm hover:shadow-lg hover:shadow-primary/10">
-                <i data-lucide="bar-chart-3" class="w-[18px] mr-2.5 text-yellow-400 transition-transform group-hover:scale-110"></i>
-                <span class="text-sm font-medium text-gray-300 group-hover:text-white">Tensorflow</span>
-              </div>
-              <!-- SQL -->
-              <div class="group flex h-10 items-center px-5 rounded-lg bg-card-dark border border-gray-800 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-default shadow-sm hover:shadow-lg hover:shadow-primary/10">
-                <i data-lucide="database" class="w-[18px] mr-2.5 text-purple-400 transition-transform group-hover:scale-110"></i>
-                <span class="text-sm font-medium text-gray-300 group-hover:text-white">SQL</span>
-              </div>
-              <!-- C++ -->
-              <div class="group flex h-10 items-center px-5 rounded-lg bg-card-dark border border-gray-800 hover:border-primary/50 transition-all duration-300 hover:-translate-y-1 cursor-default shadow-sm hover:shadow-lg hover:shadow-primary/10">
-                <i data-lucide="terminal" class="w-[18px] mr-2.5 text-red-400 transition-transform group-hover:scale-110"></i>
-                <span class="text-sm font-medium text-gray-300 group-hover:text-white">C++</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Mini Fun Project Section -->
-      <section id="mini-fun-project" class="w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 py-24">
-        <div class="flex items-center justify-between mb-12">
-          <div>
-            <h2 class="text-3xl font-bold tracking-tight text-white mb-2">Mini Fun Project</h2>
-            <p class="text-gray-400 text-sm">Interactive simulations and experimental tools</p>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           
-          <!-- Portfolio Simulator -->
-          <article class="group relative flex flex-col bg-card-dark rounded-xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10" data-updated="2026-01-07">
-            <a href="projects/portfolio_simulator/index.html">
-              <div class="h-48 w-full overflow-hidden">
-                  <div 
-                      class="h-full w-full bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
-                      style="background-image: url('projects/portfolio_simulator/assets/img/thumbnail.jpg')"
-                  >
-                      <div class="absolute inset-0 bg-background-dark/20 group-hover:bg-transparent transition-colors duration-500"></div>
-                  </div>
-              </div>
-              
-              <div class="p-6 flex flex-col flex-grow relative z-10">
-                <div class="flex gap-2 mb-4">
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-800 text-gray-300 border border-gray-700">Quant</span>
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-800 text-gray-300 border border-gray-700">Finance</span>
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-800 text-gray-300 border border-gray-700">Python</span>
-                </div>
-                
-                <h3 class="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
-                  Portfolio Simulator Accounting Inflation, CAGR, and Volatility to Determine Rate of Ruin
-                </h3>
-                
-                <p class="text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
-                  This project attempts to create a customized portfolio simulator where users can choose their own portfolio composition and see how it plays
-                  out in the future. Considering inflation and accounting CAGR along with volatility.
-                </p>
-                
-                <div class="pt-4 border-t border-gray-800 flex justify-between items-center mt-auto">
-                  <span class="updated-date text-xs text-gray-600 font-medium flex items-center gap-1">
-                  </span>
-                  <span class="text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300">
-                    <i data-lucide="arrow-right" class="w-[18px]"></i>
-                  </span>
-                </div>
-              </div>
-              <div class="absolute -inset-2 bg-gradient-to-r from-primary/20 to-purple-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"></div>
-            </a>
-          </article>
-
-          <!-- 24 Card Game 1v1 -->
-          <article class="group relative flex flex-col bg-card-dark rounded-xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10" data-updated="2026-02-07">
-            <a href="projects/24_v1/index.html">
-              <div class="h-48 w-full overflow-hidden">
-                  <div 
-                      class="h-full w-full bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
-                      style="background-image: url('projects/24_v1/assets/img/thumbnail.png')"
-                  >
-                      <div class="absolute inset-0 bg-background-dark/20 group-hover:bg-transparent transition-colors duration-500"></div>
-                  </div>
-              </div>
-              
-              <div class="p-6 flex flex-col flex-grow relative z-10">
-                <div class="flex gap-2 mb-4">
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-800 text-gray-300 border border-gray-700">Game</span>
-                </div>
-                
-                <h3 class="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
-                  24 1v1 Online Card Game
-                </h3>
-                
-                <p class="text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
-                  This project attempts to host using Vercel, use Firebase for hosting and online battle logic.
-                </p>
-                
-                <div class="pt-4 border-t border-gray-800 flex justify-between items-center mt-auto">
-                  <span class="updated-date text-xs text-gray-600 font-medium flex items-center gap-1">
-                  </span>
-                  <span class="text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300">
-                    <i data-lucide="arrow-right" class="w-[18px]"></i>
-                  </span>
-                </div>
-              </div>
-              <div class="absolute -inset-2 bg-gradient-to-r from-primary/20 to-purple-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"></div>
-            </a>
-          </article>
-
-          <!-- AvalonFi -->
-          <article class="group relative flex flex-col bg-card-dark rounded-xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10" data-updated="2026-02-11">
-            <a href="projects/avalonfi/index.html">
-              <div class="h-48 w-full overflow-hidden">
-                  <div 
-                      class="h-full w-full bg-cover bg-center transform group-hover:scale-110 transition-transform duration-700 ease-out"
-                      style="background-image: url('projects/avalonfi/assets/img/thumbnail.png')"
-                  >
-                      <div class="absolute inset-0 bg-background-dark/20 group-hover:bg-transparent transition-colors duration-500"></div>
-                  </div>
-              </div>
-              
-              <div class="p-6 flex flex-col flex-grow relative z-10">
-                <div class="flex gap-2 mb-4">
-                  <span class="px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider bg-gray-800 text-gray-300 border border-gray-700">Game</span>
-                </div>
-                
-                <h3 class="text-xl font-bold mb-3 text-white group-hover:text-primary transition-colors">
-                  AvalonFi - Telegram Income-Expense Accountant
-                </h3>
-                
-                <p class="text-gray-400 text-sm leading-relaxed mb-6 flex-grow">
-                  Telegram bot that attempts to be an alternative to accounting app. By just typing the amount and category of spendings, all inputs will be stored to Firebase via Railway. Users can also view analytics of spendings.
-                </p>
-                
-                <div class="pt-4 border-t border-gray-800 flex justify-between items-center mt-auto">
-                  <span class="updated-date text-xs text-gray-600 font-medium flex items-center gap-1">
-                    <div class="w-1.5 h-1.5 rounded-full bg-green-500/50"></div>
-                    Updated 1 day(s) ago
-                  </span>
-                  <span class="text-gray-500 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300">
-                    <i data-lucide="arrow-right" class="w-[18px]"></i>
-                  </span>
-                </div>
-              </div>
-              <div class="absolute -inset-2 bg-gradient-to-r from-primary/20 to-purple-600/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"></div>
-            </a>
-          </article>
-
-        </div>
-      </section>
-
-      <!-- Projects Section -->
-      <section id="projects" class="w-full bg-[#0d121c] border-y border-gray-800">
-        <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 py-24">
-          <div class="flex items-center justify-between mb-12">
-            <div>
-              <h2 class="text-3xl font-bold tracking-tight text-white mb-2">Featured Projects</h2>
-              <p class="text-gray-400 text-sm">In-depth research and production-ready solutions</p>
-            </div>
-            <a href="#" class="text-primary font-medium hover:text-white transition-colors flex items-center gap-1.5 text-sm group">
-              View GitHub 
-              <i data-lucide="external-link" class="w-3.5 h-3.5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform"></i>
-            </a>
+          <div class="hero-subtitle-container">
+            <span class="hero-prefix">I'm a </span>
+            <span id="typewriter-text" class="typewriter-text"></span>
+            <span class="cursor-blink"></span>
           </div>
+        </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
-            <!-- Project 1: MBG Recommendation -->
-            <article class="group relative bg-gradient-to-br from-card-dark to-[#0a0f18] rounded-2xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20" data-updated="2025-11-21">
-              <a href="projects/mbg_recommendation/index.html" class="block">
-                <div class="relative h-64 overflow-hidden">
-                  <div 
-                    class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                    style="background-image: url('projects/mbg_recommendation/assets/img/home-hero.jpeg')"
-                  >
-                    <div class="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/50 to-transparent"></div>
-                  </div>
-                  <div class="absolute top-4 right-4 flex gap-2">
-                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
-                      Clustering
-                    </span>
-                  </div>
-                </div>
-                <div class="p-8 relative z-10">
-                  <div class="mb-6">
-                    <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors leading-tight">
-                      Investment Priority Recommendation for Makan Bergizi Gratis Program
-                    </h3>
-                    <div class="flex items-center gap-3 text-sm text-gray-500">
-                      <span class="flex items-center gap-1.5">
-                        <i data-lucide="code-2" class="w-4 h-4"></i>
-                        Python
-                      </span>
-                      <span class="w-1 h-1 rounded-full bg-gray-700"></span>
-                      <span class="updated-date flex items-center gap-1.5"></span>
-                    </div>
-                  </div>
-                  <p class="text-gray-400 leading-relaxed mb-6 text-base">
-                    This project attempts to help the Makan Bergizi Gratis (MBG) program (initiated by Indonesian President Prabowo Subianto)
-                    by developing an investment priority mapping based on economic and farmland data, in order to overcome the disparity of food 
-                    prices across provinces of Indonesia.
-                  </p>
-                  <div class="flex flex-wrap gap-2 mb-6">
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">K-Means</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Scikit-learn</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Data Analysis</span>
-                  </div>
-                  <div class="flex items-center justify-between pt-6 border-t border-gray-800">
-                    <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span class="text-xs font-medium text-gray-500">Finished Project</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
-                      <span>View Project</span>
-                      <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10"></div>
-              </a>
-            </article>
-
-            <!-- Project 2: F1 Prediction -->
-            <article class="group relative bg-gradient-to-br from-card-dark to-[#0a0f18] rounded-2xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20" data-updated="2026-01-05">
-              <a href="projects/f1_prediction/index.html" class="block">
-                <div class="relative h-64 overflow-hidden">
-                  <div 
-                    class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                    style="background-image: url('projects/f1_prediction/assets/img/thumbnail.jpg')"
-                  >
-                    <div class="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/50 to-transparent"></div>
-                  </div>
-                  <div class="absolute top-4 right-4 flex gap-2">
-                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
-                      Regression
-                    </span>
-                  </div>
-                </div>
-                <div class="p-8 relative z-10">
-                  <div class="mb-6">
-                    <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors leading-tight">
-                      F1 Race Result Prediction (2025) with Monte Carlo Simulation
-                    </h3>
-                    <div class="flex items-center gap-3 text-sm text-gray-500">
-                      <span class="flex items-center gap-1.5">
-                        <i data-lucide="code-2" class="w-4 h-4"></i>
-                        Python
-                      </span>
-                      <span class="w-1 h-1 rounded-full bg-gray-700"></span>
-                      <span class="updated-date flex items-center gap-1.5"></span>
-                    </div>
-                  </div>
-                  <p class="text-gray-400 leading-relaxed mb-6 text-base">
-                    This project attempts to create a model that can predict the result of an F1 race. This project uses Monte Carlo simulations, injecting weather 
-                    and DNF chaos, with RFECV feature selection and Optuna-driven hyperparameter tuning for robust, probabilistic performance.
-                  </p>
-                  <div class="flex flex-wrap gap-2 mb-6">
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Monte Carlo</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">Optuna</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">RFECV</span>
-                  </div>
-                  <div class="flex items-center justify-between pt-6 border-t border-gray-800">
-                    <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span class="text-xs font-medium text-gray-500">Active Project</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
-                      <span>View Project</span>
-                      <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10"></div>
-              </a>
-            </article>
-
-            <!-- Project 3: Speech2Market -->
-            <article class="group relative bg-gradient-to-br from-card-dark to-[#0a0f18] rounded-2xl border border-gray-800 overflow-hidden hover:border-primary/50 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/20" data-updated="2026-02-18">
-              <a href="projects/speech2market/index.html" class="block">
-                <div class="relative h-64 overflow-hidden">
-                  <div 
-                    class="absolute inset-0 bg-cover bg-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                    style="background-image: url('projects/speech2market/assets/img/thumbnail.jpg')"
-                  >
-                    <div class="absolute inset-0 bg-gradient-to-t from-card-dark via-card-dark/50 to-transparent"></div>
-                  </div>
-                  <div class="absolute top-4 right-4 flex gap-2">
-                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-background-dark/80 backdrop-blur-sm text-primary border border-primary/30">
-                      Economics
-                    </span>
-                  </div>
-                </div>
-                <div class="p-8 relative z-10">
-                  <div class="mb-6">
-                    <h3 class="text-2xl font-bold mb-3 text-white group-hover:text-primary transition-colors leading-tight">
-                      Effects of FED's Speeches to Asset Price Action
-                    </h3>
-                    <div class="flex items-center gap-3 text-sm text-gray-500">
-                      <span class="flex items-center gap-1.5">
-                        <i data-lucide="code-2" class="w-4 h-4"></i>
-                        Python
-                      </span>
-                      <span class="w-1 h-1 rounded-full bg-gray-700"></span>
-                      <span class="updated-date flex items-center gap-1.5"></span>
-                    </div>
-                  </div>
-                  <p class="text-gray-400 leading-relaxed mb-6 text-base">
-                    This project attempts to create model(s) that can utilize The FED's speech transcript, macroeconomic indicators, and lagged past asset prices as a predictor for 
-                    t+3, t+7, and t+30 of several assets (S&P500, Gold, 10Y Treasury Yield, etc.) by using FinBERT by ProsusAI for neural embedding and XGBRegressor as the ML Regressor.
-                  </p>
-                  <div class="flex flex-wrap gap-2 mb-6">
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">BERT</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">FRED API</span>
-                    <span class="px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-300 border border-gray-700/50">XGBRegressor</span>
-                  </div>
-                  <div class="flex items-center justify-between pt-6 border-t border-gray-800">
-                    <div class="flex items-center gap-2">
-                      <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span class="text-xs font-medium text-gray-500">Finished Project</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-primary font-medium text-sm group-hover:gap-3 transition-all">
-                      <span>View Project</span>
-                      <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                    </div>
-                  </div>
-                </div>
-                <div class="absolute -inset-1 bg-gradient-to-r from-primary/20 via-purple-600/20 to-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none -z-10"></div>
-              </a>
-            </article>
+        <div class="hero-footer">
+          <div class="location">
+            <span class="dot"></span> Based in Indonesia
+          </div>
+          <div class="scroll-indicator">
+            <span class="scroll-text">Scroll</span>
+            <div class="scroll-line"></div>
           </div>
         </div>
       </section>
 
-      <!-- QuantFlow Blog Section -->
-      <section id="quantflow" class="w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 py-24">
-        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-card-dark via-[#0d121c] to-card-dark border border-gray-800 p-12 md:p-16 lg:p-20">
-          <div class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl opacity-50"></div>
-          <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl opacity-50"></div>
-          <div class="relative z-10 max-w-3xl mx-auto text-center">
-            <div class="flex items-center justify-center gap-3 mb-6">
-              <div class="p-3 bg-primary/10 rounded-xl">
-                <i data-lucide="trending-up" class="w-8 h-8 text-primary"></i>
-              </div>
-              <h2 class="text-4xl md:text-5xl font-bold tracking-tight text-white">QuantFlow</h2>
+      <section id="work" class="work-section">
+        <div class="section-header">
+          <h2 class="section-title">Selected Work</h2>
+          <div class="line"></div>
+        </div>
+
+        <div class="project-grid">
+          <!-- Project 1 -->
+          <article class="project-card">
+            <div class="card-image-wrapper">
+              <img src="/projects/mbg_recommendation/assets/img/home-hero.jpeg alt="Portfolio Simulator" class="card-image">
+              <div class="card-overlay"></div>
             </div>
-            <p class="text-gray-400 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
-              Deep dives into quantitative analysis, financial modeling, and algorithmic trading strategies. 
-              Exploring the mathematics and code behind modern finance.
-            </p>
-            <a href="projects/quant_blog/index.html" class="group inline-flex items-center justify-center gap-3 h-14 px-10 rounded-xl bg-primary text-white font-bold hover:bg-blue-600 transition-all shadow-[0_0_30px_rgba(19,91,236,0.3)] hover:shadow-[0_0_40px_rgba(19,91,236,0.5)] hover:scale-105 active:scale-95">
-              <span>Explore Blog</span>
-              <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
-            </a>
+            <div class="card-content">
+              <div class="card-meta">
+                <span class="card-number">01</span>
+                <span class="card-tag">Data Science / Python</span>
+              </div>
+              <h3 class="card-title">MBG Recommendation</h3>
+              <p class="card-desc">Investment priority mapping using Clustering based on economic and farmland data</p>
+              <a href="/projects/mbg_recommendation/index.html" class="card-link">View Case Study <i data-lucide="arrow-up-right"></i></a>
+            </div>
+          </article>
+
+          <!-- Project 2 -->
+          <article class="project-card">
+            <div class="card-image-wrapper">
+              <img src="/projects/f1_prediction/assets/img/thumbnail.jpg" alt="F1 Prediction" class="card-image">
+              <div class="card-overlay"></div>
+            </div>
+            <div class="card-content">
+              <div class="card-meta">
+                <span class="card-number">02</span>
+                <span class="card-tag">Data Science / Python</span>
+              </div>
+              <h3 class="card-title">F1 Prediction (2025)</h3>
+              <p class="card-desc">Race result prediction using XGBRegressor + Monte Carlo to overcome chaos</p>
+              <a href="/projects/f1_prediction/index.html" class="card-link">View Case Study <i data-lucide="arrow-up-right"></i></a>
+            </div>
+          </article>
+
+          <!-- Project 3 -->
+          <article class="project-card">
+            <div class="card-image-wrapper">
+              <img src="/projects/speech2market/assets/img/thumbnail.jpg" alt="Speech2Market" class="card-image">
+              <div class="card-overlay"></div>
+            </div>
+            <div class="card-content">
+              <div class="card-meta">
+                <span class="card-number">03</span>
+                <span class="card-tag">NLP / Economics</span>
+              </div>
+              <h3 class="card-title">Speech2Market</h3>
+              <p class="card-desc">Analyzing FED speeches to predict asset price action using classifier-less FinBERT.</p>
+              <a href="/projects/speech2market/index.html" class="card-link">View Case Study <i data-lucide="arrow-up-right"></i></a>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="fun-projects" class="fun-section">
+        <div class="section-header">
+          <h2 class="section-title">Fun Side Projects</h2>
+          <div class="line"></div>
+        </div>
+        <div class="fun-grid">
+          <div class="fun-card">
+            <div class="fun-card-inner">
+              <div class="fun-icon"><i data-lucide="gamepad-2"></i></div>
+              <h3>24 Card Game 1v1</h3>
+              <p>Online multiplayer card game using Firebase.</p>
+            </div>
+            <span class="fun-card-arrow"><i data-lucide="arrow-up-right"></i></span>
+          </div>
+
+          <div class="fun-card">
+            <div class="fun-card-inner">
+              <div class="fun-icon"><i data-lucide="bot"></i></div>
+              <h3>AvalonFi Bot</h3>
+              <p>Telegram bot for personal accounting and expense tracking.</p>
+            </div>
+            <span class="fun-card-arrow"><i data-lucide="arrow-up-right"></i></span>
+          </div>
+
+          <div class="fun-card">
+            <div class="fun-card-inner">
+              <div class="fun-icon"><i data-lucide="music"></i></div>
+              <h3>Spotify Mood</h3>
+              <p>Playlist generator based on current weather and mood.</p>
+            </div>
+            <span class="fun-card-arrow"><i data-lucide="arrow-up-right"></i></span>
+          </div>        
+        </div>
+      </section>
+
+      <section id="experience" class="experience-section">
+        <div class="split-layout">
+          <div class="split-col">
+            <h2 class="section-title">Experience</h2>
+            <div class="timeline">
+              <div class="timeline-item">
+                <span class="timeline-date">2025 - 2026</span>
+                <h3 class="timeline-role">Jr. Laboratory Assistant</h3>
+                <p class="timeline-company">Binus University</p>
+                <p class="timeline-desc">Qualified for Computer Vision, Deep Learning, Data Mining, and Machine Learning.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="split-col">
+            <h2 class="section-title">Education</h2>
+            <div class="timeline">
+              <div class="timeline-item">
+                <span class="timeline-date">2024 - Now</span>
+                <h3 class="timeline-role">Computer Science</h3>
+                <p class="timeline-company">Binus University</p>
+                <p class="timeline-desc">Major in Data Science. GPA: 3.98/4.00</p>
+              </div>
+              <div class="timeline-item">
+                <span class="timeline-date">2021 - 2024</span>
+                <h3 class="timeline-role">Science Major</h3>
+                <p class="timeline-company">Regina Pacis Senior High</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- Experience / About Section -->
-      <section id="experience" class="w-full bg-[#0d121c] border-t border-gray-800">
-        <div class="max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 py-24">
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
-            
-            <!-- About Column -->
-            <div id="about" class="lg:col-span-5 flex flex-col gap-8">
-              <div>
-                  <h2 class="text-3xl font-bold tracking-tight text-white mb-6">About Me</h2>
-                  <div class="h-1 w-20 bg-primary rounded-full mb-8"></div>
-                  <div class="space-y-6 text-gray-400 leading-relaxed text-lg">
-                      <p>
-                          I am a passionate technologist with a background in Mathematics and Computer Science. My career is driven by the desire to uncover patterns in chaotic data.
-                      </p>
-                      <p>
-                          Currently, I focus on creating low-latency retrieval-prediction system that can reliably predict the maximum value of an investment. When I am not coding, 
-                          I am most likely learning, whether it is about macroeconomics, investment, or technology.
-                      </p>
-                  </div>
-              </div>
-  
-              <div class="p-8 bg-card-dark rounded-2xl border border-gray-800 relative overflow-hidden group">
-                  <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110"></div>
-                  <h4 class="font-bold text-white mb-6 flex items-center gap-3">
-                      <div class="p-2 bg-primary/10 rounded-lg text-primary">
-                          <i data-lucide="graduation-cap" class="w-5 h-5"></i>
-                      </div>
-                      Education
-                  </h4>
-                  <div class="space-y-6 relative z-10">
-                      <div class="group/edu pl-4 border-l-2 border-gray-800 hover:border-primary transition-colors">
-                          <p class="font-semibold text-white group-hover/edu:text-primary transition-colors">Computer Science, with Major Focus of Data Science</p>
-                          <p class="text-sm text-gray-500 mt-1">Binus University</p>
-                      </div>
-                      <div class="group/edu pl-4 border-l-2 border-gray-800 hover:border-primary transition-colors">
-                          <p class="font-semibold text-white group-hover/edu:text-primary transition-colors">Science</p>
-                          <p class="text-sm text-gray-500 mt-1">Regina Pacis Senior High School</p>
-                      </div>
-                  </div>
+      <section id="about" class="about-expand-section">
+        <div class="expand-sticky">
+          <!-- Background Image (Fades out) -->
+          <div class="expand-bg"></div>
+          
+          <!-- Main Content Container -->
+          <div class="expand-container">
+            <!-- Central Media (Expands) -->
+            <div class="expand-media-wrapper">
+              <div class="expand-media">
+                <!-- Video or Image -->
+                <img src="https://images.unsplash.com/photo-1682687982501-1e58ab814714?q=80&w=1280&auto=format&fit=crop" alt="Immersive Experience" class="expand-img">
+                <div class="media-overlay"></div>
+                
+                <!-- Text inside the card (Moves out) -->
+                <div class="card-inner-text">
+                  <span class="card-date">Search of True Self</span>
+                  <span class="card-action">Scroll to see more</span>
+                </div>
               </div>
             </div>
-  
-            <!-- Experience Column -->
-            <div class="lg:col-span-7 lg:pl-10">
-              <h2 class="text-3xl font-bold tracking-tight text-white mb-10">Experience</h2>
-              <div class="relative border-l border-gray-800 ml-3 space-y-12 pb-4">
-                <div class="relative pl-10 group">
-                  <div class="absolute -left-[9px] top-1 h-4 w-4 rounded-full bg-primary border-4 border-[#0d121c] shadow-[0_0_10px_rgba(19,91,236,0.5)]"></div>
-                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3">
-                    <h3 class="text-xl font-bold text-white group-hover:text-primary transition-colors">Jr. Laboratory Assistant</h3>
-                    <span class="flex items-center gap-1.5 text-xs font-mono text-primary bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-                      <i data-lucide="calendar" class="w-3 h-3"></i>
-                      2025-2026
-                    </span>
-                  </div>
-                  <p class="text-gray-300 font-medium mb-4 flex items-center gap-2">
-                      <i data-lucide="briefcase" class="w-4 h-4 text-gray-500"></i>
-                      Binus University • Semarang, Indonesia
-                  </p>
-                  <ul class="list-disc list-outside ml-4 text-gray-400 space-y-2 marker:text-primary/50">
-                    <li>Laboratory lecturer for Binus University.</li>
-                    <li>Qualified to teach Computer Vision, Deep Learning, Data Mining, Software Design & Engineering</li>
-                    <li>Regularly creates study cases and does corrections</li>
-                  </ul>
-                </div>  
+
+            <!-- Text Overlay (Appears/Blends) -->
+            <div class="expand-text-layer">
+              <h2 class="expand-title">
+                <span class="title-left">About</span>
+                <span class="title-right">Me</span>
+              </h2>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- True About Me Content -->
+      <section class="about-content-section">
+        <div class="about-details">
+          <h2 class="about-heading">
+            <div class="gooey-container">
+              <svg class="gooey-svg" aria-hidden="true">
+                <defs>
+                  <filter id="gooey-filter">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
+                    <feColorMatrix in="blur" type="matrix"
+                      values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 40 -15" />
+                  </filter>
+                </defs>
+              </svg>
+              <div class="gooey-text-wrapper">
+                <span class="gooey-word gradient-text">Learner</span>
+                <span class="gooey-word gradient-text">Engineer</span>
+                <span class="gooey-word gradient-text">Leader</span>
+                <span class="gooey-word gradient-text">Developer</span>
               </div>
             </div>
+          </h2>          
+          <p class="about-text-small">
+            Learning has always been the most exciting part of my life, whether it's about 
+            <span class="highlight">data</span>, <span class="highlight">finance</span>, <span class="highlight">investment</span>, 
+            or <span class="highlight">Machine Learning</span>. Whenever I'm not coding for my
+            personal projects, I'm most likely reading about macroeconomics. Fortunately enough,
+            learning made up the <span class="highlight">most</span> of my life.
+          </p>
+          <p class="about-text-small">
+            I love creating products that positively impact society, especially 
+            those with intriguing and unique technologies. Utilizing my strong domain 
+            knowledge about <span class="highlight">AI architecture</span>, I'm currently building a 
+            <span class="highlight">SaaS</span> that can automatically preprocess and clean a dataset, 
+            straight from 0.
+          </p>
+          <p class="about-quote">
+            "there's always one more thing to learn"
+          </p>
+        </div>
+        <div class="skills-strip">
+          <div class="skills-row">
+            <div class="skills-track">
+              <span>TensorFlow</span><span>PyTorch</span><span>Python</span>
+              <span>C</span><span>C++</span><span>SQL</span><span>MySQL</span>
+              <span>Java</span><span>Flutter</span><span>NumPy</span>
+              <span>Pandas</span><span>Matplotlib</span>
+              <!-- duplicate for seamless loop -->
+              <span>TensorFlow</span><span>PyTorch</span><span>Python</span>
+              <span>C</span><span>C++</span><span>SQL</span><span>MySQL</span>
+              <span>Java</span><span>Flutter</span><span>NumPy</span>
+              <span>Pandas</span><span>Matplotlib</span>
+            </div>
+          </div>
+          <div class="skills-row reverse">
+            <div class="skills-track">
+              <span>Public Speaking</span><span>Leadership</span><span>Mentoring</span>
+              <span>Teamwork</span><span>Curiosity</span><span>Ambition</span>
+              <span>Collaboration</span>
+              <!-- duplicate -->
+              <span>Public Speaking</span><span>Leadership</span><span>Mentoring</span>
+              <span>Teamwork</span><span>Curiosity</span><span>Ambition</span>
+              <span>Collaboration</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="contact-section">
+        <div class="contact-content">
+          <h2 class="contact-title">Let's Talk</h2>
+          <a href="mailto:stefano.budi.sb@gmail.com" class="email-link">stefano.budi.sb@gmail.com</a>
+          
+          <div class="social-links">
+            <a href="#" class="social-link">LinkedIn</a>
+            <a href="#" class="social-link">GitHub</a>
+            <a href="#" class="social-link">Instagram</a>
           </div>
         </div>
       </section>
     </main>
 
-    <!-- Contact Footer -->
-    <footer id="contact" class="w-full bg-background-dark border-t border-gray-800 pt-20 pb-8">
-      <div class="max-w-3xl mx-auto px-6 sm:px-12 lg:px-16 text-center">
-        <h2 class="text-3xl font-bold tracking-tight text-white mb-6">Let's Work Together</h2>
-        <p class="text-gray-400 mb-10 max-w-xl mx-auto text-lg">
-            I'm currently open to new opportunities in Quantitative Finance and AI research. Feel free to reach out.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center gap-4 mb-16">
-          <a href="mailto:stefano.budi.sb@gmail.com?body=Hey!%20Let's%20work%20together!" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-primary hover:bg-blue-600 text-white font-bold transition-all shadow-lg shadow-primary/20 hover:scale-105 active:scale-95">
-            <i data-lucide="mail" class="w-5 h-5"></i>
-            Send an Email!
-          </a>          
-          <a href="https://wa.me/6282229809271?text=Hey!%20I%20saw%20your%20portfolio%20and%20wanted%20to%20connect!" 
-             target="_blank" 
-             rel="noopener noreferrer"
-             class="flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-card-dark border border-gray-700 text-white hover:bg-gray-800 font-bold transition-all hover:scale-105 active:scale-95">
-            <i data-lucide="message-circle" class="w-5 h-5"></i>
-            Send a Text!
-          </a>        
-        </div>
-        <div class="flex justify-center items-center gap-8 border-t border-gray-800 pt-10">
-          <a href="https://www.linkedin.com/in/stefano-budi" target="_blank" class="group flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-all">
-            <div class="p-3 rounded-full bg-[#0077b5] text-white shadow-lg group-hover:-translate-y-2 transition-transform duration-300">
-                <i data-lucide="linkedin" class="w-6 h-6"></i>
-            </div>
-            <span class="text-sm font-medium text-gray-400">LinkedIn</span>
-          </a>
-          <a href="https://www.instagram.com/stefano_budi" target="_blank" class="group flex flex-col items-center gap-2 opacity-60 hover:opacity-100 transition-all">
-            <div class="p-3 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white shadow-lg group-hover:-translate-y-2 transition-transform duration-300">
-                <i data-lucide="instagram" class="w-6 h-6"></i>
-            </div>
-            <span class="text-sm font-medium text-gray-400">Instagram</span>
-          </a>
-        </div>
-        
-        <div class="mt-16 text-sm text-gray-600 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>© 2024 Stefano Budi. All rights reserved.</p>
-            <div class="flex gap-6">
-                <a href="#" class="hover:text-primary transition-colors">Privacy Policy</a>
-                <a href="#" class="hover:text-primary transition-colors">Terms of Service</a>
-            </div>
-        </div>
-      </div>
-    </footer>
-
-    <!-- Main Logic -->
-    <script src="script.js"></script>
-</body>
+    <script src="/script.js"></script>
+  </body>
 </html>
