@@ -655,6 +655,11 @@ body {
   --border-color: var(--accent);
 }
 
+a.fun-card {
+  text-decoration: none;
+  color: inherit;
+}
+
 /* Animated border using clip-path trick */
 .fun-card::before {
   content: '';
