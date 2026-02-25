@@ -633,6 +633,155 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initSkillsStrip();
+
+    function initParticleText() {
+        const canvas = document.querySelector('.blog-cta-canvas');
+        if (!canvas) return;
+
+        const ctx = canvas.getContext('2d');
+        const text = 'QUANTFLOW';
+        const colors = [
+            'd4ff00', 'a8cc00', 'd4ff00', 'ffffff',
+            'a0a0a0', 'd4ff00', 'a8cc00', 'd4ff00'
+        ];
+        const particleDensity = 4;
+        const animationForce = 80;
+
+        let particles = [];
+        let pointer = { x: undefined, y: undefined };
+        let hasPointer = false;
+        let animId = null;
+        let interactionRadius = 100;
+
+        function rand(max = 1, min = 0) {
+            return min + Math.random() * (max - min);
+        }
+
+        function hexToRgb(hex) {
+            const r = parseInt(hex.slice(0, 2), 16);
+            const g = parseInt(hex.slice(2, 4), 16);
+            const b = parseInt(hex.slice(4, 6), 16);
+            return [r, g, b];
+        }
+
+        class Particle {
+            constructor(x, y, rgb) {
+                this.ox = x; this.oy = y;
+                this.cx = x; this.cy = y;
+                this.or = rand(5, 1);
+                this.cr = this.or;
+                this.f = rand(animationForce + 15, animationForce - 15);
+                this.rgb = rgb.map(c => Math.max(0, Math.min(255, c + rand(13, -13))));
+            }
+
+            draw() {
+                ctx.fillStyle = `rgb(${this.rgb.map(Math.round).join(',')})`;
+                ctx.beginPath();
+                ctx.arc(this.cx, this.cy, this.cr, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            move() {
+                if (hasPointer && pointer.x !== undefined) {
+                    const dx = this.cx - pointer.x;
+                    const dy = this.cy - pointer.y;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < interactionRadius && dist > 0) {
+                        const force = Math.min(this.f, (interactionRadius - dist) / dist * 2);
+                        this.cx += (dx / dist) * force;
+                        this.cy += (dy / dist) * force;
+                    }
+                }
+
+                const odx = this.ox - this.cx;
+                const ody = this.oy - this.cy;
+                const od = Math.hypot(odx, ody);
+                if (od > 1) {
+                    const restore = Math.min(od * 0.1, 3);
+                    this.cx += (odx / od) * restore;
+                    this.cy += (ody / od) * restore;
+                }
+
+                this.draw();
+            }
+        }
+
+        function write() {
+            const w = canvas.width;
+            const h = canvas.height;
+
+            const fontSize = Math.floor(h * 0.39); // sized relative to canvas height
+            interactionRadius = Math.max(60, fontSize * 0.8);
+
+            ctx.clearRect(0, 0, w, h);
+            ctx.font = `900 ${fontSize}px 'Space Grotesk', Verdana, sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            const measured = ctx.measureText(text);
+            const tx = (w - measured.width) / 2;
+            const ty = (h - fontSize) / 2;
+            const gradient = ctx.createLinearGradient(tx, ty, tx + measured.width, ty + fontSize);
+            colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), `#${c}`));
+            ctx.fillStyle = gradient;
+            ctx.fillText(text, w / 2, h / 2);
+
+            const tw = Math.round(measured.width);
+            const th = fontSize;
+            const sx = Math.max(0, Math.round(tx));
+            const sy = Math.max(0, Math.round(ty));
+            const data = ctx.getImageData(sx, sy, tw, th).data;
+
+            ctx.clearRect(0, 0, w, h);
+            particles = [];
+
+            for (let i = 0; i < data.length; i += 4) {
+                if (data[i + 3] < 128) continue;
+                const px = (i / 4) % tw;
+                const py = Math.floor((i / 4) / tw);
+                if (px % particleDensity !== 0 || py % particleDensity !== 0) continue;
+                const rgb = [data[i], data[i + 1], data[i + 2]];
+                particles.push(new Particle(sx + px, sy + py, rgb));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.move());
+            animId = requestAnimationFrame(animate);
+        }
+
+        function resize() {
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            write();
+        }
+
+        // Pointer events
+        canvas.addEventListener('pointermove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            pointer.x = (e.clientX - rect.left) * scaleX;
+            pointer.y = (e.clientY - rect.top) * scaleY;
+            hasPointer = true;
+        });
+
+        canvas.addEventListener('pointerleave', () => {
+            hasPointer = false;
+            pointer.x = undefined;
+            pointer.y = undefined;
+        });
+
+        window.addEventListener('resize', resize);
+
+        // Init
+        resize();
+        animate();
+    }
+
+    initParticleText();
 });
 
 // Vertical Scroller
