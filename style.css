@@ -758,6 +758,141 @@ a.fun-card {
   transform: translate(0, 0);
 }
 
+/* Blogspot Section */
+.blog-cta-section {
+  position: relative;
+  padding: 10rem var(--px);
+  overflow: hidden;
+  border-top: 1px solid var(--gray);
+  border-bottom: 1px solid var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Giant background text */
+.blog-cta-bg-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 22vw;
+  font-weight: 700;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.03);
+  letter-spacing: -0.02em;
+  pointer-events: none;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.blog-cta-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.blog-cta-label {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+}
+
+.blog-cta-title {
+  font-family: var(--font-display);
+  font-size: clamp(5rem, 14vw, 14rem);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  display: flex;
+  gap: 0.15em;
+}
+
+.blog-cta-word {
+  background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 50%, #ffffff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 4s linear infinite;
+}
+
+.blog-cta-word.accent {
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, var(--accent) 0%, #a8cc00 50%, var(--accent) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  animation: shine 4s linear infinite;
+}
+
+.blog-cta-desc {
+  font-size: 1.1rem;
+  color: #666;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.blog-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem 2.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Fill on hover */
+.blog-cta-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateY(100%);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 0;
+}
+
+.blog-cta-btn:hover::before {
+  transform: translateY(0);
+}
+
+.blog-cta-btn:hover {
+  color: #000;
+  border-color: var(--accent);
+}
+
+.btn-text,
+.btn-arrow {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-arrow {
+  transition: transform 0.3s ease;
+}
+
+.blog-cta-btn:hover .btn-arrow {
+  transform: translate(3px, -3px);
+}
+
 /* Experience & Education Section */
 .experience-section {
   padding: 5rem var(--px);
