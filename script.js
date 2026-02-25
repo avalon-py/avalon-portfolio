@@ -520,7 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const originalText = el.textContent.trim();
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@._-';
-        const duration = 600;
+        const duration = 250;
 
         // Build char spans
         el.textContent = '';
@@ -558,7 +558,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            iterations += 0.15;
+            iterations += 0.45;
 
             if (iterations >= originalText.length) {
                 // Ensure final state is clean
