@@ -1077,7 +1077,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Calls
     initWipeReveal('.about-text-small, .about-quote', '#000');
-    initWipeReveal('.project-title', 'var(--bg)');
+    initWipeReveal('#main-project-title', 'var(--bg)');
+    initWipeReveal('#side-project-title', '#0d0d0d');
     initWipeReveal('.blog-cta-label, .blog-cta-desc', 'var(--bg)');
     initWipeReveal('.email-link', '#000');
     initWipeReveal('.social-link', '#000');
