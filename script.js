@@ -680,7 +680,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.y = y + (Math.random() - 0.5) * 20;
                 this.targetX = x;
                 this.targetY = y;
-                this.r = Math.random() * 70 + 10;
+                this.r = Math.random() * 100 + 10;
                 this.maxLife = 80 + Math.random() * 30;
                 this.life = this.maxLife;
                 this.isAccent = isAccent;
@@ -772,13 +772,13 @@ document.addEventListener('DOMContentLoaded', () => {
             'a0a0a0', 'd4ff00', 'a8cc00', 'd4ff00'
         ];
         const particleDensity = 4;
-        const animationForce = 80;
+        const animationForce = 20;
 
         let particles = [];
         let pointer = { x: undefined, y: undefined };
         let hasPointer = false;
         let animId = null;
-        let interactionRadius = 100;
+        let interactionRadius = 5000;
 
         function rand(max = 1, min = 0) {
             return min + Math.random() * (max - min);
@@ -814,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dy = this.cy - pointer.y;
                     const dist = Math.hypot(dx, dy);
                     if (dist < interactionRadius && dist > 0) {
-                        const force = Math.min(this.f, (interactionRadius - dist) / dist * 2);
+                        const force = Math.min(this.f * 1.5, (interactionRadius - dist) / dist * 2);
                         this.cx += (dx / dist) * force;
                         this.cy += (dy / dist) * force;
                     }
@@ -824,7 +824,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const ody = this.oy - this.cy;
                 const od = Math.hypot(odx, ody);
                 if (od > 1) {
-                    const restore = Math.min(od * 0.1, 3);
+                    const restore = Math.min(od * 0.04, 1.7);
                     this.cx += (odx / od) * restore;
                     this.cy += (ody / od) * restore;
                 }
@@ -839,7 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Size based on width so text always fits horizontally
             const fontSize = Math.floor(w / text.length * 1.4);
-            interactionRadius = Math.max(60, fontSize * 0.8);
+            interactionRadius = Math.max(150, fontSize * 1.8);
 
             ctx.clearRect(0, 0, w, h);
             ctx.font = `900 ${fontSize}px 'Space Grotesk', Verdana, sans-serif`;
@@ -853,7 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const finalSize = Math.floor(fontSize * scale);
 
             ctx.font = `900 ${finalSize}px 'Space Grotesk', Verdana, sans-serif`;
-            interactionRadius = Math.max(40, finalSize * 0.8);
+            interactionRadius = Math.max(120, finalSize * 1.8);
 
             const measured2 = ctx.measureText(text);
             const tx = (w - measured2.width) / 2;
@@ -933,6 +933,51 @@ document.addEventListener('DOMContentLoaded', () => {
         observer.observe(canvas);
     }
     initParticleText();
+
+    function initExperienceSlide() {
+        const section = document.querySelector('.experience-section');
+        if (!section) return;
+
+        const cols = section.querySelectorAll('.split-col');
+        if (cols.length < 2) return;
+
+        const leftCol = cols[0];
+        const rightCol = cols[1];
+
+        // Mobile: skip (stacked layout, no horizontal slide)
+        if (window.innerWidth < 768) return;
+
+        function update() {
+            const rect = section.getBoundingClientRect();
+            const vh = window.innerHeight;
+
+            const sectionCenter = rect.top + rect.height / 2;
+
+            // Once section center has passed the viewport center, lock at 0
+            if (sectionCenter <= vh / 2) {
+                leftCol.style.transform = `translateX(0px)`;
+                rightCol.style.transform = `translateX(0px)`;
+                return;
+            }
+
+            // Section is still below center — slide in as it approaches
+            const maxDist = vh * 0.75;
+            let t = 1 - Math.min((sectionCenter - vh / 2) / maxDist, 1);
+            t = t * t * (3 - 2 * t);
+
+            const maxOffset = window.innerWidth * 0.65;
+            const offset = (1 - t) * maxOffset;
+
+            leftCol.style.transform = `translateX(-${offset}px)`;
+            rightCol.style.transform = `translateX(${offset}px)`;
+        }
+
+        window.addEventListener('scroll', update, { passive: true });
+        window.addEventListener('resize', update);
+        update(); // set initial state
+    }
+
+    initExperienceSlide();
 });
 
 // Vertical Scroller
