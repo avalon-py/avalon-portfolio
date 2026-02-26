@@ -141,24 +141,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const viewportHeight = window.innerHeight;
             const sectionHeight = rect.height;
             
-            // Calculate progress (0 to 1) based on scroll position within the section
             let progress = -rect.top / (sectionHeight - viewportHeight);
-            
-            // Clamp progress
             progress = Math.max(0, Math.min(progress, 1));
             
-            // 1. Background Opacity (Fades out as we scroll)
             if (expandBg) {
                 expandBg.style.opacity = Math.max(0, 1 - progress * 1.5);
             }
 
-            // 2. Media Expansion
             const isMobile = window.innerWidth < 768;
-            const startWidth = 300;
-            const endWidth = window.innerWidth; // Full width
-            const startHeight = 400;
-            const endHeight = window.innerHeight; // Full height
-            
+            const isTablet = window.innerWidth < 1024;
+
+            // Responsive start sizes
+            const startWidth = isMobile ? 160 : isTablet ? 220 : 300;
+            const startHeight = isMobile ? 220 : isTablet ? 300 : 400;
+            const endWidth = window.innerWidth;
+            const endHeight = window.innerHeight;
+
             const currentWidth = startWidth + (endWidth - startWidth) * progress;
             const currentHeight = startHeight + (endHeight - startHeight) * progress;
             const currentRadius = 20 * (1 - progress);
@@ -167,9 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
             expandMediaWrapper.style.height = `${currentHeight}px`;
             expandMediaWrapper.style.borderRadius = `${currentRadius}px`;
 
-            // 3. Title Separation & Fade Out
-            const separation = progress * (isMobile ? 200 : 400); // px
-            const titleOpacity = Math.max(0, 1 - progress * 2); // Fade out faster (by 50% scroll)
+            // Title separation — smaller on mobile
+            const separation = progress * (isMobile ? 120 : isTablet ? 250 : 400);
+            const titleOpacity = Math.max(0, 1 - progress * 2);
             
             if (titleLeft) {
                 titleLeft.style.transform = `translateX(-${separation}px)`;
@@ -180,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 titleRight.style.opacity = titleOpacity;
             }
             
-            // 4. Inner Text Fade Out
             if (cardInnerText) {
                 cardInnerText.style.opacity = Math.max(0, 1 - progress * 3);
             }
@@ -198,6 +195,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Initial call to set state
         updateAboutSection();
+
+        window.addEventListener('resize', updateAboutSection);
     }
 
     // Background Paths for About Content Section
@@ -710,7 +709,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const w = canvas.width;
             const h = canvas.height;
 
-            const fontSize = Math.floor(h * 0.39); // sized relative to canvas height
+            // Size based on width so text always fits horizontally
+            const fontSize = Math.floor(w / text.length * 1.4);
             interactionRadius = Math.max(60, fontSize * 0.8);
 
             ctx.clearRect(0, 0, w, h);
@@ -719,19 +719,31 @@ document.addEventListener('DOMContentLoaded', () => {
             ctx.textBaseline = 'middle';
 
             const measured = ctx.measureText(text);
-            const tx = (w - measured.width) / 2;
-            const ty = (h - fontSize) / 2;
-            const gradient = ctx.createLinearGradient(tx, ty, tx + measured.width, ty + fontSize);
+
+            // If text still overflows width, scale down further
+            const scale = Math.min(1, (w * 0.95) / measured.width);
+            const finalSize = Math.floor(fontSize * scale);
+
+            ctx.font = `900 ${finalSize}px 'Space Grotesk', Verdana, sans-serif`;
+            interactionRadius = Math.max(40, finalSize * 0.8);
+
+            const measured2 = ctx.measureText(text);
+            const tx = (w - measured2.width) / 2;
+            const ty = (h - finalSize) / 2;
+
+            const gradient = ctx.createLinearGradient(tx, ty, tx + measured2.width, ty + finalSize);
             colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), `#${c}`));
             ctx.fillStyle = gradient;
             ctx.fillText(text, w / 2, h / 2);
 
-            const tw = Math.round(measured.width);
-            const th = fontSize;
+            const tw = Math.round(measured2.width);
+            const th = finalSize;
             const sx = Math.max(0, Math.round(tx));
             const sy = Math.max(0, Math.round(ty));
-            const data = ctx.getImageData(sx, sy, tw, th).data;
 
+            if (tw <= 0 || th <= 0) return;
+
+            const data = ctx.getImageData(sx, sy, tw, th).data;
             ctx.clearRect(0, 0, w, h);
             particles = [];
 
