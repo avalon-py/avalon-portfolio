@@ -476,11 +476,63 @@ document.addEventListener('DOMContentLoaded', () => {
                 i++;
                 setTimeout(type, 45);
             } else {
-                // Done — blink cursor a few times then fade it out
                 setTimeout(() => {
-                    cursor.style.transition = 'opacity 0.5s ease';
-                    cursor.style.opacity = '0';
-                }, 1500);
+                    // Measure actual rendered text width
+                    const range = document.createRange();
+                    range.selectNodeContents(quote);
+                    const rects = Array.from(range.getClientRects());
+                    const lastRect = rects[rects.length - 1];
+                    const firstRect = rects[0];
+                    // Last line width (where the quote ends)
+                    const lineWidth = lastRect.right - firstRect.left; // subtract padding-left
+
+                    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                    svg.setAttribute('viewBox', `0 0 ${lineWidth} 12`);
+                    svg.setAttribute('preserveAspectRatio', 'none');
+                    svg.style.cssText = `
+                        position: absolute;
+                        bottom: -6px;
+                        left: 1.5rem;
+                        width: ${lineWidth}px;
+                        height: 12px;
+                        overflow: visible;
+                        pointer-events: none;
+                    `;
+
+                    // Wavy handwritten path
+                    const segments = Math.floor(lineWidth / 30);
+                    let d = `M 0 6`;
+                    for (let s = 1; s <= segments; s++) {
+                        const x = (s / segments) * lineWidth;
+                        const cpx = x - lineWidth / segments / 2;
+                        const cpy = s % 2 === 0 ? 3 : 9;
+                        d += ` Q ${cpx} ${cpy} ${x} 6`;
+                    }
+
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', d);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', 'var(--accent)');
+                    path.setAttribute('stroke-width', '2');
+                    path.setAttribute('stroke-linecap', 'round');
+                    path.setAttribute('stroke-linejoin', 'round');
+
+                    svg.appendChild(path);
+                    svg.style.opacity = '0';
+                    quote.appendChild(svg);
+
+                    const length = path.getTotalLength();
+                    path.style.strokeDasharray = length;
+                    path.style.strokeDashoffset = length;
+
+                    requestAnimationFrame(() => {
+                        requestAnimationFrame(() => {
+                            svg.style.opacity = '1';
+                            path.style.transition = `stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)`;
+                            path.style.strokeDashoffset = '0';
+                        });
+                    });
+                }, 200);
             }
         }
     }
@@ -1082,6 +1134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initWipeReveal('.blog-cta-label, .blog-cta-desc', 'var(--bg)');
     initWipeReveal('.email-link', '#000');
     initWipeReveal('.social-link', '#000');
+    
 });
 
 // Vertical Scroller
