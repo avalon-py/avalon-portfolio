@@ -253,7 +253,7 @@ body {
 
 /* Immersive About Section (Scroll Expansion) */
 .about-expand-section {
-  height: 300vh; /* Scroll distance */
+  height: 250vh; /* Scroll distance */
   position: relative;
   background: #000;
 }
@@ -300,12 +300,10 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 300px; /* Initial width */
-  height: 400px; /* Initial height */
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 0 50px rgba(0,0,0,0.5);
-  /* Will be animated via JS */
+  /* NO width or height here — JS controls everything */
 }
 
 .expand-media {
@@ -774,9 +772,9 @@ a.fun-card {
 }
 /* Giant background text */
 .blog-cta-canvas {
-  position: relative; /* no longer absolute */
+  position: relative;
   width: 100%;
-  height: 300px; /* title height */
+  height: clamp(100px, 20vw, 300px); /* scales with screen width */
   pointer-events: all;
   z-index: 2;
   display: block;
@@ -1533,4 +1531,286 @@ a.fun-card {
   .project-item { flex-direction: column; align-items: flex-start; }
   .project-media { display: none; } /* Hide hover image on mobile */
   .project-title { font-size: 2.5rem; }
+}
+
+/* =====================
+   RESPONSIVE - TABLET & MOBILE
+   ===================== */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+  :root {
+    --px: 5vw;
+  }
+
+  .hero-title {
+    font-size: 8vw;
+  }
+
+  .project-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .blog-cta-canvas {
+    height: 200px;
+  }
+
+  .split-layout {
+    gap: 2rem;
+  }
+
+  .expand-title {
+    font-size: 10vw;
+  }
+}
+
+/* Mobile (max 768px) */
+@media (max-width: 768px) {
+  :root {
+    --px: 6vw;
+  }
+
+  /* Hide custom cursor on touch devices */
+  .cursor,
+  .cursor-follower {
+    display: none;
+  }
+
+  * {
+    cursor: auto !important;
+  }
+
+  /* Navbar */
+  .navbar {
+    padding: 1.2rem var(--px);
+  }
+
+  .logo {
+    font-size: 1.2rem;
+  }
+
+  .nav-links {
+    gap: 1.2rem;
+  }
+
+  .nav-link {
+    font-size: 0.75rem;
+  }
+
+  /* Hero */
+  .hero {
+    padding: 0 var(--px);
+    align-items: center;
+  }
+
+  .hero-title {
+    font-size: 13vw;
+    line-height: 0.9;
+  }
+
+  .hero-content {
+    gap: 1.2rem;
+  }
+
+  .hero-subtitle-container {
+    font-size: 0.95rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .hero-footer {
+    bottom: 2rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .scroll-indicator {
+    display: none;
+  }
+
+  /* Work Section */
+  .work-section {
+    padding: 5rem var(--px);
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+
+  .section-header {
+    margin-bottom: 3rem;
+    gap: 1rem;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .card-date {
+    font-size: 1rem;
+  }
+
+  .card-action {
+    font-size: 0.7rem;
+  }
+
+
+  .card-title {
+    font-size: 1.5rem;
+  }
+
+  /* Fun Projects */
+  .fun-section {
+    padding: 4rem var(--px);
+  }
+
+  .fun-grid {
+    grid-template-columns: 1fr;
+    gap: 1.2rem;
+  }
+
+  /* Blog CTA */
+  .blog-cta-section {
+    padding: 4rem var(--px);
+    min-height: 400px;
+  }
+
+  .blog-cta-canvas {
+    height: clamp(80px, 22vw, 160px);
+  }
+
+  .blog-cta-desc {
+    font-size: 0.9rem;
+    padding: 0 1rem;
+  }
+
+  .blog-cta-btn {
+    padding: 0.8rem 1.8rem;
+    font-size: 0.85rem;
+  }
+
+  /* Experience / Education */
+  .experience-section {
+    padding: 4rem var(--px);
+  }
+
+  .split-layout {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .timeline-role {
+    font-size: 1.2rem;
+  }
+
+  /* About Expand Section */
+  .expand-title {
+    font-size: 14vw;
+    gap: 0.5rem;
+  }
+
+  /* .expand-media-wrapper {
+    width: 160px !important;
+    height: 220px !important;
+  } */
+
+  .about-expand-section {
+    height: 200vh;
+  }
+
+  /* About Content Section */
+  .about-content-section {
+    padding: 5rem var(--px);
+  }
+
+  .about-details {
+    max-width: 100%;
+  }
+
+  .gooey-word {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+  }
+
+  .about-text-small {
+    font-size: 1rem;
+  }
+
+  .about-quote {
+    font-size: 1.1rem;
+  }
+
+  /* Skills Strip */
+  .skills-strip {
+    margin-left: calc(-1 * var(--px));
+    gap: 2rem;
+    padding: 2rem 0;
+  }
+
+  .skills-track span {
+    font-size: 1.8rem;
+    margin: 0 1.5rem;
+  }
+
+  /* Contact Section */
+  .contact-section {
+    height: auto;
+    padding: 6rem var(--px);
+  }
+
+  .email-link {
+    font-size: clamp(1.2rem, 5vw, 2.5rem);
+    margin-bottom: 2.5rem;
+    word-break: break-all;
+  }
+
+  .social-links {
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .social-link {
+    font-size: 1rem;
+  }
+
+  /* Liquid canvas — less intense on mobile */
+  #liquid-canvas-container {
+    opacity: 0.4;
+  }
+}
+
+/* Small phones (max 430px) */
+@media (max-width: 430px) {
+  .hero-title {
+    font-size: 15vw;
+  }
+
+  .blog-cta-canvas {
+    height: clamp(60px, 24vw, 120px);
+  }
+
+  .nav-links {
+    gap: 0.8rem;
+  }
+
+  .timeline-role {
+    font-size: 1.1rem;
+  }
+
+  .skills-track span {
+    font-size: 1.4rem;
+    margin: 0 1rem;
+  }
+  
+  /* .expand-media-wrapper {
+    width: 130px !important;
+    height: 180px !important;
+  } */
+  
+  .about-expand-section {
+    height: 200vh;
+  }
 }
