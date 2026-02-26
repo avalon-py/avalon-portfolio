@@ -4,124 +4,136 @@ document.addEventListener('DOMContentLoaded', () => {
         window.lucide.createIcons();
     }
 
-    // Custom Cursor
-    const cursor = document.querySelector('.cursor');
-    const follower = document.querySelector('.cursor-follower');
-    
-    let mouseX = 0, mouseY = 0;
-    let posX = 0, posY = 0;
+    // Blob Cursor — organic shape via canvas
+    const blobCanvas = document.getElementById('cursor-blob-canvas');
+    const blobCtx = blobCanvas ? blobCanvas.getContext('2d') : null;
+    const dotCursor = document.querySelector('.cursor');
+
+    let mouseX = -500, mouseY = -500;
+    let blobX = -500, blobY = -500;
+    let phase = 0;
+
+    function resizeBlobCanvas() {
+        if (!blobCanvas) return;
+        blobCanvas.width = window.innerWidth;
+        blobCanvas.height = window.innerHeight;
+    }
+    resizeBlobCanvas();
+    window.addEventListener('resize', resizeBlobCanvas);
 
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-
-        // Immediate update for dot
-        if (cursor) {
-            cursor.style.left = `${mouseX}px`;
-            cursor.style.top = `${mouseY}px`;
+        if (dotCursor) {
+            dotCursor.style.left = `${mouseX}px`;
+            dotCursor.style.top = `${mouseY}px`;
         }
     });
 
-    // Smooth update for follower
-    function animateCursor() {
-        posX += (mouseX - posX) / 9;
-        posY += (mouseY - posY) / 9;
-        
-        if (follower) {
-            follower.style.left = `${posX}px`;
-            follower.style.top = `${posY}px`;
-        }
-        
-        requestAnimationFrame(animateCursor);
-    }
-    animateCursor();
+    // Each point on the blob has its own phase offset for independent movement
+    const NUM_POINTS = 8;
+    const blobPoints = Array.from({ length: NUM_POINTS }, (_, i) => ({
+        angleOffset: (i / NUM_POINTS) * Math.PI * 2,
+        // Each point has 3 sine waves with different frequencies/amplitudes
+        waves: [
+            { freq: 0.6 + Math.random() * 0.4, amp: 10 + Math.random() * 18, phase: Math.random() * Math.PI * 2 },
+            { freq: 1.2 + Math.random() * 0.8, amp: 5  + Math.random() * 10, phase: Math.random() * Math.PI * 2 },
+            { freq: 2.0 + Math.random() * 1.0, amp: 3  + Math.random() * 6,  phase: Math.random() * Math.PI * 2 },
+        ]
+    }));
 
-    // Hover effects
-    const hoverElements = document.querySelectorAll('a, button, .project-item, .nav-link');
-    hoverElements.forEach(el => {
+    let targetR = 100;
+    let currentR = 100;
+
+    function getBlobRadius(point, t) {
+        let r = currentR;
+        for (const w of point.waves) {
+            r += Math.sin(t * w.freq + w.phase) * w.amp;
+        }
+        return r;
+    }
+
+    // Trail history
+    const trail = [];
+    const TRAIL_LENGTH = 50;
+
+    function drawBlob(cx, cy, t, alpha) {
+        if (!blobCtx) return;
+
+        const points = blobPoints.map(p => {
+            const r = getBlobRadius(p, t);
+            return {
+                x: cx + Math.cos(p.angleOffset) * r,
+                y: cy + Math.sin(p.angleOffset) * r,
+            };
+        });
+
+        blobCtx.beginPath();
+        for (let i = 0; i < points.length; i++) {
+            const curr = points[i];
+            const next = points[(i + 1) % points.length];
+            if (i === 0) {
+                blobCtx.moveTo((curr.x + next.x) / 2, (curr.y + next.y) / 2);
+            }
+            const mx = (curr.x + next.x) / 2;
+            const my = (curr.y + next.y) / 2;
+            blobCtx.quadraticCurveTo(curr.x, curr.y, mx, my);
+        }
+        blobCtx.closePath();
+        blobCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
+        blobCtx.fill();
+    }
+
+    function animateBlobCursor(t) {
+        blobX += (mouseX - blobX) * 0.1;
+        blobY += (mouseY - blobY) * 0.1;
+        currentR += (targetR - currentR) * 0.1;
+
+        phase = t * 0.006;
+
+        // Push current position to trail
+        trail.push({ x: blobX, y: blobY, t: phase, r: currentR });
+        if (trail.length > TRAIL_LENGTH) trail.shift();
+
+        // Clear canvas each frame
+        blobCtx.clearRect(0, 0, blobCanvas.width, blobCanvas.height);
+
+        // Draw trail — older = smaller + more transparent
+        trail.forEach((pos, i) => {
+            const progress = i / trail.length;           // 0 = oldest, 1 = newest
+            const alpha = progress * 0.9;                // fades toward old
+            const scaleDown = 0.3 + progress * 0.8;     // shrinks toward old
+
+            // Temporarily scale blobPoints radii for trail
+            const savedR = currentR;
+            currentR = pos.r * scaleDown;
+            drawBlob(pos.x, pos.y, pos.t, alpha);
+            currentR = savedR;
+        });
+
+        // Draw main blob at full opacity
+        drawBlob(blobX, blobY, phase, 1.0);
+
+        requestAnimationFrame(animateBlobCursor);
+    }
+    requestAnimationFrame(animateBlobCursor);
+
+    // Scale on hover
+    document.querySelectorAll('a, button, .project-item, .nav-link').forEach(el => {
+        el.addEventListener('mouseenter', () => { targetR = 110; });
+        el.addEventListener('mouseleave', () => { targetR = 75; });
+    });
+
+    // Scale blob on hover
+    document.querySelectorAll('a, button, .project-item, .nav-link').forEach(el => {
         el.addEventListener('mouseenter', () => {
-            cursor?.classList.add('active');
-            follower?.classList.add('active');
+            blobCircle?.setAttribute('r', '120');
+            blobCircle?.style.setProperty('transition', 'r 0.3s ease');
         });
         el.addEventListener('mouseleave', () => {
-            cursor?.classList.remove('active');
-            follower?.classList.remove('active');
+            blobCircle?.setAttribute('r', '75');
         });
     });
-
-    // Liquid Canvas Effect
-    const canvas = document.getElementById('liquid-canvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        let points = [];
-        // History of mouse positions
-        let mouseHistory = [];
-        
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
-        
-        window.addEventListener('resize', resize);
-        resize();
-
-        // Track mouse
-        let mouseX = 0, mouseY = 0;
-        document.addEventListener('mousemove', (e) => {
-            mouseX = e.clientX;
-            mouseY = e.clientY;
-            // Add point on move
-            mouseHistory.push({ x: mouseX, y: mouseY, age: 0 });
-        });
-
-        function animateLiquid() {
-            // Clear with fade for trails
-            // Using a very low opacity black to create trails
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            ctx.fillRect(0, 0, width, height);
-
-            // Draw fluid lines
-            if (mouseHistory.length > 1) {
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                
-                // Draw connecting lines
-                for (let i = 0; i < mouseHistory.length - 1; i++) {
-                    const p1 = mouseHistory[i];
-                    const p2 = mouseHistory[i+1];
-                    
-                    // Age points
-                    p1.age++;
-                    
-                    // Calculate life (0 to 1)
-                    const maxAge = 50;
-                    const life = 1 - (p1.age / maxAge);
-                    
-                    if (life > 0) {
-                        ctx.beginPath();
-                        ctx.moveTo(p1.x, p1.y);
-                        // Quadratic curve for smoothness? Linear for now is fine with high sampling
-                        ctx.lineTo(p2.x, p2.y);
-                        
-                        // Dynamic width based on life
-                        ctx.lineWidth = 40 * life; 
-                        
-                        // White color for the "liquid" base (contrast filter handles the rest)
-                        // The filter blur(10px) contrast(30) needs bright input to work
-                        ctx.strokeStyle = `rgba(255, 255, 255, ${life})`;
-                        ctx.stroke();
-                    }
-                }
-                
-                // Remove dead points
-                mouseHistory = mouseHistory.filter(p => p.age < 50);
-            }
-            
-            requestAnimationFrame(animateLiquid);
-        }
-        animateLiquid();
-    }
 
     // Immersive About Section Scroll Logic
     const aboutSection = document.querySelector('.about-expand-section');
@@ -141,22 +153,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const viewportHeight = window.innerHeight;
             const sectionHeight = rect.height;
             
+            // Calculate progress (0 to 1) based on scroll position within the section
             let progress = -rect.top / (sectionHeight - viewportHeight);
+            
+            // Clamp progress
             progress = Math.max(0, Math.min(progress, 1));
             
+            // 1. Background Opacity (Fades out as we scroll)
             if (expandBg) {
                 expandBg.style.opacity = Math.max(0, 1 - progress * 1.5);
             }
 
+            // 2. Media Expansion
             const isMobile = window.innerWidth < 768;
-            const isTablet = window.innerWidth < 1024;
-
-            // Responsive start sizes
-            const startWidth = isMobile ? 160 : isTablet ? 220 : 300;
-            const startHeight = isMobile ? 220 : isTablet ? 300 : 400;
-            const endWidth = window.innerWidth;
-            const endHeight = window.innerHeight;
-
+            const startWidth = 300;
+            const endWidth = window.innerWidth; // Full width
+            const startHeight = 400;
+            const endHeight = window.innerHeight; // Full height
+            
             const currentWidth = startWidth + (endWidth - startWidth) * progress;
             const currentHeight = startHeight + (endHeight - startHeight) * progress;
             const currentRadius = 20 * (1 - progress);
@@ -165,9 +179,9 @@ document.addEventListener('DOMContentLoaded', () => {
             expandMediaWrapper.style.height = `${currentHeight}px`;
             expandMediaWrapper.style.borderRadius = `${currentRadius}px`;
 
-            // Title separation — smaller on mobile
-            const separation = progress * (isMobile ? 120 : isTablet ? 250 : 400);
-            const titleOpacity = Math.max(0, 1 - progress * 2);
+            // 3. Title Separation & Fade Out
+            const separation = progress * (isMobile ? 200 : 400); // px
+            const titleOpacity = Math.max(0, 1 - progress * 2); // Fade out faster (by 50% scroll)
             
             if (titleLeft) {
                 titleLeft.style.transform = `translateX(-${separation}px)`;
@@ -178,6 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 titleRight.style.opacity = titleOpacity;
             }
             
+            // 4. Inner Text Fade Out
             if (cardInnerText) {
                 cardInnerText.style.opacity = Math.max(0, 1 - progress * 3);
             }
@@ -195,8 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Initial call to set state
         updateAboutSection();
-
-        window.addEventListener('resize', updateAboutSection);
     }
 
     // Background Paths for About Content Section
@@ -519,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const originalText = el.textContent.trim();
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@._-';
-        const duration = 250;
+        const duration = 600;
 
         // Build char spans
         el.textContent = '';
@@ -557,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            iterations += 0.45;
+            iterations += 0.15;
 
             if (iterations >= originalText.length) {
                 // Ensure final state is clean
@@ -633,178 +646,121 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initSkillsStrip();
 
-    function initParticleText() {
-        const canvas = document.querySelector('.blog-cta-canvas');
-        if (!canvas) return;
+    function initContactLiquid() {
+        const section = document.querySelector('.contact-section');
+        const canvas = document.querySelector('.contact-liquid-canvas');
+        if (!canvas || !section) return;
 
         const ctx = canvas.getContext('2d');
-        const text = 'QUANTFLOW';
-        const colors = [
-            'd4ff00', 'a8cc00', 'd4ff00', 'ffffff',
-            'a0a0a0', 'd4ff00', 'a8cc00', 'd4ff00'
-        ];
-        const particleDensity = 4;
-        const animationForce = 80;
 
-        let particles = [];
-        let pointer = { x: undefined, y: undefined };
-        let hasPointer = false;
-        let animId = null;
-        let interactionRadius = 100;
-
-        function rand(max = 1, min = 0) {
-            return min + Math.random() * (max - min);
+        function resize() {
+            canvas.width = section.offsetWidth;
+            canvas.height = section.offsetHeight;
         }
+        resize();
+        window.addEventListener('resize', resize);
 
-        function hexToRgb(hex) {
-            const r = parseInt(hex.slice(0, 2), 16);
-            const g = parseInt(hex.slice(2, 4), 16);
-            const b = parseInt(hex.slice(4, 6), 16);
-            return [r, g, b];
-        }
+        // Mouse
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let isInside = false;
 
+        section.addEventListener('mousemove', (e) => {
+            const rect = section.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+            isInside = true;
+        });
+        section.addEventListener('mouseleave', () => { isInside = false; });
+
+        // Particles — white solid circles, the blur+contrast filter does all the liquid magic
         class Particle {
-            constructor(x, y, rgb) {
-                this.ox = x; this.oy = y;
-                this.cx = x; this.cy = y;
-                this.or = rand(5, 1);
-                this.cr = this.or;
-                this.f = rand(animationForce + 15, animationForce - 15);
-                this.rgb = rgb.map(c => Math.max(0, Math.min(255, c + rand(13, -13))));
+            constructor(x, y, isAccent = false) {
+                this.x = x + (Math.random() - 0.5) * 20;
+                this.y = y + (Math.random() - 0.5) * 20;
+                this.targetX = x;
+                this.targetY = y;
+                this.r = Math.random() * 70 + 10;
+                this.maxLife = 80 + Math.random() * 30;
+                this.life = this.maxLife;
+                this.isAccent = isAccent;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+            }
+
+            update() {
+                // Drift slightly
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vx *= 0.97;
+                this.vy *= 0.97;
+                this.life--;
+                // Slowly shrink as life ends
+                if (this.life < 30) this.r *= 0.97;
             }
 
             draw() {
-                ctx.fillStyle = `rgb(${this.rgb.map(Math.round).join(',')})`;
+                const opacity = Math.min(1, this.life / 20);
+                // Must be WHITE for mix-blend-mode:difference to invert properly
+                // Grey won't invert — it needs full white
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
                 ctx.beginPath();
-                ctx.arc(this.cx, this.cy, this.cr, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, Math.max(0, this.r), 0, Math.PI * 2);
                 ctx.fill();
             }
-
-            move() {
-                if (hasPointer && pointer.x !== undefined) {
-                    const dx = this.cx - pointer.x;
-                    const dy = this.cy - pointer.y;
-                    const dist = Math.hypot(dx, dy);
-                    if (dist < interactionRadius && dist > 0) {
-                        const force = Math.min(this.f, (interactionRadius - dist) / dist * 2);
-                        this.cx += (dx / dist) * force;
-                        this.cy += (dy / dist) * force;
-                    }
-                }
-
-                const odx = this.ox - this.cx;
-                const ody = this.oy - this.cy;
-                const od = Math.hypot(odx, ody);
-                if (od > 1) {
-                    const restore = Math.min(od * 0.1, 3);
-                    this.cx += (odx / od) * restore;
-                    this.cy += (ody / od) * restore;
-                }
-
-                this.draw();
-            }
+            get dead() { return this.life <= 0 || this.r < 0.5; }
         }
 
-        function write() {
-            const w = canvas.width;
-            const h = canvas.height;
-
-            // Size based on width so text always fits horizontally
-            const fontSize = Math.floor(w / text.length * 1.4);
-            interactionRadius = Math.max(60, fontSize * 0.8);
-
-            ctx.clearRect(0, 0, w, h);
-            ctx.font = `900 ${fontSize}px 'Space Grotesk', Verdana, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            const measured = ctx.measureText(text);
-
-            // If text still overflows width, scale down further
-            const scale = Math.min(1, (w * 0.95) / measured.width);
-            const finalSize = Math.floor(fontSize * scale);
-
-            ctx.font = `900 ${finalSize}px 'Space Grotesk', Verdana, sans-serif`;
-            interactionRadius = Math.max(40, finalSize * 0.8);
-
-            const measured2 = ctx.measureText(text);
-            const tx = (w - measured2.width) / 2;
-            const ty = (h - finalSize) / 2;
-
-            const gradient = ctx.createLinearGradient(tx, ty, tx + measured2.width, ty + finalSize);
-            colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), `#${c}`));
-            ctx.fillStyle = gradient;
-            ctx.fillText(text, w / 2, h / 2);
-
-            const tw = Math.round(measured2.width);
-            const th = finalSize;
-            const sx = Math.max(0, Math.round(tx));
-            const sy = Math.max(0, Math.round(ty));
-
-            if (tw <= 0 || th <= 0) return;
-
-            const data = ctx.getImageData(sx, sy, tw, th).data;
-            ctx.clearRect(0, 0, w, h);
-            particles = [];
-
-            for (let i = 0; i < data.length; i += 4) {
-                if (data[i + 3] < 128) continue;
-                const px = (i / 4) % tw;
-                const py = Math.floor((i / 4) / tw);
-                if (px % particleDensity !== 0 || py % particleDensity !== 0) continue;
-                const rgb = [data[i], data[i + 1], data[i + 2]];
-                particles.push(new Particle(sx + px, sy + py, rgb));
-            }
-        }
+        let particles = [];
+        let lastX = mouseX, lastY = mouseY;
+        let spawnTimer = 0;
 
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => p.move());
-            animId = requestAnimationFrame(animate);
-        }
-
-        function resize() {
-            const rect = canvas.parentElement.getBoundingClientRect();
-            canvas.width = rect.width;
-            canvas.height = rect.height;
-            write();
-        }
-
-        // Pointer events
-        canvas.addEventListener('pointermove', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            pointer.x = (e.clientX - rect.left) * scaleX;
-            pointer.y = (e.clientY - rect.top) * scaleY;
-            hasPointer = true;
-        });
-
-        canvas.addEventListener('pointerleave', () => {
-            hasPointer = false;
-            pointer.x = undefined;
-            pointer.y = undefined;
-        });
-
-        window.addEventListener('resize', resize);
-
-        // Fix: wait for layout to settle before first render
-        setTimeout(resize, 100);
-        animate();
-
-        // Also re-render when section scrolls into view for the first time
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    resize();
-                    observer.disconnect();
+            // Fade background slightly — this creates the temporal stain trail
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.12)'; // slightly slower fade = stains linger longer
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Spawn particles on mouse move
+            const dist = Math.hypot(mouseX - lastX, mouseY - lastY);
+            if (isInside && dist > 5) {
+                // Main accent blob at cursor
+                particles.push(new Particle(mouseX, mouseY, true));
+                // White satellite
+                particles.push(new Particle(mouseX, mouseY, false));
+                // Extra small accent blobs for trail
+                if (dist > 15) {
+                    particles.push(new Particle(
+                        (mouseX + lastX) / 2,
+                        (mouseY + lastY) / 2,
+                        true
+                    ));
                 }
-            });
-        }, { threshold: 0.1 });
+                lastX = mouseX;
+                lastY = mouseY;
+            }
 
-        observer.observe(canvas);
+            // Ambient idle blobs so section isn't dead
+            spawnTimer++;
+            if (spawnTimer % 40 === 0) {
+                const cx = canvas.width / 2 + (Math.random() - 0.5) * canvas.width * 0.6;
+                const cy = canvas.height / 2 + (Math.random() - 0.5) * canvas.height * 0.4;
+                const p = new Particle(cx, cy, Math.random() > 0.5);
+                p.r = Math.random() * 20 + 10; 
+                p.maxLife = 60;
+                p.life = 60;
+                particles.push(p);
+            }
+
+            // Update + draw
+            particles = particles.filter(p => !p.dead);
+            particles.forEach(p => { p.update(); p.draw(); });
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
     }
-    initParticleText();
+
+    initContactLiquid();
 });
 
 // Vertical Scroller
