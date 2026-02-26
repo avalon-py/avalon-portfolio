@@ -532,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const originalText = el.textContent.trim();
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@._-';
-        const duration = 600;
+        const duration = 300;
 
         // Build char spans
         el.textContent = '';
@@ -570,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
 
-            iterations += 0.15;
+            iterations += 0.4;
 
             if (iterations >= originalText.length) {
                 // Ensure final state is clean
@@ -590,46 +590,52 @@ document.addEventListener('DOMContentLoaded', () => {
         const bottomTrack = document.querySelector('.skills-row.reverse .skills-track');
         if (!topTrack || !bottomTrack) return;
 
-        const trackWidth = topTrack.scrollWidth / 2; // half because content is duplicated
+        const trackWidth = topTrack.scrollWidth / 2;
 
         let topOffset = 0;
         let bottomOffset = 0;
 
-        // Velocity: positive = left, negative = right
-        let velocity = 1; // default drift speed (px per frame)
+        let velocity = 1;
         let targetVelocity = 1;
+        let lastDirection = 1; // +1 = down, -1 = up — persists after scroll stops
 
         let lastScrollY = window.scrollY;
+        let lastScrollTime = performance.now();
         let scrollTimeout;
 
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             const delta = currentScrollY - lastScrollY;
-            lastScrollY = currentScrollY;
+            const now = performance.now();
+            const elapsed = Math.max(1, now - lastScrollTime);
+
+            const scrollSpeed = Math.abs(delta) / elapsed; // px/ms
+            const boost = Math.min(scrollSpeed * 15, 10);   // scale to px/frame, cap at 8
 
             if (delta > 0) {
-                targetVelocity = 1.5;  // scrolling down — top goes left
+                lastDirection = 1;
+                targetVelocity = 1 + boost;
             } else if (delta < 0) {
-                targetVelocity = -1.5; // scrolling up — top goes right
+                lastDirection = -1;
+                targetVelocity = -(1 + boost);
             }
 
-            // After scrolling stops, ease back to default drift
+            lastScrollY = currentScrollY;
+            lastScrollTime = now;
+
+            // After scrolling stops, drift slowly in the same last direction
             clearTimeout(scrollTimeout);
             scrollTimeout = setTimeout(() => {
-                targetVelocity = 1;
+                targetVelocity = lastDirection * 1;
             }, 800);
         });
 
         function animate() {
-            // Smoothly interpolate velocity toward target
             velocity += (targetVelocity - velocity) * 0.05;
 
-            // Top track moves in velocity direction
             topOffset += velocity;
-            // Bottom track moves in opposite direction
             bottomOffset -= velocity;
 
-            // Wrap around seamlessly
             if (topOffset >= trackWidth) topOffset -= trackWidth;
             if (topOffset < 0) topOffset += trackWidth;
             if (bottomOffset >= trackWidth) bottomOffset -= trackWidth;
@@ -643,7 +649,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         animate();
     }
-
     initSkillsStrip();
 
     function initContactLiquid() {
@@ -978,6 +983,104 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initExperienceSlide();
+
+    function initWipeReveal(selector, coverBg = '#000') {
+        const elements = document.querySelectorAll(selector);
+
+        elements.forEach(el => {
+            el.style.opacity = '0';
+            el.style.position = 'relative';
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting || entry.target.dataset.wiped) return;
+
+                    const el = entry.target;
+                    el.dataset.wiped = 'true';
+                    observer.unobserve(el);
+
+                    const range = document.createRange();
+                    range.selectNodeContents(el);
+                    const rawRects = Array.from(range.getClientRects());
+                    const elRect = el.getBoundingClientRect();
+
+                    const lines = [];
+                    rawRects.forEach(r => {
+                        if (r.width < 2) return;
+                        const existing = lines.find(l => Math.abs(l.top - r.top) < 4);
+                        if (existing) {
+                            existing.right = Math.max(existing.right, r.right);
+                            existing.width = existing.right - existing.left;
+                        } else {
+                            lines.push({ top: r.top, left: r.left, right: r.right, width: r.width, height: r.height });
+                        }
+                    });
+
+                    el.style.opacity = '1';
+
+                    lines.forEach((line, i) => {
+                        const top      = line.top  - elRect.top  - 1;
+                        const left     = line.left - elRect.left;
+                        const width    = line.width;
+                        const height   = line.height + 2;
+                        const stagger  = i * 110;
+                        const duration = 600 + (line.width / window.innerWidth) * 100;
+                        const easing   = 'cubic-bezier(0.77, 0, 0.175, 1)';
+
+                        const baseCSS = `
+                            position: absolute;
+                            top: ${top}px; left: ${left}px;
+                            width: ${width}px; height: ${height}px;
+                            pointer-events: none; display: block;
+                        `;
+
+                        const cover = document.createElement('span');
+                        cover.style.cssText = baseCSS + `
+                            background: ${coverBg};
+                            transform: scaleX(1);
+                            transform-origin: right center;
+                            z-index: 2;
+                        `;
+                        el.appendChild(cover);
+
+                        const accent = document.createElement('span');
+                        accent.style.cssText = baseCSS + `
+                            background: var(--accent);
+                            transform: scaleX(0);
+                            transform-origin: left center;
+                            z-index: 3;
+                        `;
+                        el.appendChild(accent);
+
+                        setTimeout(() => {
+                            accent.style.transition = `transform ${duration}ms ${easing}`;
+                            cover.style.transition  = `transform ${duration}ms ${easing}`;
+                            accent.getBoundingClientRect();
+                            accent.style.transform = 'scaleX(1)';
+                            cover.style.transform  = 'scaleX(0)';
+
+                            setTimeout(() => {
+                                cover.remove();
+                                accent.style.transformOrigin = 'right center';
+                                accent.style.transition = `transform ${duration * 0.75}ms ${easing}`;
+                                accent.style.transform  = 'scaleX(0)';
+                                setTimeout(() => accent.remove(), duration * 0.75);
+                            }, duration);
+                        }, stagger);
+                    });
+                });
+            }, { threshold: 0.15 });
+
+            observer.observe(el);
+        });
+    }
+
+    // Calls
+    initWipeReveal('.about-text-small, .about-quote', '#000');
+    initWipeReveal('.project-title', 'var(--bg)');
+    initWipeReveal('.blog-cta-label, .blog-cta-desc', 'var(--bg)');
+    initWipeReveal('.email-link', '#000');
+    initWipeReveal('.social-link', '#000');
 });
 
 // Vertical Scroller
