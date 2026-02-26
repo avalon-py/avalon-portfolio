@@ -902,6 +902,7 @@ a.fun-card {
 /* Experience & Education Section */
 .experience-section {
   padding: 5rem var(--px);
+  overflow: hidden;
 }
 
 .split-layout {
