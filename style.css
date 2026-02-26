@@ -526,12 +526,14 @@ body {
 }
 
 .cursor-follower {
-  width: 150px; /* Bigger default */
+  width: 150px;
   height: 150px;
   border: 1px solid rgba(255, 255, 255, 0.8);
-  background: #fff; /* Filled for better inversion */
+  background: #fff;
   border-radius: 50%;
   position: fixed;
+  left: -500px;
+  top: -500px;
   pointer-events: none;
   z-index: 9998;
   transform: translate(-50%, -50%);
