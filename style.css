@@ -2254,7 +2254,7 @@ body {
   .navbar.nav-visible {
     transform: translateY(0);
   }
-  
+
   .logo {
     font-size: 1.2rem;
   }
@@ -2467,7 +2467,7 @@ body {
   }
 
   .blog-cta-canvas {
-    height: clamp(60px, 24vw, 120px);
+    height: clamp(120px, 48vw, 240px);
   }
 
   .nav-links {
