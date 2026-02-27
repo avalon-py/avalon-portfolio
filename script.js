@@ -1266,6 +1266,76 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initStockChartReveal();
+
+    function initExperience() {
+        // ── Stat counters ──
+        const stats = document.querySelectorAll('.exp-stat-num');
+        let countersStarted = false;
+
+        function startCounters() {
+            if (countersStarted) return;
+            countersStarted = true;
+
+            stats.forEach(el => {
+                const target   = parseFloat(el.dataset.target);
+                const decimals = parseInt(el.dataset.decimals) || 0;
+                const duration = 2800;
+                const start    = performance.now();
+
+                function tick(now) {
+                    const elapsed  = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    // Ease out cubic
+                    const eased = 1 - Math.pow(1 - progress, 3);
+                    el.textContent = (eased * target).toFixed(decimals);
+                    if (progress < 1) requestAnimationFrame(tick);
+                    else el.textContent = target.toFixed(decimals);
+                }
+                requestAnimationFrame(tick);
+            });
+        }
+
+        const statsObserver = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting) {
+                startCounters();
+                statsObserver.disconnect();
+            }
+        }, { threshold: 0.4 });
+
+        const statsEl = document.querySelector('.exp-stats');
+        if (statsEl) statsObserver.observe(statsEl);
+
+        // ── Timeline fill + item activation ──
+        document.querySelectorAll('[data-timeline]').forEach(timeline => {
+            const progressBar = timeline.querySelector('.timeline-progress');
+            const items       = timeline.querySelectorAll('[data-tl-item]');
+            let activated     = false;
+
+            const observer = new IntersectionObserver(entries => {
+                if (entries[0].isIntersecting && !activated) {
+                    activated = true;
+
+                    // Fill the line
+                    requestAnimationFrame(() => {
+                        progressBar.classList.add('filled');
+                    });
+
+                    // Activate each item with stagger
+                    items.forEach((item, i) => {
+                        setTimeout(() => {
+                            item.classList.add('tl-active');
+                        }, 200 + i * 280);
+                    });
+
+                    observer.disconnect();
+                }
+            }, { threshold: 0.2 });
+
+            observer.observe(timeline);
+        });
+    }
+
+    initExperience();
 });
 
 // Vertical Scroller
