@@ -1135,6 +1135,137 @@ document.addEventListener('DOMContentLoaded', () => {
     initWipeReveal('.email-link', '#000');
     initWipeReveal('.social-link', '#000');
     
+    function initHorizontalWork() {
+        const section = document.querySelector('.work-section');
+        const track = document.querySelector('.work-track');
+        const fill = document.querySelector('.work-progress-fill');
+        const counterCurrent = document.querySelector('.work-counter-current');
+        const prevBtn = document.querySelector('.work-arrow-prev');
+        const nextBtn = document.querySelector('.work-arrow-next');
+
+        if (!section || !track) return;
+        if (window.innerWidth < 768) return;
+
+        const cards = track.querySelectorAll('.work-card');
+        const count = cards.length;
+        let currentIndex = 0;
+
+        function setIndex(i) {
+            currentIndex = Math.max(0, Math.min(count - 1, i));
+            const pct = currentIndex / (count - 1);
+
+            track.style.transition = 'transform 0.9s cubic-bezier(0.77, 0, 0.175, 1)';
+            track.style.transform = `translateX(-${currentIndex * 100}vw)`;
+
+            if (fill) fill.style.width = `${pct * 100}%`;
+            if (counterCurrent) counterCurrent.textContent = String(currentIndex + 1).padStart(2, '0');
+            if (prevBtn) prevBtn.disabled = currentIndex === 0;
+            if (nextBtn) nextBtn.disabled = currentIndex === count - 1;
+        }
+
+        // Scroll → horizontal
+        function onScroll() {
+            const rect = section.getBoundingClientRect();
+            const sectionHeight = section.offsetHeight - window.innerHeight;
+            const scrolled = -rect.top;
+            const raw = scrolled / sectionHeight;
+            const progress = Math.max(0, Math.min(1, raw));
+
+            const idx = Math.round(progress * (count - 1));
+
+            if (idx !== currentIndex) {
+                track.style.transition = 'transform 0.6s cubic-bezier(0.77, 0, 0.175, 1)';
+                currentIndex = idx;
+                track.style.transform = `translateX(-${currentIndex * 100}vw)`;
+                if (fill) fill.style.width = `${progress * 100}%`;
+                if (counterCurrent) counterCurrent.textContent = String(currentIndex + 1).padStart(2, '0');
+                if (prevBtn) prevBtn.disabled = currentIndex === 0;
+                if (nextBtn) nextBtn.disabled = currentIndex === count - 1;
+            } else {
+                // smooth fill within a card
+                if (fill) fill.style.width = `${progress * 100}%`;
+            }
+        }
+
+        // Arrow clicks scroll to position
+        if (prevBtn) prevBtn.addEventListener('click', () => {
+            const targetProgress = Math.max(0, currentIndex - 1) / (count - 1);
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight - window.innerHeight;
+            window.scrollTo({ top: sectionTop + targetProgress * sectionHeight, behavior: 'smooth' });
+        });
+
+        if (nextBtn) nextBtn.addEventListener('click', () => {
+            const targetProgress = Math.min(count - 1, currentIndex + 1) / (count - 1);
+            const sectionTop = section.offsetTop;
+            const sectionHeight = section.offsetHeight - window.innerHeight;
+            window.scrollTo({ top: sectionTop + targetProgress * sectionHeight, behavior: 'smooth' });
+        });
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        setIndex(0);
+    }
+
+    initHorizontalWork();
+
+    function initBentoReveal() {
+        const cards = document.querySelectorAll('.bento-card');
+        if (!cards.length) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.15 });
+
+        cards.forEach((card, i) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(32px)';
+            card.style.transition = `opacity 0.7s ease ${i * 0.12}s, transform 0.7s cubic-bezier(0.16,1,0.3,1) ${i * 0.12}s`;
+            observer.observe(card);
+        });
+
+        // Re-use IntersectionObserver to trigger transition
+        const trigger = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const card = entry.target;
+                    requestAnimationFrame(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    });
+                    trigger.unobserve(card);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        cards.forEach(card => trigger.observe(card));
+    }
+
+    initBentoReveal();
+
+    function initStockChartReveal() {
+        const card = document.querySelector('.bento-card--wide');
+        if (!card) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    card.querySelectorAll('.schart-green, .schart-red, .schart-label').forEach(el => {
+                        el.style.animationPlayState = 'running';
+                    });
+                    observer.unobserve(card);
+                }
+            });
+        }, { threshold: 0.3 });
+
+        observer.observe(card);
+    }
+
+    initStockChartReveal();
 });
 
 // Vertical Scroller
