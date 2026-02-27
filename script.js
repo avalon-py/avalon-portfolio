@@ -1405,6 +1405,89 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     initExperience();
+
+    function initNavbar() {
+        const navbar = document.querySelector('.navbar');
+        const logo = document.querySelector('.logo');
+        const navLinks = document.querySelectorAll('.nav-link');
+        if (!navbar || !navLinks.length) return;
+
+        // ── C: Scroll-aware pill ──
+        window.addEventListener('scroll', () => {
+            navbar.classList.toggle('scrolled', window.scrollY > 60);
+        }, { passive: true });
+
+        // ── D: Scramble on load → cube-flip hover after ──
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        function setupNavStagger(link, text) {
+            link.textContent = '';
+            link.style.overflow = 'hidden';
+
+            const defaultSpan = document.createElement('span');
+            defaultSpan.classList.add('stagger-default');
+
+            const hoverSpan = document.createElement('span');
+            hoverSpan.classList.add('stagger-hover');
+            hoverSpan.style.cssText = 'position:absolute; left:0; top:0;';
+
+            [...text].forEach((char, i) => {
+                const delay = `${i * 0.05}s`;
+
+                const c1 = document.createElement('span');
+                c1.classList.add('char');
+                c1.textContent = char;
+                c1.style.transitionDelay = delay;
+                defaultSpan.appendChild(c1);
+
+                const c2 = document.createElement('span');
+                c2.classList.add('char');
+                c2.textContent = char;
+                c2.style.transitionDelay = delay;
+                hoverSpan.appendChild(c2);
+            });
+
+            link.appendChild(defaultSpan);
+            link.appendChild(hoverSpan);
+        }
+
+        navLinks.forEach((link, index) => {
+            const originalText = link.textContent.trim();
+            link.textContent = '';
+
+            const spans = [...originalText].map(char => {
+                const span = document.createElement('span');
+                span.classList.add('hyper-char');
+                span.textContent = char;
+                link.appendChild(span);
+                return span;
+            });
+
+            // Stagger each link's scramble start
+            setTimeout(() => {
+                let iterations = 0;
+                const duration = 1000;
+                const totalSteps = originalText.length * 10;
+                const interval = duration / totalSteps;
+
+                const tick = setInterval(() => {
+                    spans.forEach((span, i) => {
+                        span.textContent = i <= iterations
+                            ? originalText[i]
+                            : chars[Math.floor(Math.random() * chars.length)];
+                    });
+                    iterations += 0.08;
+                    if (iterations >= originalText.length) {
+                        spans.forEach((span, i) => span.textContent = originalText[i]);
+                        clearInterval(tick);
+                        setTimeout(() => setupNavStagger(link, originalText), 200);
+                    }
+                }, interval);
+            }, 400 + index * 180); // Work first, then About, then Contact
+        });
+    }
+
+    initNavbar();
 });
 
 // Vertical Scroller
