@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Blob Cursor — organic shape via canvas
+    const hasFinePointer = window.matchMedia('(pointer: fine)').matches;
+
     const blobCanvas = document.getElementById('cursor-blob-canvas');
     const blobCtx = blobCanvas ? blobCanvas.getContext('2d') : null;
     const dotCursor = document.querySelector('.cursor');
@@ -18,122 +20,104 @@ document.addEventListener('DOMContentLoaded', () => {
         blobCanvas.width = window.innerWidth;
         blobCanvas.height = window.innerHeight;
     }
-    resizeBlobCanvas();
-    window.addEventListener('resize', resizeBlobCanvas);
+    if (hasFinePointer) {        
+        resizeBlobCanvas();
+        window.addEventListener('resize', resizeBlobCanvas);
 
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-        if (dotCursor) {
-            dotCursor.style.left = `${mouseX}px`;
-            dotCursor.style.top = `${mouseY}px`;
-        }
-    });
-
-    // Each point on the blob has its own phase offset for independent movement
-    const NUM_POINTS = 8;
-    const blobPoints = Array.from({ length: NUM_POINTS }, (_, i) => ({
-        angleOffset: (i / NUM_POINTS) * Math.PI * 2,
-        // Each point has 3 sine waves with different frequencies/amplitudes
-        waves: [
-            { freq: 0.6 + Math.random() * 0.4, amp: 10 + Math.random() * 18, phase: Math.random() * Math.PI * 2 },
-            { freq: 1.2 + Math.random() * 0.8, amp: 5  + Math.random() * 10, phase: Math.random() * Math.PI * 2 },
-            { freq: 2.0 + Math.random() * 1.0, amp: 3  + Math.random() * 6,  phase: Math.random() * Math.PI * 2 },
-        ]
-    }));
-
-    let targetR = 100;
-    let currentR = 100;
-
-    function getBlobRadius(point, t) {
-        let r = currentR;
-        for (const w of point.waves) {
-            r += Math.sin(t * w.freq + w.phase) * w.amp;
-        }
-        return r;
-    }
-
-    // Trail history
-    const trail = [];
-    const TRAIL_LENGTH = 50;
-
-    function drawBlob(cx, cy, t, alpha) {
-        if (!blobCtx) return;
-
-        const points = blobPoints.map(p => {
-            const r = getBlobRadius(p, t);
-            return {
-                x: cx + Math.cos(p.angleOffset) * r,
-                y: cy + Math.sin(p.angleOffset) * r,
-            };
-        });
-
-        blobCtx.beginPath();
-        for (let i = 0; i < points.length; i++) {
-            const curr = points[i];
-            const next = points[(i + 1) % points.length];
-            if (i === 0) {
-                blobCtx.moveTo((curr.x + next.x) / 2, (curr.y + next.y) / 2);
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            if (dotCursor) {
+                dotCursor.style.left = `${mouseX}px`;
+                dotCursor.style.top = `${mouseY}px`;
             }
-            const mx = (curr.x + next.x) / 2;
-            const my = (curr.y + next.y) / 2;
-            blobCtx.quadraticCurveTo(curr.x, curr.y, mx, my);
-        }
-        blobCtx.closePath();
-        blobCtx.fillStyle = `rgba(255, 255, 255, ${alpha})`;
-        blobCtx.fill();
-    }
-
-    function animateBlobCursor(t) {
-        blobX += (mouseX - blobX) * 0.1;
-        blobY += (mouseY - blobY) * 0.1;
-        currentR += (targetR - currentR) * 0.1;
-
-        phase = t * 0.006;
-
-        // Push current position to trail
-        trail.push({ x: blobX, y: blobY, t: phase, r: currentR });
-        if (trail.length > TRAIL_LENGTH) trail.shift();
-
-        // Clear canvas each frame
-        blobCtx.clearRect(0, 0, blobCanvas.width, blobCanvas.height);
-
-        // Draw trail — older = smaller + more transparent
-        trail.forEach((pos, i) => {
-            const progress = i / trail.length;           // 0 = oldest, 1 = newest
-            const alpha = progress * 0.9;                // fades toward old
-            const scaleDown = 0.3 + progress * 0.8;     // shrinks toward old
-
-            // Temporarily scale blobPoints radii for trail
-            const savedR = currentR;
-            currentR = pos.r * scaleDown;
-            drawBlob(pos.x, pos.y, pos.t, alpha);
-            currentR = savedR;
         });
 
-        // Draw main blob at full opacity
-        drawBlob(blobX, blobY, phase, 1.0);
+        // Each point on the blob has its own phase offset for independent movement
+        const NUM_POINTS = 8;
+        const blobPoints = Array.from({ length: NUM_POINTS }, (_, i) => ({
+            angleOffset: (i / NUM_POINTS) * Math.PI * 2,
+            // Each point has 3 sine waves with different frequencies/amplitudes
+            waves: [
+                { freq: 0.6 + Math.random() * 0.4, amp: 10 + Math.random() * 18, phase: Math.random() * Math.PI * 2 },
+                { freq: 1.2 + Math.random() * 0.8, amp: 5  + Math.random() * 10, phase: Math.random() * Math.PI * 2 },
+                { freq: 2.0 + Math.random() * 1.0, amp: 3  + Math.random() * 6,  phase: Math.random() * Math.PI * 2 },
+            ]
+        }));
 
+        let targetR = 100;
+        let currentR = 100;
+
+        function getBlobRadius(point, t) {
+            let r = currentR;
+            for (const w of point.waves) {
+                r += Math.sin(t * w.freq + w.phase) * w.amp;
+            }
+            return r;
+        }
+
+        // Trail history
+        const trail = [];
+        const TRAIL_LENGTH = 40;
+
+        function drawBlob(cx, cy, t, alpha) {
+            if (!blobCtx) return;
+
+            const points = blobPoints.map(p => {
+                const r = getBlobRadius(p, t);
+                return {
+                    x: cx + Math.cos(p.angleOffset) * r,
+                    y: cy + Math.sin(p.angleOffset) * r,
+                };
+            });
+
+            blobCtx.beginPath();
+            for (let i = 0; i < points.length; i++) {
+                const curr = points[i];
+                const next = points[(i + 1) % points.length];
+                if (i === 0) {
+                    blobCtx.moveTo((curr.x + next.x) / 2, (curr.y + next.y) / 2);
+                }
+                const mx = (curr.x + next.x) / 2;
+                const my = (curr.y + next.y) / 2;
+                blobCtx.quadraticCurveTo(curr.x, curr.y, mx, my);
+            }
+            blobCtx.closePath();
+            blobCtx.fillStyle = `rgba(255, 255, 255)`;
+            blobCtx.fill();
+        }
+
+        function animateBlobCursor(t) {
+            blobX += (mouseX - blobX) * 0.1;
+            blobY += (mouseY - blobY) * 0.1;
+            currentR += (targetR - currentR) * 0.1;
+
+            phase = t * 0.006;
+
+            // Push current position to trail
+            trail.push({ x: blobX, y: blobY, t: phase, r: currentR });
+            if (trail.length > TRAIL_LENGTH) trail.shift();
+
+            // Clear canvas each frame
+            blobCtx.clearRect(0, 0, blobCanvas.width, blobCanvas.height);
+
+            // Draw trail — older = smaller + more transparent
+            trail.forEach((pos, i) => {
+                const progress = i / trail.length;
+                const scaleDown = 0.1 + progress * 0.8;
+                const savedR = currentR;
+                currentR = pos.r * scaleDown;
+                drawBlob(pos.x, pos.y, pos.t, 1.0);
+                currentR = savedR;
+            });
+
+            // Draw main blob at full opacity
+            drawBlob(blobX, blobY, phase, 1.0);
+
+            requestAnimationFrame(animateBlobCursor);
+        }
         requestAnimationFrame(animateBlobCursor);
     }
-    requestAnimationFrame(animateBlobCursor);
-
-    // Scale on hover
-    document.querySelectorAll('a, button, .project-item, .nav-link').forEach(el => {
-        el.addEventListener('mouseenter', () => { targetR = 110; });
-        el.addEventListener('mouseleave', () => { targetR = 75; });
-    });
-
-    // Scale blob on hover
-    document.querySelectorAll('a, button, .project-item, .nav-link').forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            blobCircle?.setAttribute('r', '120');
-            blobCircle?.style.setProperty('transition', 'r 0.3s ease');
-        });
-        el.addEventListener('mouseleave', () => {
-            blobCircle?.setAttribute('r', '75');
-        });
-    });
 
     // Immersive About Section Scroll Logic
     const aboutSection = document.querySelector('.about-expand-section');
@@ -816,7 +800,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         animate();
     }
-    initContactLiquid();
+    if (hasFinePointer) {
+        initContactLiquid();
+    }
 
     function initParticleText() {
         const canvas = document.querySelector('.blog-cta-canvas');
