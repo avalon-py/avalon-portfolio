@@ -1334,13 +1334,14 @@ body {
 
 .timeline-company {
   font-size: 0.9rem;
-  color: rgba(255,255,255,0.3);
+  color: var(--text);
   margin-top: 0.1rem;
 }
 
 .timeline-desc {
   font-size: 0.88rem;
-  color: rgba(255,255,255,0.2);
+  color: var(--text);
+  opacity: 0.6;
   line-height: 1.6;
   margin-top: 0.5rem;
   max-width: 340px;
