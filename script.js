@@ -526,40 +526,96 @@ document.addEventListener('DOMContentLoaded', () => {
     // Stagger hover effect for social links
     function initStaggerLinks() {
         const links = document.querySelectorAll('.social-link');
+        if (!links.length) return;
 
-        links.forEach(link => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const duration = 2000;
+
+        // Phase 1: build scramble spans from plain text
+        const linkData = [...links].map(link => {
             const text = link.textContent.trim();
             link.textContent = '';
+            const spans = [...text].map(char => {
+                const span = document.createElement('span');
+                span.classList.add('hyper-char');
+                span.textContent = char;
+                link.appendChild(span);
+                return span;
+            });
+            return { link, text, spans };
+        });
 
-            // Default layer (visible, animates up on hover)
+        function scrambleLink({ text, spans }, onComplete) {
+            let iterations = 0;
+            const totalSteps = text.length * 10;
+            const interval = duration / totalSteps;
+            const tick = setInterval(() => {
+                spans.forEach((span, i) => {
+                    span.textContent = i <= iterations
+                        ? text[i]
+                        : chars[Math.floor(Math.random() * chars.length)];
+                });
+                iterations += 0.07;
+                if (iterations >= text.length) {
+                    spans.forEach((span, i) => span.textContent = text[i]);
+                    clearInterval(tick);
+                    if (onComplete) onComplete();
+                }
+            }, interval);
+        }
+
+        // Phase 2: after ALL scrambles done, rebuild as stagger hover
+        function setupStagger({ link, text }) {
+            link.textContent = '';
+
             const defaultSpan = document.createElement('span');
             defaultSpan.classList.add('stagger-default');
-
-            // Hover layer (hidden below, animates in on hover)
             const hoverSpan = document.createElement('span');
             hoverSpan.classList.add('stagger-hover');
 
             [...text].forEach((char, i) => {
-            const delay = `${i * 0.03}s`;
+                const delay = `${i * 0.03}s`;
 
-            const c1 = document.createElement('span');
-            c1.classList.add('char');
-            c1.textContent = char === ' ' ? '\u00A0' : char;
-            c1.style.transitionDelay = delay;
-            defaultSpan.appendChild(c1);
+                const c1 = document.createElement('span');
+                c1.classList.add('char');
+                c1.textContent = char === ' ' ? '\u00A0' : char;
+                c1.style.transitionDelay = delay;
+                defaultSpan.appendChild(c1);
 
-            const c2 = document.createElement('span');
-            c2.classList.add('char');
-            c2.textContent = char === ' ' ? '\u00A0' : char;
-            c2.style.transitionDelay = delay;
-            hoverSpan.appendChild(c2);
+                const c2 = document.createElement('span');
+                c2.classList.add('char');
+                c2.textContent = char === ' ' ? '\u00A0' : char;
+                c2.style.transitionDelay = delay;
+                hoverSpan.appendChild(c2);
             });
 
             link.appendChild(defaultSpan);
             link.appendChild(hoverSpan);
-        });
-    }
+        }
 
+        let triggered = false;
+        const container = document.querySelector('.social-links');
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !triggered) {
+                triggered = true;
+                observer.disconnect();
+
+                let done = 0;
+                // All 3 start simultaneously
+                linkData.forEach(data => {
+                    scrambleLink(data, () => {
+                        done++;
+                        // Only after every link finishes, wire up hover
+                        if (done === linkData.length) {
+                            linkData.forEach(d => setupStagger(d));
+                        }
+                    });
+                });
+            }
+        }, { threshold: 0.5 });
+
+        if (container) observer.observe(container);
+    }
     initStaggerLinks();
 
     function initHyperText() {
@@ -568,9 +624,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const originalText = el.textContent.trim();
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@._-';
-        const duration = 300;
+        const duration = 600;
 
-        // Build char spans
         el.textContent = '';
         const spans = [...originalText].map(char => {
             const span = document.createElement('span');
@@ -580,44 +635,74 @@ document.addEventListener('DOMContentLoaded', () => {
             return span;
         });
 
-        let animating = false;
-
-        el.addEventListener('mouseenter', () => {
-            if (animating) return;
-            animating = true;
-
+        function runScramble(onDone) {
             let iterations = 0;
             const totalSteps = originalText.length * 10;
             const interval = duration / totalSteps;
-
             const tick = setInterval(() => {
-            spans.forEach((span, i) => {
-                if (originalText[i] === ' ' || originalText[i] === '.' || originalText[i] === '@') {
-                span.textContent = originalText[i]; // keep special chars stable
-                return;
+                spans.forEach((span, i) => {
+                    if (['.',  '@', '_', '-'].includes(originalText[i])) {
+                        span.textContent = originalText[i];
+                        return;
+                    }
+                    span.textContent = i <= iterations
+                        ? originalText[i]
+                        : chars[Math.floor(Math.random() * chars.length)];
+                });
+                iterations += 0.1;
+                if (iterations >= originalText.length) {
+                    spans.forEach((span, i) => span.textContent = originalText[i]);
+                    clearInterval(tick);
+                    if (onDone) onDone();
                 }
+            }, interval);
+        }
 
-                if (i <= iterations) {
-                // Resolved — show real character
-                span.textContent = originalText[i];
-                } else {
-                // Still scrambling
-                span.textContent = chars[Math.floor(Math.random() * chars.length)];
-                }
+        function setupStaggerHover() {
+            el.textContent = '';
+            el.style.position = 'relative';
+            el.style.overflow = 'hidden';
+            el.style.display = 'inline-block'; // needed for absolute child to size correctly
+
+            const defaultSpan = document.createElement('span');
+            defaultSpan.classList.add('stagger-default');
+            defaultSpan.style.cssText = 'display:inline-block;';
+
+            const hoverSpan = document.createElement('span');
+            hoverSpan.classList.add('stagger-hover');
+            hoverSpan.style.cssText = 'position:absolute; left:0; top:0; display:inline-block;';
+
+            [...originalText].forEach((char, i) => {
+                const delay = `${i * 0.018}s`;
+
+                const c1 = document.createElement('span');
+                c1.classList.add('char');
+                c1.textContent = char === ' ' ? '\u00A0' : char;
+                c1.style.transitionDelay = delay;
+                defaultSpan.appendChild(c1);
+
+                const c2 = document.createElement('span');
+                c2.classList.add('char');
+                c2.textContent = char === ' ' ? '\u00A0' : char;
+                c2.style.transitionDelay = delay;
+                hoverSpan.appendChild(c2);
             });
 
-            iterations += 0.4;
-
-            if (iterations >= originalText.length) {
-                // Ensure final state is clean
-                spans.forEach((span, i) => span.textContent = originalText[i]);
-                clearInterval(tick);
-                animating = false;
+            el.appendChild(defaultSpan);
+            el.appendChild(hoverSpan);
+        }
+        // Fire scramble once on scroll, then swap to stagger hover
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                setTimeout(() => runScramble(() => {
+                    // Small pause so user sees the resolved text, then wire up hover
+                    setTimeout(setupStaggerHover, 400);
+                }), 150);
+                observer.disconnect();
             }
-            }, interval);
-        });
+        }, { threshold: 0.6 });
+        observer.observe(el);
     }
-
     initHyperText();
 
     // Skills strip scroll direction
@@ -1118,8 +1203,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initWipeReveal('#main-project-title', 'var(--bg)');
     initWipeReveal('#side-project-title', '#0d0d0d');
     initWipeReveal('.blog-cta-label, .blog-cta-desc', 'var(--bg)');
-    initWipeReveal('.email-link', '#000');
-    initWipeReveal('.social-link', '#000');
     
     function initHorizontalWork() {
         const section = document.querySelector('.work-section');
