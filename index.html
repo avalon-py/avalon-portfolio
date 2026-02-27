@@ -73,62 +73,86 @@
       </section>
 
       <section id="work" class="work-section">
-        <div class="section-header">
-          <h2 class="section-title" id="main-project-title">Selected Work</h2>
-          <div class="line"></div>
-        </div>
+        <div class="work-sticky">
 
-        <div class="project-grid">
-          <!-- Project 1 -->
-          <article class="project-card">
-            <div class="card-image-wrapper">
-              <img src="/projects/mbg_recommendation/assets/img/home-hero.jpeg" alt="Portfolio Simulator" class="card-image">
-              <div class="card-overlay"></div>
-            </div>
-            <div class="card-content">
-              <div class="card-meta">
-                <span class="card-number">01</span>
-                <span class="card-tag">Data Science / Python</span>
-              </div>
-              <h3 class="card-title">MBG Recommendation</h3>
-              <p class="card-desc">Investment priority mapping using Clustering based on economic and farmland data</p>
-              <a href="/projects/mbg_recommendation/index.html" class="card-link">View Case Study <i data-lucide="arrow-up-right"></i></a>
-            </div>
-          </article>
+          <div class="work-header">
+            <h2 class="section-title work-title-label" id="main-project-title">Selected Work</h2>
+            <div class="work-progress-bar"><div class="work-progress-fill"></div></div>
+            <span class="work-counter"><span class="work-counter-current">01</span> / 03</span>
+          </div>
 
-          <!-- Project 2 -->
-          <article class="project-card">
-            <div class="card-image-wrapper">
-              <img src="/projects/f1_prediction/assets/img/thumbnail.jpg" alt="F1 Prediction" class="card-image">
-              <div class="card-overlay"></div>
-            </div>
-            <div class="card-content">
-              <div class="card-meta">
-                <span class="card-number">02</span>
-                <span class="card-tag">Data Science / Python</span>
-              </div>
-              <h3 class="card-title">F1 Prediction (2025)</h3>
-              <p class="card-desc">Race result prediction using XGBRegressor + Monte Carlo to overcome chaos</p>
-              <a href="/projects/f1_prediction/index.html" class="card-link">View Case Study <i data-lucide="arrow-up-right"></i></a>
-            </div>
-          </article>
+          <div class="work-track">
 
-          <!-- Project 3 -->
-          <article class="project-card">
-            <div class="card-image-wrapper">
-              <img src="/projects/speech2market/assets/img/thumbnail.jpg" alt="Speech2Market" class="card-image">
-              <div class="card-overlay"></div>
-            </div>
-            <div class="card-content">
-              <div class="card-meta">
-                <span class="card-number">03</span>
-                <span class="card-tag">NLP / Economics</span>
+            <!-- Card 01 -->
+            <article class="work-card">
+              <div class="work-card-image">
+                <img src="/projects/mbg_recommendation/assets/img/home-hero.jpeg" alt="MBG Recommendation" />
+                <div class="work-card-img-overlay"></div>
               </div>
-              <h3 class="card-title">Speech2Market</h3>
-              <p class="card-desc">Analyzing FED speeches to predict asset price action using classifier-less FinBERT.</p>
-              <a href="/projects/speech2market/index.html" class="card-link">View Case Study <i data-lucide="arrow-up-right"></i></a>
-            </div>
-          </article>
+              <div class="work-card-info">
+                <span class="work-card-num">01</span>
+                <div class="work-card-body">
+                  <span class="work-card-tag">Data Science / Python</span>
+                  <h2 class="work-card-title">MBG<br>Recommendation</h2>
+                  <p class="work-card-desc">Investment priority mapping using Clustering based on economic and farmland data across Indonesian regions.</p>
+                  <a href="/projects/mbg_recommendation/index.html" class="work-card-link">
+                    <span>View Case Study</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <!-- Card 02 -->
+            <article class="work-card">
+              <div class="work-card-image">
+                <img src="/projects/f1_prediction/assets/img/thumbnail.jpg" alt="F1 Prediction" />
+                <div class="work-card-img-overlay"></div>
+              </div>
+              <div class="work-card-info">
+                <span class="work-card-num">02</span>
+                <div class="work-card-body">
+                  <span class="work-card-tag">Data Science / Python</span>
+                  <h2 class="work-card-title">F1 Prediction<br>(2025)</h2>
+                  <p class="work-card-desc">Race result prediction using XGBRegressor + Monte Carlo simulation to model and overcome the chaos of Formula 1.</p>
+                  <a href="/projects/f1_prediction/index.html" class="work-card-link">
+                    <span>View Case Study</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            <!-- Card 03 -->
+            <article class="work-card">
+              <div class="work-card-image">
+                <img src="/projects/speech2market/assets/img/thumbnail.jpg" alt="Speech2Market" />
+                <div class="work-card-img-overlay"></div>
+              </div>
+              <div class="work-card-info">
+                <span class="work-card-num">03</span>
+                <div class="work-card-body">
+                  <span class="work-card-tag">NLP / Economics</span>
+                  <h2 class="work-card-title">Speech<br>2Market</h2>
+                  <p class="work-card-desc">Analyzing FED speeches to predict asset price action using classifier-less FinBERT applied to financial text.</p>
+                  <a href="/projects/speech2market/index.html" class="work-card-link">
+                    <span>View Case Study</span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13L13 3M13 3H6M13 3V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </a>
+                </div>
+              </div>
+            </article>
+
+          </div>
+
+          <!-- Nav arrows -->
+          <button class="work-arrow work-arrow-prev" aria-label="Previous">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="work-arrow work-arrow-next" aria-label="Next">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+
         </div>
       </section>
 
@@ -137,33 +161,82 @@
           <h2 class="section-title" id="side-project-title">Fun Side Projects</h2>
           <div class="line"></div>
         </div>
-        <div class="fun-grid">
-          <a class="fun-card" href="/projects/24_v1/index.html">
-            <div class="fun-card-inner">
-              <div class="fun-icon"><i data-lucide="gamepad-2"></i></div>
-              <h3>24 Card Game 1v1</h3>
-              <p>Online realtime multiplayer card game '24'. Be the first to get a total amount of 24 from just 4 cards!</p>
+
+        <div class="bento-grid">
+
+          <!-- Card 1 WIDE — Portfolio Simulator -->
+          <a class="bento-card bento-card--wide" href="/projects/portfolio_simulator/index.html">
+            <div class="bento-bg bento-bg--cross"></div>
+            <svg class="bento-border-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <rect class="bento-border-rect" x="0.5" y="0.5" width="99" height="99" rx="3"/>
+            </svg>
+
+            <!-- Stock arrow animation -->
+            <div class="stock-arena">
+              <svg class="stock-chart-svg" viewBox="0 0 500 210" preserveAspectRatio="none">
+                <polyline class="schart-green" points="0,150 15,122 28,100 35,70 48,104 52,100 65,118 80,95 88,90 95,105 108,85 118,60 125,45 132,30 140,47 150,52 160,43 166,56 175,70 182,80 195,65 210,75 218,60 222,65 235,40 248,55 255,29 260,40 272,20 280,32 288,36 292,26 305,15 318,30 325,42 330,39 342,30 355,18 360,15 368,20 380,10 392,18 400,10 410,4 422,14 438,24 448,10 462,5 475,12 490,5 500,1"/>
+                <polyline class="schart-red" points="0,5 14,71 25,94 36,61 48,65 55,64 69,80 79,65 95,62 104,90 115,69 124,60 130,70 138,95 150,110 159,130 170,140 183,119 195,129 203,150 215,171 229,145 245,128 258,140 270,155 285,165 301,158 318,174 334,150 345,165 361,159 369,172 375,185 391,190 400,177 414,170 423,190 431,195 442,181 449,174 460,198 469,205 481,195 490,208 500,210"/>
+              </svg>
+              <!-- Floating labels -->
+              <div class="schart-label schart-label--up">↑ +24.7%</div>
+              <div class="schart-label schart-label--dn">↓ −18.3%</div>
             </div>
-            <span class="fun-card-arrow"><i data-lucide="arrow-up-right"></i></span>
+
+            <div class="bento-content">
+              <div class="bento-top">
+                <div class="bento-icon"><i data-lucide="line-chart"></i></div>
+                <span class="bento-tag">Finance / Monte Carlo</span>
+              </div>
+              <div class="bento-bottom">
+                <h3 class="bento-title">Portfolio<br><em>Simulator</em></h3>
+                <p class="bento-desc">Simulate portfolio ruin probability using GBM and Monte Carlo methods.</p>
+                <span class="bento-link">Simulate <i data-lucide="arrow-up-right"></i></span>
+              </div>
+            </div>
+            <div class="bento-number">01</div>
           </a>
 
-          <a class="fun-card" href="/projects/avalonfi/index.html">
-            <div class="fun-card-inner">
-              <div class="fun-icon"><i data-lucide="bot"></i></div>
-              <h3>AvalonFi Bot</h3>
-              <p>Telegram bot for personal accounting and expense tracking. Also supports personalized recommendation!</p>
+          <!-- Card 2 TOP RIGHT — AvalonFi -->
+          <a class="bento-card bento-card--tall" href="/projects/avalonfi/index.html">
+            <div class="bento-bg bento-bg--lines"></div>
+            <svg class="bento-border-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <rect class="bento-border-rect" x="0.5" y="0.5" width="99" height="99" rx="3"/>
+            </svg>
+            <div class="bento-content">
+              <div class="bento-top">
+                <div class="bento-icon"><i data-lucide="bot"></i></div>
+                <span class="bento-tag">Telegram / Finance</span>
+              </div>
+              <div class="bento-bottom">
+                <h3 class="bento-title">Avalon<em>Fi</em></h3>
+                <p class="bento-desc">Personal accounting bot with expense tracking and smart recommendations.</p>
+                <span class="bento-link">Explore <i data-lucide="arrow-up-right"></i></span>
+              </div>
             </div>
-            <span class="fun-card-arrow"><i data-lucide="arrow-up-right"></i></span>
+            <div class="bento-number">02</div>
           </a>
 
-          <a class="fun-card" href="/projects/portfolio_simulator/index.html">
-            <div class="fun-card-inner">
-              <div class="fun-icon"><i data-lucide="music"></i></div>
-              <h3>Portfolio Simulator</h3>
-              <p>Simulate and predict rate of ruin of a portfolio of your choice. Built using GBM and Monte Carlo!</p>
+          <!-- Card 3 BOTTOM RIGHT — 24 Card Game -->
+          <a class="bento-card bento-card--sm" href="/projects/24_v1/index.html">
+            <div class="bento-bg bento-bg--dots"></div>
+            <svg class="bento-border-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <rect class="bento-border-rect" x="0.5" y="0.5" width="99" height="99" rx="3"/>
+            </svg>
+            <!-- Playing cards animation -->
+            <div class="bento-content">
+              <div class="bento-top">
+                <div class="bento-icon"><i data-lucide="gamepad-2"></i></div>
+                <span class="bento-tag">Multiplayer / Realtime</span>
+              </div>
+              <div class="bento-bottom">
+                <h3 class="bento-title">24 Card<br><em>Game 1v1</em></h3>
+                <p class="bento-desc">Realtime multiplayer — make 24 from 4 cards before your opponent does.</p>
+                <span class="bento-link">Play Now <i data-lucide="arrow-up-right"></i></span>
+              </div>
             </div>
-            <span class="fun-card-arrow"><i data-lucide="arrow-up-right"></i></span>
-          </a>        
+            <div class="bento-number">03</div>
+          </a>
+
         </div>
       </section>
 
