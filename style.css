@@ -80,6 +80,12 @@ body {
   align-items: center;
   z-index: 100;
   mix-blend-mode: difference;
+  transition: padding 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+
+.navbar.scrolled {
+  mix-blend-mode: normal;
+  padding: 1.2rem var(--px);
 }
 
 .logo {
@@ -87,11 +93,31 @@ body {
   font-weight: 700;
   font-size: 1.5rem;
   letter-spacing: -0.05em;
+  transition: opacity 0.4s ease, color 0.4s ease;
+}
+
+.navbar.scrolled .logo {
+  opacity: 0.55;
+  color: #fff;
 }
 
 .nav-links {
   display: flex;
   gap: 2rem;
+  padding: 0.5rem 0;
+  border-radius: 99px;
+  border: 1px solid transparent;
+  transition: background 0.6s cubic-bezier(0.16,1,0.3,1),
+              border-color 0.6s ease,
+              padding 0.6s cubic-bezier(0.16,1,0.3,1),
+              gap 0.5s ease;
+}
+
+.navbar.scrolled .nav-links {
+  background: rgba(8,8,8,0.92);
+  border-color: rgba(212,255,0,0.14);
+  padding: 0.55rem 1.6rem;
+  gap: 1.6rem;
 }
 
 .nav-link {
@@ -101,6 +127,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   position: relative;
+  display: inline-block;
 }
 
 .nav-link::after {
@@ -116,6 +143,18 @@ body {
 
 .nav-link:hover::after {
   width: 100%;
+}
+
+.navbar.scrolled .nav-link {
+  color: rgba(255,255,255,0.75);
+}
+
+.navbar.scrolled .nav-link::after {
+  background: var(--accent);
+}
+
+.navbar.scrolled .nav-link:hover {
+  color: #fff;
 }
 
 /* Hero Section */
@@ -2057,45 +2096,62 @@ body {
 .social-link .stagger-default,
 .social-link .stagger-hover,
 .email-link .stagger-default,
-.email-link .stagger-hover {
+.email-link .stagger-hover,
+.nav-link .stagger-default,
+.nav-link .stagger-hover {
   display: inline-block;
 }
 
 .social-link .stagger-hover,
-.email-link .stagger-hover {
+.email-link .stagger-hover,
+.nav-link .stagger-hover {
   position: absolute;
   left: 0;
   top: 0;
 }
 
 .social-link .char,
-.email-link .char {
+.email-link .char,
+.nav-link .char {
   display: inline-block;
   transition: transform 0.3s ease, opacity 0.3s ease;
 }
 
 .social-link .stagger-default .char,
-.email-link .stagger-default .char {
+.email-link .stagger-default .char,
+.nav-link .stagger-default .char {
   transform: translateY(0);
   opacity: 1;
 }
 
 .social-link .stagger-hover .char,
-.email-link .stagger-hover .char {
+.email-link .stagger-hover .char,
+.nav-link .stagger-hover .char {
   transform: translateY(100%);
   opacity: 0;
 }
 
 .social-link:hover .stagger-default .char,
-.email-link:hover .stagger-default .char {
+.email-link:hover .stagger-default .char,
+.nav-link:hover .stagger-default .char {
   transform: translateY(-100%);
   opacity: 0;
 }
 
 .social-link:hover .stagger-hover .char,
-.email-link:hover .stagger-hover .char {
+.email-link:hover .stagger-hover .char,
+.nav-link:hover .stagger-hover .char {
   transform: translateY(0);
   opacity: 1;
+}
+
+/* Accent color on hover for nav */
+.nav-link:hover {
+  color: var(--accent);
+}
+
+.navbar.scrolled .nav-link:hover {
+  color: var(--accent);
 }
 
 /* Animations */
