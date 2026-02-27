@@ -1417,6 +1417,52 @@ document.addEventListener('DOMContentLoaded', () => {
             navbar.classList.toggle('scrolled', window.scrollY > 60);
         }, { passive: true });
 
+        function initMobileNavScroll() {
+            // Only apply on touch/mobile screens
+            if (window.innerWidth > 768) return;
+
+            const navbar = document.querySelector('.navbar');
+            if (!navbar) return;
+
+            let lastScrollY = window.scrollY;
+            let ticking = false;
+
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    const currentScrollY = window.scrollY;
+
+                    // Always show navbar when at the very top
+                    if (currentScrollY <= 10) {
+                    navbar.classList.remove('nav-hidden');
+                    navbar.classList.add('nav-visible');
+                    } else if (currentScrollY > lastScrollY) {
+                    // Scrolling DOWN → hide
+                    navbar.classList.add('nav-hidden');
+                    navbar.classList.remove('nav-visible');
+                    } else {
+                    // Scrolling UP → show
+                    navbar.classList.remove('nav-hidden');
+                    navbar.classList.add('nav-visible');
+                    }
+
+                    lastScrollY = currentScrollY;
+                    ticking = false;
+                });
+                ticking = true;
+                }
+            }, { passive: true });
+
+            // Re-check on resize in case user rotates device
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                navbar.classList.remove('nav-hidden', 'nav-visible');
+                }
+            });
+            }
+
+            initMobileNavScroll();
+
         // ── D: Scramble on load → cube-flip hover after ──
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
