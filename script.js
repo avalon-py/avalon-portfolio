@@ -964,52 +964,108 @@ document.addEventListener('DOMContentLoaded', () => {
         function write() {
             const w = canvas.width;
             const h = canvas.height;
+            const isTwoRow = w <= 430;
 
-            // Size based on width so text always fits horizontally
-            const fontSize = Math.floor(w / text.length * 1.4);
-            interactionRadius = Math.max(150, fontSize * 1.8);
-
-            ctx.clearRect(0, 0, w, h);
-            ctx.font = `900 ${fontSize}px 'Space Grotesk', Verdana, sans-serif`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            const measured = ctx.measureText(text);
-
-            // If text still overflows width, scale down further
-            const scale = Math.min(1, (w * 0.95) / measured.width);
-            const finalSize = Math.floor(fontSize * scale);
-
-            ctx.font = `900 ${finalSize}px 'Space Grotesk', Verdana, sans-serif`;
-            interactionRadius = Math.max(120, finalSize * 1.8);
-
-            const measured2 = ctx.measureText(text);
-            const tx = (w - measured2.width) / 2;
-            const ty = (h - finalSize) / 2;
-
-            const gradient = ctx.createLinearGradient(tx, ty, tx + measured2.width, ty + finalSize);
-            colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), `#${c}`));
-            ctx.fillStyle = gradient;
-            ctx.fillText(text, w / 2, h / 2);
-
-            const tw = Math.round(measured2.width);
-            const th = finalSize;
-            const sx = Math.max(0, Math.round(tx));
-            const sy = Math.max(0, Math.round(ty));
-
-            if (tw <= 0 || th <= 0) return;
-
-            const data = ctx.getImageData(sx, sy, tw, th).data;
             ctx.clearRect(0, 0, w, h);
             particles = [];
 
-            for (let i = 0; i < data.length; i += 4) {
+            if (isTwoRow) {
+                // ── Two-row layout: QUANT / FLOW ──
+                const lines = ['QUANT', 'FLOW'];
+
+                // Pick font size so the wider word ('QUANT', 5 chars) fits the width
+                const testSize = Math.floor(w / lines[0].length * 1.4);
+                ctx.font = `900 ${testSize}px 'Space Grotesk', Verdana, sans-serif`;
+                const testW = ctx.measureText(lines[0]).width;
+                const scale = Math.min(1, (w * 0.92) / testW);
+                const fontSize = Math.floor(testSize * scale);
+
+                interactionRadius = Math.max(120, fontSize * 1.8);
+
+                const lineGap = fontSize * 0.18; // small breathing room between rows
+                const totalH  = fontSize * 2 + lineGap;
+                const startY  = (h - totalH) / 2 + fontSize; // baseline of first line
+
+                lines.forEach((lineText, li) => {
+                ctx.font = `900 ${fontSize}px 'Space Grotesk', Verdana, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'alphabetic';
+
+                const measured = ctx.measureText(lineText);
+                const tx = (w - measured.width) / 2;
+                const ty = startY + li * (fontSize + lineGap) - fontSize; // top of glyph box
+
+                const gradient = ctx.createLinearGradient(tx, ty, tx + measured.width, ty + fontSize);
+                colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), `#${c}`));
+                ctx.fillStyle = gradient;
+
+                const baselineY = startY + li * (fontSize + lineGap);
+                ctx.fillText(lineText, w / 2, baselineY);
+
+                // Sample pixels for this line
+                const sw = Math.round(measured.width);
+                const sh = fontSize;
+                const sx = Math.max(0, Math.round(tx));
+                const sy = Math.max(0, Math.round(baselineY - fontSize));
+
+                if (sw <= 0 || sh <= 0) return;
+
+                const data = ctx.getImageData(sx, sy, sw, sh).data;
+                ctx.clearRect(sx, sy, sw, sh); // clear just this row after sampling
+
+                for (let i = 0; i < data.length; i += 4) {
+                    if (data[i + 3] < 128) continue;
+                    const px = (i / 4) % sw;
+                    const py = Math.floor((i / 4) / sw);
+                    if (px % particleDensity !== 0 || py % particleDensity !== 0) continue;
+                    const rgb = [data[i], data[i + 1], data[i + 2]];
+                    particles.push(new Particle(sx + px, sy + py, rgb));
+                }
+                });
+
+                ctx.clearRect(0, 0, w, h); // final clear before animation loop takes over
+
+            } else {
+                // ── Original single-row layout ──
+                const fontSize = Math.floor(w / text.length * 1.4);
+                ctx.font = `900 ${fontSize}px 'Space Grotesk', Verdana, sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+
+                const measured = ctx.measureText(text);
+                const scale = Math.min(1, (w * 0.95) / measured.width);
+                const finalSize = Math.floor(fontSize * scale);
+
+                ctx.font = `900 ${finalSize}px 'Space Grotesk', Verdana, sans-serif`;
+                interactionRadius = Math.max(120, finalSize * 1.8);
+
+                const measured2 = ctx.measureText(text);
+                const tx = (w - measured2.width) / 2;
+                const ty = (h - finalSize) / 2;
+
+                const gradient = ctx.createLinearGradient(tx, ty, tx + measured2.width, ty + finalSize);
+                colors.forEach((c, i) => gradient.addColorStop(i / (colors.length - 1), `#${c}`));
+                ctx.fillStyle = gradient;
+                ctx.fillText(text, w / 2, h / 2);
+
+                const tw = Math.round(measured2.width);
+                const th = finalSize;
+                const sx = Math.max(0, Math.round(tx));
+                const sy = Math.max(0, Math.round(ty));
+
+                if (tw <= 0 || th <= 0) return;
+
+                const data = ctx.getImageData(sx, sy, tw, th).data;
+                ctx.clearRect(0, 0, w, h);
+
+                for (let i = 0; i < data.length; i += 4) {
                 if (data[i + 3] < 128) continue;
                 const px = (i / 4) % tw;
                 const py = Math.floor((i / 4) / tw);
                 if (px % particleDensity !== 0 || py % particleDensity !== 0) continue;
                 const rgb = [data[i], data[i + 1], data[i + 2]];
                 particles.push(new Particle(sx + px, sy + py, rgb));
+                }
             }
         }
 
