@@ -1125,42 +1125,58 @@ document.addEventListener('DOMContentLoaded', () => {
         const cols = section.querySelectorAll('.split-col');
         if (cols.length < 2) return;
 
-        const leftCol = cols[0];
+        const leftCol  = cols[0];
         const rightCol = cols[1];
 
-        // Mobile: skip (stacked layout, no horizontal slide)
         if (window.innerWidth < 768) return;
+
+        // Remove any CSS transition so scroll drives everything directly
+        leftCol.style.transition  = 'none';
+        rightCol.style.transition = 'none';
+
+        function easeInOut(t) {
+            // Cubic ease-in-out — slow in, fast middle, slow out
+            return t < 0.5
+            ? 4 * t * t * t
+            : 1 - Math.pow(-2 * t + 2, 3) / 2;
+        }
 
         function update() {
             const rect = section.getBoundingClientRect();
-            const vh = window.innerHeight;
+            const vh   = window.innerHeight;
 
-            const sectionCenter = rect.top + rect.height / 2;
+            // How far the section has travelled through the viewport.
+            // 0 = section bottom just entered from bottom
+            // 1 = section top has reached the top of the viewport
+            const sectionH  = section.offsetHeight;
+            const totalTravel = sectionH + vh;
+            const travelled   = vh - rect.top;        // px scrolled since section entered
+            const rawT        = travelled / totalTravel;
+            const t           = Math.max(0, Math.min(1, rawT));
 
-            // Once section center has passed the viewport center, lock at 0
-            if (sectionCenter <= vh / 2) {
-                leftCol.style.transform = `translateX(0px)`;
-                rightCol.style.transform = `translateX(0px)`;
-                return;
-            }
-
-            // Section is still below center — slide in as it approaches
-            const maxDist = vh * 0.75;
-            let t = 1 - Math.min((sectionCenter - vh / 2) / maxDist, 1);
-            t = t * t * (3 - 2 * t);
+            // We want columns fully in (offset = 0) when section center hits viewport center,
+            // and fully out (offset = maxOffset) when section is just entering.
+            // Map the first 55% of scroll travel to the slide-in animation.
+            const animRange = 0.55;
+            const animT     = Math.min(t / animRange, 1);
+            const eased     = easeInOut(animT);
 
             const maxOffset = window.innerWidth * 0.65;
-            const offset = (1 - t) * maxOffset;
+            const offset    = (1 - eased) * maxOffset;
 
-            leftCol.style.transform = `translateX(-${offset}px)`;
+            leftCol.style.transform  = `translateX(-${offset}px)`;
             rightCol.style.transform = `translateX(${offset}px)`;
         }
 
         window.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
-        update(); // set initial state
-    }
+        window.addEventListener('resize', () => {
+            leftCol.style.transition  = 'none';
+            rightCol.style.transition = 'none';
+            update();
+        });
 
+        update();
+    }
     initExperienceSlide();
 
     function initWipeReveal(selector, coverBg = '#000') {
