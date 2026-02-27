@@ -2148,6 +2148,14 @@ body {
   .expand-title {
     font-size: 10vw;
   }
+
+  #cursor-blob-canvas {
+    display: none;
+  }
+
+  .contact-liquid-wrap {
+    display: none;
+  }
 }
 
 /* Mobile (max 768px) */
