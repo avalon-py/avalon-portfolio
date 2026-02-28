@@ -267,23 +267,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Hero Reveal Animation
     const heroWords = document.querySelectorAll('.hero-word');
+    const scrollerContainer = document.querySelector('.scroller-container');
     const subtitleContainer = document.querySelector('.hero-subtitle-container');
-    
-    // Initial Reveal
+    const heroFooter = document.querySelector('.hero-footer');
+
+    // heroWords[0] = STEFANO BUDI, heroWords[1] = ENTHUSIAST
     setTimeout(() => {
-        heroWords.forEach((word, index) => {
-            setTimeout(() => {
-                word.classList.add('visible');
-            }, index * 200);
-        });
-        
-        if (subtitleContainer) {
-            setTimeout(() => {
+        // 1. STEFANO BUDI
+        if (heroWords[0]) heroWords[0].classList.add('visible');
+
+        // 2. Scroller (Data Science / Quant / etc.)
+        setTimeout(() => {
+            if (scrollerContainer) scrollerContainer.classList.add('visible');
+        }, 300);
+
+        // 3. ENTHUSIAST
+        setTimeout(() => {
+            if (heroWords[1]) heroWords[1].classList.add('visible');
+        }, 600);
+
+        // 4. Subtitle + typewriter
+        setTimeout(() => {
+            if (subtitleContainer) {
                 subtitleContainer.classList.add('visible');
                 initTypewriter();
-            }, 1000);
-        }
-    }, 300);
+            }
+        }, 900);
+
+        // 5. Footer
+        setTimeout(() => {
+            if (heroFooter) heroFooter.classList.add('visible');
+        }, 1200);
+
+    }, 600);
 
     // Typewriter Effect
     function initTypewriter() {
@@ -300,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let roleIndex = 0;
         let charIndex = 0;
         let isDeleting = false;
-        let typeSpeed = 50; // Faster typing
+        let typeSpeed = 70; // Faster typing
 
         function type() {
             const currentRole = roles[roleIndex];
@@ -308,11 +324,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isDeleting) {
                 textElement.textContent = currentRole.substring(0, charIndex - 1);
                 charIndex--;
-                typeSpeed = 30; // Faster deleting
+                typeSpeed = 50; // Faster deleting
             } else {
                 textElement.textContent = currentRole.substring(0, charIndex + 1);
                 charIndex++;
-                typeSpeed = 50; // Faster typing
+                typeSpeed = 70; // Faster typing
             }
 
             if (!isDeleting && charIndex === currentRole.length) {
@@ -1644,7 +1660,7 @@ function initScroller() {
   }
 
   function slideTo(index) {
-    scroller.style.transition = 'transform 0.75s cubic-bezier(0.87, 0, 0.13, 1)';
+    scroller.style.transition = 'transform 0.8s cubic-bezier(0.87, 0, 0.13, 1)';
     scroller.style.transform = `translateY(-${getOffset(index)}px)`;
   }
 
@@ -1664,7 +1680,7 @@ function initScroller() {
         current = nextIndex;
       }
       animating = false;
-    }, 800); // slightly longer than transition
+    }, 800);
   }
 
   // Init
@@ -1675,7 +1691,14 @@ function initScroller() {
     jumpTo(current);
   });
 
-  setInterval(next, 2800); // hold time between slides
+  setInterval(next, 1800); // hold time between slides
 }
 
 initScroller();
+
+// Reveal page only after all init is done — prevents FOUC
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        document.body.classList.add('js-loaded');
+    });
+});
