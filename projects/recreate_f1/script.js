@@ -327,13 +327,49 @@
   function buildSmoothProgress(drv) {
     const pos = drv.positions;
     if (!pos || !pos.length) { smoothProgressCache[drv.code] = []; return; }
-    let prevFrac = lapFrac(pos[0][1], pos[0][2]);
+    const pts = data.circuit;
+    const N = pts.length;
+
+    // Estimate lap time for window sizing.
+    // We use the fastest lap in the session as a lower bound on lap time —
+    // if a car could complete the circuit faster than this, we'd need a bigger
+    // window, but that never happens.
+    const flDrv = data.drivers.find(d => d.code === data.meta.session_fastest_lap);
+    const lapTimeSec = (flDrv?.fastest_lap) || 90;
+
+    // Global nearest for the very first point (no prior context yet).
+    let prevIdx = 0, best = Infinity;
+    for (let i = 0; i < N; i++) {
+      const dx = pts[i][0]-pos[0][1], dy = pts[i][1]-pos[0][2];
+      const d2 = dx*dx + dy*dy;
+      if (d2 < best) { best = d2; prevIdx = i; }
+    }
+
+    let prevFrac = arc[prevIdx] / arcTotal;
     let laps = prevFrac > 0.5 ? -1 : 0;
     const out = [{t: pos[0][0], p: laps + prevFrac}];
+
     for (let i = 1; i < pos.length; i++) {
-      const frac = lapFrac(pos[i][1], pos[i][2]);
+      // Time delta between samples → max fraction of circuit traversable.
+      // 3× safety margin covers bursts of high speed; hard cap of 10% prevents
+      // ever jumping to the wrong side of a crossing (Suzuka) or a close
+      // parallel sector (Baku, Spain, Britain).
+      const dt = pos[i][0] - pos[i-1][0];
+      const maxFrac = Math.min((dt / lapTimeSec) * 3, 0.10);
+      const WINDOW = Math.max(30, Math.floor(maxFrac * N));
+
+      let bIdx = prevIdx, bDist = Infinity;
+      for (let w = 0; w < WINDOW; w++) {
+        const ci = (prevIdx + w) % N;
+        const dx = pts[ci][0]-pos[i][1], dy = pts[ci][1]-pos[i][2];
+        const d2 = dx*dx + dy*dy;
+        if (d2 < bDist) { bDist = d2; bIdx = ci; }
+      }
+      const frac = arc[bIdx] / arcTotal;
+      // Lap crossing: frac wraps from ~1 back to ~0
       if (frac < prevFrac - 0.5) laps++;
       prevFrac = frac;
+      prevIdx = bIdx;
       out.push({t: pos[i][0], p: laps + frac});
     }
     smoothProgressCache[drv.code] = out;
@@ -794,8 +830,11 @@
 
   function currentSector(drv, t) {
     if (!sectorBounds) return null;
-    const s = interp(drv.positions, t);
-    const frac = lapFrac(s.x, s.y);
+    // Derive lap fraction from the already-correct smooth progress cache
+    // instead of calling lapFrac() directly — lapFrac uses a global spatial
+    // snap that fails on Suzuka/Baku/similar circuits.
+    const prog = getSmoothProgress(drv, t);
+    const frac = prog - Math.floor(Math.max(0, prog));
     const {s1End, s2End} = sectorBounds;
     const s1Frac = arc[s1End] / arcTotal;
     const s2Frac = arc[s2End] / arcTotal;
