@@ -1,0 +1,1727 @@
+/* ─────────────────────────────────────────────────────────────
+   F1 Race Simulation — styles.css
+   All pixel values converted to rem / clamp / % / vw / vh.
+   Responsive breakpoints:
+     Desktop  : ≥ 1200px  — full three-column layout
+     Tablet   : 768–1199px — circuit + compact leaderboard
+                             scroll down to reveal telemetry
+     Phone    : < 768px   — circuit only
+   ───────────────────────────────────────────────────────────── */
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg:     #0c0c0c;
+  --surf:   #121212;
+  --surf2:  #181818;
+  --border: #252525;
+  --dim:    #bbb;
+  --sub:    #999;
+  --text:   #d8d8d8;
+  --bright: #f2f2f2;
+  --accent: #e8002d;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Titillium Web', sans-serif;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── HEADER ────────────────────────────────────────────────── */
+#header {
+  height: 2.75rem;
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 1rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 9200; /* above tutorial overlay so GP selector is always usable */
+}
+
+.logo {
+  flex-shrink: 0;
+  padding-right: 1rem;
+  border-right: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5625rem;
+}
+
+.logo-year {
+  font-family: 'Titillium Web', sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+  color: #fff;
+  letter-spacing: 0.0625rem;
+  line-height: 1;
+}
+
+.logo-badge {
+  display: flex;
+  align-items: stretch;
+  height: 1.625rem;
+  font-family: 'Titillium Web', sans-serif;
+  font-weight: 900;
+  font-size: 0.9375rem;
+  letter-spacing: 0;
+  line-height: 1;
+  overflow: hidden;
+  border-radius: 0.1875rem;
+  box-shadow: 0 0.125rem 0.5rem rgba(232, 0, 45, .35);
+}
+
+.logo-f {
+  background: #e8002d;
+  color: #fff;
+  padding: 0 0.875rem 0 0.5rem;
+  display: flex;
+  align-items: center;
+  clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+  letter-spacing: -0.03125rem;
+}
+
+.logo-1 {
+  background: #f0f0f0;
+  color: #111;
+  padding: 0 0.5rem 0 0.625rem;
+  display: flex;
+  align-items: center;
+  clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
+  margin-left: -0.125rem;
+}
+
+#gp-selector-wrap {
+  position: relative;
+  z-index: 9200; /* above tutorial overlay (9000) so dropdown is always tappable */
+}
+
+#gp-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.3125rem 0.5625rem;
+  border-radius: 0.1875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4375rem;
+  transition: background .15s;
+}
+
+#gp-btn:hover { background: var(--surf2); }
+
+#event-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6875rem;
+  color: var(--sub);
+  letter-spacing: 0.09375rem;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+#gp-arrow {
+  font-size: 0.5625rem;
+  color: var(--sub);
+  transition: transform .2s;
+  pointer-events: none;
+  line-height: 1;
+}
+
+#gp-btn.open #gp-arrow { transform: rotate(180deg); }
+
+#gp-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  background: var(--surf);
+  border: 1px solid var(--border);
+  border-radius: 0.25rem;
+  min-width: 16.25rem;
+  max-height: 72vh;
+  overflow-y: auto;
+  z-index: 200;
+  box-shadow: 0 0.5rem 1.75rem rgba(0, 0, 0, .7);
+}
+
+#gp-dropdown.open { display: block; }
+#gp-dropdown::-webkit-scrollbar { width: 0.1875rem; }
+#gp-dropdown::-webkit-scrollbar-thumb { background: var(--border); }
+
+.gp-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5625rem;
+  padding: 0.4375rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background .1s;
+}
+
+.gp-item:last-child { border-bottom: none; }
+.gp-item:hover:not(.unavailable) { background: var(--surf2); }
+.gp-item.active { background: #e8002d0f; }
+.gp-item.unavailable { opacity: .3; cursor: not-allowed; }
+
+.gp-flag   { font-size: 0.9375rem; line-height: 1; flex-shrink: 0; }
+.gp-round  { font-family: 'Share Tech Mono', monospace; font-size: 0.5625rem; color: var(--sub); min-width: 1.25rem; }
+.gp-name   { font-family: 'Share Tech Mono', monospace; font-size: 0.625rem; color: var(--bright); letter-spacing: 0.025rem; }
+
+.spacer { flex: 1; }
+
+#lap-counter {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6875rem;
+  color: var(--sub);
+  letter-spacing: 0.0625rem;
+}
+
+#lap-counter .lnum  { color: var(--bright); font-size: 0.9375rem; font-weight: 900; }
+#lap-counter .lsep  { color: var(--dim); margin: 0 0.125rem; }
+
+#sim-clock {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--bright);
+  letter-spacing: 0.125rem;
+  min-width: 4.5rem;
+  text-align: right;
+}
+
+/* ── MAIN CONTAINER ────────────────────────────────────────── */
+#main {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── SHARED PANEL HEAD ─────────────────────────────────────── */
+.panel-head {
+  padding: 0.4375rem 0.625rem 0.375rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5625rem;
+  letter-spacing: 0.1875rem;
+  color: var(--sub);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* ── LEFT BLOCK (TELEMETRY) ────────────────────────────────── */
+#left-block {
+  width: clamp(17rem, 28vw, 25rem);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surf);
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+#tel-cards-wrap {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.tel-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.tel-col:first-child { box-shadow: 1px 0 0 0 var(--border); }
+
+/* ── WEATHER STRIP ─────────────────────────────────────────── */
+#weather-strip {
+  flex-shrink: 0;
+  height: 1.875rem;
+  background: var(--surf);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  overflow: hidden;
+}
+
+#weather-body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
+.wx-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 0.625rem;
+  border-right: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.wx-cell:last-child { border-right: none; }
+
+.wx-lbl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.375rem;
+  color: var(--sub);
+  letter-spacing: 0.0625rem;
+  text-transform: uppercase;
+  margin-bottom: 0.0625rem;
+}
+
+.wx-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--bright);
+  line-height: 1;
+}
+
+.wx-unit      { font-size: 0.5625rem; color: var(--dim); font-weight: 400; margin-left: 0.125rem; }
+.wx-rain-wet  { color: #4dd0e1; }
+.wx-rain-dry  { color: #ffc107; }
+
+/* ── CENTRE COLUMN ─────────────────────────────────────────── */
+#centre-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* ── RACE CONTROL STRIP ────────────────────────────────────── */
+#rc-strip {
+  flex-shrink: 0;
+  height: 8.75rem;
+  background: var(--surf);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#rc-dot {
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: rcpulse 1.4s ease-in-out infinite;
+}
+
+@keyframes rcpulse { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+
+#rc-log {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  padding: 0.25rem 0.375rem;
+  min-height: 0;
+}
+
+#rc-log::-webkit-scrollbar { width: 0.1875rem; }
+#rc-log::-webkit-scrollbar-thumb { background: var(--border); }
+
+.rc-entry {
+  padding: 0.1875rem 0.5rem;
+  border-left: 0.1875rem solid var(--border);
+  border-radius: 0 0.1875rem 0.1875rem 0;
+  background: var(--surf2);
+  flex-shrink: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.rc-time { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: var(--dim); flex-shrink: 0; }
+.rc-msg  { font-size: 0.625rem; line-height: 1.3; color: #ccc; }
+
+.rc-entry.type-sc      { border-color: #ff9800; background: #120c00; } .rc-entry.type-sc      .rc-msg { color: #ffb74d; }
+.rc-entry.type-vsc     { border-color: #00bcd4; background: #001217; } .rc-entry.type-vsc     .rc-msg { color: #4dd0e1; }
+.rc-entry.type-red     { border-color: #f44336; background: #130000; } .rc-entry.type-red     .rc-msg { color: #ef9a9a; }
+.rc-entry.type-green   { border-color: #4caf50; background: #001400; } .rc-entry.type-green   .rc-msg { color: #81c784; }
+.rc-entry.type-yellow  { border-color: #ffc107; background: #130f00; } .rc-entry.type-yellow  .rc-msg { color: #ffd54f; }
+.rc-entry.type-dnf     { border-color: #e8002d; background: #130005; } .rc-entry.type-dnf     .rc-msg { color: #ff6b8a; }
+.rc-entry.type-chequered { border-color: #fff; background: #111; }     .rc-entry.type-chequered .rc-msg { color: #fff; }
+.rc-entry.type-penalty { border-color: #ff6b00; background: #110800; } .rc-entry.type-penalty .rc-msg { color: #ffb347; }
+.rc-entry.type-drs     { border-color: #3671c6; background: #01091a; } .rc-entry.type-drs     .rc-msg { color: #64b5f6; }
+.rc-entry.type-info    { border-color: #2a2a2a; }
+
+/* ── TELEMETRY CARDS ───────────────────────────────────────── */
+.tel-card {
+  flex: 1;
+  min-height: 0;
+  padding: 0.3125rem 0.625rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.tel-card:last-child { border-bottom: none; }
+
+.tel-header { display: flex; align-items: center; gap: 0.3125rem; flex-shrink: 0; }
+
+.tel-pos { font-family: 'Share Tech Mono', monospace; font-size: 0.625rem; font-weight: 700; color: var(--dim); min-width: 0.875rem; }
+.tel-pos.p1 { color: #ffd700; } .tel-pos.p2 { color: #c0c0c0; } .tel-pos.p3 { color: #cd7f32; }
+.tel-pos.top10 { color: var(--sub); }
+
+.tel-stripe { width: 0.1875rem; height: 0.8125rem; border-radius: 0.0625rem; flex-shrink: 0; }
+.tel-name   { font-family: 'Share Tech Mono', monospace; font-size: 0.6875rem; font-weight: 700; color: var(--bright); flex: 1; min-width: 0; }
+.tel-speed  { font-family: 'Share Tech Mono', monospace; font-size: 0.875rem; font-weight: 700; color: var(--bright); white-space: nowrap; flex-shrink: 0; }
+.tel-speed-unit { font-size: 0.5rem; color: var(--dim); }
+
+.tel-row2 { display: flex; align-items: center; gap: 0.5rem; flex-shrink: 0; }
+
+.tel-stat           { display: flex; flex-direction: column; align-items: center; }
+.tel-stat .val      { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: var(--bright); font-weight: 700; line-height: 1.1; }
+.tel-stat .lbl      { font-family: 'Share Tech Mono', monospace; font-size: 0.4375rem; color: var(--dim); letter-spacing: 0.0625rem; }
+
+.tel-drs {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5625rem;
+  font-weight: 700;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 0.1875rem;
+  letter-spacing: 0.0625rem;
+  border: 1px solid #2a2a2a;
+  color: #666;
+  background: #111;
+  transition: all .15s;
+}
+
+.tel-drs.on { color: #00ff88; background: #002818; border-color: #00ff8870; box-shadow: 0 0 0.5rem #00ff8830; }
+
+.tel-bars { display: flex; flex-direction: column; gap: 0.1875rem; flex-shrink: 0; }
+
+.bar-row { display: flex; align-items: center; gap: 0.3125rem; }
+
+.bar-lbl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.4375rem;
+  color: var(--dim);
+  letter-spacing: 0.0625rem;
+  width: 0.75rem;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.bar-track { flex: 1; height: 0.3125rem; background: #1c1c1c; border-radius: 0.1875rem; overflow: hidden; }
+.bar-fill  { height: 100%; border-radius: 0.1875rem; transition: width .08s linear; }
+.bar-fill.throttle { background: linear-gradient(90deg, #00a040, #00ff66); }
+.bar-fill.brake    { background: linear-gradient(90deg, #aa0000, #ff2020); }
+
+/* ── CANVAS / CIRCUIT ──────────────────────────────────────── */
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+  background: var(--bg);
+  overflow: hidden;
+  min-width: 0;
+  min-height: 0;
+}
+
+canvas { display: block; width: 100%; height: 100%; }
+
+#loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  z-index: 20;
+  gap: 0.875rem;
+}
+
+.load-f1    { font-weight: 900; font-size: clamp(1.25rem, 4vw, 1.75rem); letter-spacing: 0.5rem; color: var(--accent); }
+.load-label { font-family: 'Share Tech Mono', monospace; font-size: 0.625rem; letter-spacing: 0.25rem; color: var(--dim); text-transform: uppercase; }
+.load-bar   { width: clamp(8rem, 15vw, 11.25rem); height: 0.125rem; background: var(--border); overflow: hidden; }
+.load-bar::after {
+  content: '';
+  display: block;
+  width: 50%;
+  height: 100%;
+  background: var(--accent);
+  animation: scan .9s linear infinite;
+}
+
+@keyframes scan { 0% { margin-left: -50%; } 100% { margin-left: 110%; } }
+
+/* ── LEADERBOARD PANEL ─────────────────────────────────────── */
+#lb-panel {
+  width: clamp(18rem, 33vw, 29rem);
+  flex-shrink: 0;
+  background: var(--surf);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+#leaderboard { flex: 1; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+.lb-row {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 0.25rem;
+  gap: 0.1875rem;
+  border-bottom: 1px solid #1c1c1c;
+  overflow: hidden;
+  transition: background .1s;
+}
+
+.lb-row:hover { background: #181818; }
+.lb-row.is-dnf { opacity: .32; }
+
+.lb-pos { font-family: 'Share Tech Mono', monospace; font-size: 0.6875rem; font-weight: 700; color: var(--dim); width: 0.875rem; text-align: right; flex-shrink: 0; }
+.lb-pos.p1    { color: #ffd700; } .lb-pos.p2 { color: #c0c0c0; }
+.lb-pos.p3    { color: #cd7f32; } .lb-pos.top10 { color: var(--sub); }
+
+.lb-stripe { width: 0.1875rem; align-self: stretch; border-radius: 0.0625rem; flex-shrink: 0; }
+
+.lb-code   { font-weight: 900; font-size: 0.75rem; letter-spacing: 0.025rem; color: var(--bright); flex-shrink: 0; width: 2.375rem; }
+
+.tyre {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: 900;
+  font-size: 0.4375rem;
+  flex-shrink: 0;
+  border: 1.5px solid rgba(0, 0, 0, .35);
+}
+
+.tyre-S { background: #c0392b; color: #fff; } .tyre-M { background: #c9a800; color: #000; }
+.tyre-H { background: #c8c8c8; color: #111; } .tyre-I { background: #1e8449; color: #fff; }
+.tyre-W { background: #1a5276; color: #fff; } .tyre-U { background: #333;    color: #888; }
+
+.lb-tlife { font-family: 'Share Tech Mono', monospace; font-size: 0.6875rem; color: #bbb; flex-shrink: 0; width: 1.625rem; }
+
+.lb-team {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.01875rem;
+  width: 3.75rem;
+  flex-shrink: 0;
+  white-space: normal;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.lb-fl    { font-family: 'Share Tech Mono', monospace; font-size: 0.8125rem; color: #aaa; flex-shrink: 0; width: 4rem; text-align: right; white-space: nowrap; }
+.lb-fl.purple { color: #c084fc; font-weight: 700; }
+
+.lb-gap {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8125rem;
+  color: #bbb;
+  flex-shrink: 0;
+  width: 3.875rem;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.lb-gap.gap-leader-label { font-size: 0.8125rem; color: #bbb; letter-spacing: 0.01875rem; }
+.lb-gap.gap-lapped       { color: #e8002d; }
+
+.lb-div { width: 1px; align-self: stretch; background: var(--border); flex-shrink: 0; }
+
+.lb-delta { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; font-weight: 700; flex-shrink: 0; width: 1.125rem; text-align: left; }
+.lb-delta.up   { color: #4caf50; }
+.lb-delta.down { color: #e8002d; }
+.lb-delta.same { color: #444; }
+
+.lb-chq { font-size: 0.5625rem; flex-shrink: 0; }
+
+.lb-badge-cell { width: 2.25rem; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+
+.lb-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.04375rem;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.125rem;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.badge-pit { background: #ff950020; color: #ffb347; border: 1px solid #ff950050; }
+.badge-dnf { background: #e8002d20; color: #ff6b8a; border: 1px solid #e8002d50; }
+
+/* ── SECTOR TOOLTIP ────────────────────────────────────────── */
+#sector-tooltip {
+  position: fixed;
+  display: none;
+  z-index: 500;
+  background: #0e0e0e;
+  border: 1px solid var(--border);
+  border-radius: 0.3125rem;
+  padding: 0.625rem 0.875rem;
+  min-width: 13.75rem;
+  box-shadow: 0 0.375rem 1.5rem rgba(0, 0, 0, .8);
+  pointer-events: none;
+}
+
+.stt-header       { font-family: 'Share Tech Mono', monospace; font-size: 0.5625rem; color: var(--sub); letter-spacing: 0.125rem; margin-bottom: 0.5rem; }
+.stt-section-label{ font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: #444; letter-spacing: 0.09375rem; margin-bottom: 0.25rem; }
+.stt-divider      { border-top: 1px solid #1f1f1f; margin: 0.5rem 0; }
+
+.stt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.125rem 0.375rem;
+  margin-bottom: 0.125rem;
+}
+
+.stt-col-label { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; color: #555; text-align: center; }
+
+.stt-time        { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; font-weight: 700; text-align: center; }
+.stt-time.purple { color: #c084fc; }
+.stt-time.green  { color: #4caf50; }
+.stt-time.red    { color: #e8002d; }
+.stt-time.grey   { color: #444; }
+.stt-time.active { color: #fff; }
+
+/* ── FASTEST LAP BANNER ────────────────────────────────────── */
+#fl-banner {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 0.4375rem 1.25rem;
+  pointer-events: none;
+  opacity: 0;
+}
+
+#fl-banner.show { animation: flAnim 3.2s ease forwards; }
+
+@keyframes flAnim {
+  0%   { opacity: 0; transform: translateY(-100%); }
+  10%  { opacity: 1; transform: translateY(0); }
+  72%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-1.125rem); }
+}
+
+.fl-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5625rem;
+  background: #0d0014f2;
+  border: 1px solid #c084fc50;
+  border-radius: 0.25rem;
+  padding: 0.3125rem 0.875rem;
+  box-shadow: 0 0 1.5rem #c084fc20;
+}
+
+.fl-icon  { font-size: 0.6875rem; }
+.fl-label { font-family: 'Share Tech Mono', monospace; font-size: 0.5rem; letter-spacing: 0.15625rem; color: #c084fc; }
+.fl-code  { font-family: 'Share Tech Mono', monospace; font-size: 0.875rem; font-weight: 700; }
+.fl-time  { font-family: 'Share Tech Mono', monospace; font-size: 0.75rem; color: #c084fc; letter-spacing: 0.0625rem; }
+
+/* ── LEADER BANNER ─────────────────────────────────────────── */
+#leader-banner {
+  position: absolute;
+  bottom: 0.875rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(3.75rem);
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0;
+  white-space: nowrap;
+}
+
+#leader-banner.show { animation: ldAnim 4s ease forwards; }
+
+@keyframes ldAnim {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(3.75rem); }
+  12%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  75%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(3.75rem); }
+}
+
+.ld-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: #0e0e0ef5;
+  border-radius: 0.3125rem;
+  padding: 0.4375rem 1.125rem;
+  border-left: 0.1875rem solid #fff;
+}
+
+.ld-crown { font-size: 0.9375rem; }
+.ld-label { font-family: 'Share Tech Mono', monospace; font-size: 0.4375rem; letter-spacing: 0.1875rem; color: #777; }
+.ld-sep   { width: 1px; height: 1.375rem; background: #2a2a2a; flex-shrink: 0; }
+.ld-name  { font-family: 'Share Tech Mono', monospace; font-size: 1.125rem; font-weight: 700; }
+
+/* ── POSITION CHART ────────────────────────────────────────── */
+#pos-chart-section { flex-shrink: 0; border-top: 1px solid var(--border); background: var(--surf); }
+#pos-chart-wrap    { height: clamp(7rem, 14vh, 10.125rem); overflow: hidden; }
+#pos-chart         { display: block; width: 100%; height: 100%; }
+
+/* phone-lb is ONLY visible on phones — hidden everywhere else */
+#phone-lb { display: none; }
+
+/* ── CONTROLS ──────────────────────────────────────────────── */
+#controls {
+  height: 3.125rem;
+  background: var(--surf);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 9200; /* above tutorial overlay */
+}
+
+.ctrl-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.625rem;
+  padding: 0.375rem 1rem;
+  cursor: pointer;
+  letter-spacing: 0.0625rem;
+  transition: all .15s;
+  min-width: 5.625rem;
+  text-align: center;
+}
+
+.ctrl-btn:hover  { border-color: var(--accent); color: #fff; }
+.ctrl-btn.active { border-color: var(--accent); background: #e8002d12; color: var(--accent); }
+
+#speed-btns { display: flex; gap: 0.1875rem; }
+
+.speed-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.625rem;
+  padding: 0.3125rem 0.625rem;
+  cursor: pointer;
+  transition: all .1s;
+}
+
+.speed-btn:hover  { border-color: var(--sub); color: var(--text); }
+.speed-btn.active { border-color: var(--accent); color: var(--accent); background: #e8002d0f; }
+
+#scrub-wrap { flex: 1; display: flex; flex-direction: column; gap: 0.375rem; }
+
+#scrubber {
+  width: 100%;
+  height: 0.25rem;
+  background: var(--border);
+  cursor: pointer;
+  border-radius: 0.125rem;
+}
+
+#scrub-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 0.125rem;
+  width: 0%;
+  pointer-events: none;
+  position: relative;
+}
+
+#scrub-fill::after {
+  content: '';
+  position: absolute;
+  right: -0.3125rem;
+  top: -0.25rem;
+  width: 0.6875rem;
+  height: 0.6875rem;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+#scrub-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5625rem;
+  color: var(--sub);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET  (768px – 1199px)
+   Left:  circuit fills remaining width, full height.
+   Right: lb-panel takes 45% — leaderboard (scrollable) +
+          weather strip + race control stacked below.
+   Telemetry is pushed below the fold; scroll to see it.
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 768px) and (max-width: 1199px) {
+
+  /* Allow page to scroll so telemetry is reachable below */
+  body {
+    height: auto;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  /* Main: fixed height = above-fold viewport. Wraps so
+     left-block (telemetry) appears below on scroll. */
+  #main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    overflow: visible;
+    height: calc(100dvh - 2.75rem - 3.125rem);
+  }
+
+  /* ── Circuit: left side, full height ── */
+  #centre-col {
+    order: 1;
+    flex: 1;
+    min-width: 0;
+    /* Use explicit calc height instead of height:100% — height:100% on a
+       flex-wrap:wrap child doesn't reliably resolve to the container height. */
+    height: calc(100dvh - 2.75rem - 3.125rem);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Right panel: 45% of screen, full height, flex column ── */
+  #lb-panel {
+    order: 2;
+    width: 45%;
+    flex-shrink: 0;
+    height: calc(100dvh - 2.75rem - 3.125rem);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-left: 1px solid var(--border);
+  }
+
+  /* lb-panel: leaderboard 44%, weather 12%, rc 22%, pos-chart 22% */
+  #leaderboard {
+    flex: 0 0 44%;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  #leaderboard.lb-two-col {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .lb-split-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .lb-split-col-right { border-left: 1px solid var(--border); }
+
+  .lb-split-col .lb-row { flex: 1; }
+
+  /* Position chart — 22% of lb-panel */
+  #pos-chart-section {
+    display: block;
+    flex: 0 0 22%;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  #pos-chart-wrap {
+    height: calc(100% - 1.5rem);
+    overflow: hidden;
+  }
+
+  /* ── Shared row base ── */
+  .lb-row {
+    flex: none;
+    min-height: 0;
+    padding: 0 0.4rem;
+    gap: 0.3rem;
+  }
+
+  /* Everything hidden — sub-breakpoints re-show what they need */
+  .lb-div,
+  .lb-tlife,
+  .lb-team,
+  .lb-fl,
+  .lb-gap,
+  .lb-delta,
+  .lb-chq,
+  .tyre { display: none !important; }
+
+  /* Badge always stays */
+  .lb-badge-cell { display: flex !important; }
+
+  /* Base font sizes */
+  .lb-pos  { font-size: 1rem;    width: 1.125rem; }
+  .lb-code { font-size: 1.05rem; width: auto; flex: 1; letter-spacing: 0.02rem; }
+  .lb-badge { font-size: 0.5625rem; padding: 0.1rem 0.25rem; }
+
+  /* ── Weather strip — moved into lb-panel via JS ── */
+  #weather-strip {
+    display: flex !important;
+    flex: 0 0 12%;
+    min-height: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: none;
+    overflow: hidden;
+  }
+
+  #weather-body {
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+  }
+
+  .wx-cell  { padding: 0.2rem 0.5rem; }
+  .wx-lbl   { font-size: 0.5rem; letter-spacing: 0.06rem; }
+  .wx-val   { font-size: 0.875rem; }
+  .wx-unit  { font-size: 0.625rem; }
+
+  /* ── Race control — moved into lb-panel via JS ── */
+  #rc-strip {
+    flex: 0 0 22% !important;
+    flex-shrink: 1 !important;
+    height: 0;
+    min-height: 0;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #rc-log {
+    flex: 1;
+    min-height: 0;
+    max-height: 100%;
+    overflow-y: auto;
+  }
+
+  .rc-msg  { font-size: 0.75rem; line-height: 1.4; }
+  .rc-time { font-size: 0.5625rem; }
+
+  /* ── Telemetry: full-width below fold ── */
+  #left-block {
+    order: 10;
+    width: 100%;
+    flex-shrink: 0;
+    height: auto;
+    overflow: visible;
+    border-right: none;
+    border-top: 2px solid var(--border);
+  }
+
+  #tel-cards-wrap {
+    flex: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .tel-col {
+    overflow: visible;
+    flex: 1;
+    height: auto;
+  }
+
+  .tel-card {
+    flex: none;
+    height: 4.5rem;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Controls: sticky at bottom while scrolling */
+  #controls {
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+}
+
+/* ── 768–800px: pos + stripe + code + tyre type + tyre age ─────── */
+@media (min-width: 768px) and (max-width: 1015px) {
+  .tyre     { display: inline-flex !important; width: 0.9375rem; height: 0.9375rem; font-size: 0.4375rem; }
+  .lb-tlife { display: inline !important; font-size: 0.75rem; width: auto; }
+  /* show the single divider between code and tyre */
+  .lb-div:first-of-type { display: block !important; }
+}
+
+/* ── 801–1199px: add best laptime on top of the above ───────────── */
+@media (min-width: 1015px) and (max-width: 1199px) {
+  .tyre     { display: inline-flex !important; width: 0.9375rem; height: 0.9375rem; font-size: 0.4375rem; }
+  .lb-tlife { display: inline !important; font-size: 0.75rem; width: auto; }
+  .lb-fl    { display: inline !important; font-size: 0.75rem; width: auto; text-align: right; white-space: nowrap; }
+  /* dividers: after code, after tyre age */
+  .lb-div:first-of-type,
+  .lb-div:nth-of-type(2) { display: block !important; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — PHONE  (< 768px)
+   Layout (top→bottom, all within viewport, no scroll):
+     header | phone-lb | canvas | rc-strip | controls
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  #header {
+    height: auto;
+    min-height: 2.75rem;
+    padding: 0 1.25rem;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .logo-year    { font-size: 1rem; }
+  .logo-badge   { height: 1.5rem; font-size: 0.9375rem; }
+  #event-title  { font-size: 0.75rem; letter-spacing: 0.04rem; max-width: 10rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #lap-counter  { display: none; }
+  #sim-clock    { font-size: 0.9375rem; min-width: 4rem; }
+
+  /* ── Main: single column ── */
+  #main {
+    overflow: hidden;
+    flex-direction: column;
+  }
+
+  #left-block    { display: none; }
+  #lb-panel      { display: none; }
+  #weather-strip { display: none; }
+
+  /* Centre column: full width flex column */
+  #centre-col {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  /* ── Phone mini leaderboard: 5 cols × 4 rows ──────────────────
+     Each cell shows rank + code side by side.
+     Height = 4 rows × 2rem each = 8rem.
+  ─────────────────────────────────────────────────────────────── */
+  #phone-lb {
+    display: grid !important;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(4, 2rem);
+    flex-shrink: 0;
+    background: var(--surf);
+    border-bottom: 1px solid var(--border);
+    /* no overflow:hidden here — let the explicit rows define the height */
+  }
+
+  .plb-cell {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    padding: 0 0.25rem;
+    transition: background 0.1s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    overflow: hidden;
+  }
+
+  .plb-cell:nth-child(5n)        { border-right: none; }
+  .plb-cell:nth-last-child(-n+5) { border-bottom: none; }
+  .plb-cell:active               { background: #222; }
+  .plb-cell.is-dnf               { opacity: 0.3; }
+
+  .plb-pos {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--sub);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .plb-pos.p1 { color: #ffd700; }
+  .plb-pos.p2 { color: #c0c0c0; }
+  .plb-pos.p3 { color: #cd7f32; }
+
+  .plb-code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.875rem;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: 0.01rem;
+  }
+
+  /* ── Canvas: fills the remaining space ── */
+  #canvas-wrap { flex: 1; min-height: 0; }
+
+  /* ── Race control: compact strip ── */
+  #rc-strip {
+    display: flex !important;
+    flex-shrink: 0;
+    height: 5.5rem;
+    border-top: 1px solid var(--border);
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  #rc-strip .panel-head {
+    padding: 0.3rem 0.625rem;
+    font-size: 0.625rem;
+    letter-spacing: 0.15rem;
+  }
+
+  #rc-dot { width: 0.35rem; height: 0.35rem; }
+
+  #rc-log {
+    padding: 0.25rem 0.5rem;
+    gap: 0.15rem;
+  }
+
+  .rc-entry { padding: 0.25rem 0.625rem; }
+  .rc-msg   { font-size: 0.8125rem; line-height: 1.35; }
+  .rc-time  { font-size: 0.625rem; }
+
+  /* ── Controls ── */
+  #controls {
+    height: auto;
+    min-height: 2.75rem;
+    padding: 0.375rem 1.25rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .ctrl-btn {
+    min-width: 4.5rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.05rem;
+  }
+
+  .speed-btn {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  #scrub-wrap   { width: 100%; order: 10; }
+  #scrub-labels { font-size: 0.6875rem; }
+
+  /* ── Overlay banners ── */
+  .fl-pill  { padding: 0.3rem 0.75rem; gap: 0.5rem; }
+  .fl-code  { font-size: 0.875rem; }
+  .fl-time  { font-size: 0.75rem; }
+  .ld-inner { padding: 0.5rem 0.875rem; gap: 0.5rem; }
+  .ld-name  { font-size: 1rem; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   DRIVER MODAL — tablet + phone (≤ 1199px)
+   Shown when a leaderboard row / phone-lb cell is tapped.
+   Hidden on desktop.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Hidden everywhere by default */
+#drv-modal { display: none; }
+
+@media (max-width: 1199px) {
+
+  #drv-modal {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 900;
+    /* hidden state — panel slides in when .open is added */
+    pointer-events: none;
+  }
+
+  #drv-modal.open {
+    pointer-events: auto;
+  }
+
+  /* Semi-transparent backdrop */
+  #drv-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.72);
+    opacity: 0;
+    transition: opacity 0.22s ease;
+  }
+
+  #drv-modal.open #drv-modal-backdrop {
+    opacity: 1;
+  }
+
+  /* Slide-up panel from the bottom */
+  #drv-modal-panel {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    background: #141414;
+    border-top: 2px solid var(--border);
+    border-radius: 0.75rem 0.75rem 0 0;
+    display: flex;
+    flex-direction: column;
+    max-height: 72vh;
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.26s cubic-bezier(0.34, 1.10, 0.64, 1);
+  }
+
+  #drv-modal.open #drv-modal-panel {
+    transform: translateY(0);
+  }
+
+  /* ── Header ── */
+  #drv-modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    background: #181818;
+  }
+
+  #drv-modal-stripe {
+    width: 4px;
+    height: 2.25rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  #drv-modal-title {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1;
+  }
+
+  #drv-modal-code {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--bright);
+    line-height: 1;
+  }
+
+  #drv-modal-team {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.08rem;
+    color: var(--sub);
+    text-transform: uppercase;
+  }
+
+  #drv-modal-lap-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.15rem;
+  }
+
+  #drv-modal-lap {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--dim);
+  }
+
+  #drv-modal-pos {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--bright);
+  }
+
+  #drv-modal-close {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--sub);
+    font-size: 1rem;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: border-color 0.15s, color 0.15s;
+  }
+
+  #drv-modal-close:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Body ── */
+  #drv-modal-body {
+    overflow-y: auto;
+    padding: 0.75rem 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  #drv-modal-body::-webkit-scrollbar { width: 0.1875rem; }
+  #drv-modal-body::-webkit-scrollbar-thumb { background: var(--border); }
+
+  .drv-modal-section-head {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.5625rem;
+    letter-spacing: 0.2rem;
+    color: var(--sub);
+    text-transform: uppercase;
+    margin-bottom: 0.375rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── Telemetry block ── */
+  #drv-modal-tel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .dmt-speed-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  #dmt-speed {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: var(--bright);
+    line-height: 1;
+  }
+
+  .dmt-unit {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--dim);
+  }
+
+  .dmt-stat-row {
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+  }
+
+  .dmt-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+  }
+
+  .dmt-val {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--bright);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+  }
+
+  .dmt-lbl {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.5rem;
+    color: var(--dim);
+    letter-spacing: 0.08rem;
+    text-transform: uppercase;
+  }
+
+  /* Tyre dot inside modal — slightly bigger */
+  #dmt-tyre {
+    width: 1.375rem;
+    height: 1.375rem;
+    font-size: 0.5625rem;
+  }
+
+  .dmt-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .dmt-bars .bar-row  { display: flex; align-items: center; gap: 0.5rem; }
+  .dmt-bars .bar-lbl  { font-size: 0.625rem; width: 1.5rem; text-align: right; color: var(--dim); font-family: 'Share Tech Mono', monospace; letter-spacing: 0.06rem; }
+  .dmt-bars .bar-track{ flex: 1; height: 0.5rem; background: #1c1c1c; border-radius: 0.25rem; overflow: hidden; }
+  .dmt-bars .bar-fill { height: 100%; border-radius: 0.25rem; transition: width 0.08s linear; }
+
+  /* ── Sectors block ── */
+  #drv-modal-sectors {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .dms-row {
+    display: grid;
+    grid-template-columns: 4rem 1fr 1fr 1fr;
+    gap: 0.25rem;
+    align-items: center;
+  }
+
+  .dms-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.5625rem;
+    color: var(--sub);
+    letter-spacing: 0.06rem;
+    text-transform: uppercase;
+  }
+
+  .dms-cell {
+    text-align: center;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+
+  .dms-head {
+    font-size: 0.5625rem;
+    color: #555;
+    font-weight: 400;
+    letter-spacing: 0.08rem;
+  }
+
+  /* Reuse stt-time colour classes for sector colouring */
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ORIENTATION LOCK OVERLAY
+   Phone  → portrait only  (shown in landscape)
+   Tablet → landscape only (shown in portrait)
+   ══════════════════════════════════════════════════════════════════ */
+#orientation-lock {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0d0d0d;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+}
+
+#orientation-icon {
+  font-size: 4rem;
+  animation: spin-hint 1.5s ease-in-out infinite alternate;
+  color: var(--accent);
+}
+
+@keyframes spin-hint {
+  from { transform: rotate(-25deg); }
+  to   { transform: rotate( 25deg); }
+}
+
+#orientation-msg {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  color: var(--sub);
+  text-align: center;
+  letter-spacing: 0.12rem;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+/* Show on PHONES in LANDSCAPE */
+@media (max-width: 767px) and (orientation: landscape) {
+  #orientation-lock {
+    display: flex;
+  }
+}
+
+@media (max-width: 550px) {
+  #header {
+    padding: 0.75rem;
+  }
+  #controls {
+    padding: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  #scrub-wrap {
+    flex: none;
+    width: 100%;
+    order: 10;
+  }
+}
+
+/* Show on TABLETS in PORTRAIT */
+@media (min-width: 768px) and (max-width: 1199px) and (orientation: portrait) {
+  #orientation-lock {
+    display: flex;
+  }
+}
+/* ══════════════════════════════════════════════════════════════════
+   DESKTOP NARROW  (1200px – 1449px)
+   At these widths the leaderboard row content is too wide to fit
+   comfortably. Hiding .lb-team saves ~60px; the colour stripe on
+   every row still communicates the team visually.
+   ══════════════════════════════════════════════════════════════════ */
+@media (min-width: 1200px) and (max-width: 1449px) {
+  .lb-team { display: none; }
+  
+  #lb-panel { width: clamp(25rem, calc(33vw - 3.75rem), 26.25rem); }
+}
+/* ══════════════════════════════════════════════════════════════════
+   SPOTLIGHT TUTORIAL
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Tutorial trigger button in header ── */
+#tut-trigger-btn {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--sub);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color .15s, color .15s, background .15s;
+  line-height: 1;
+}
+#tut-trigger-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(232, 0, 45, .08);
+}
+
+/* ── Dark overlay with SVG spotlight ── */
+#tut-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9100;
+  pointer-events: none;
+  display: none;
+  opacity: 0;
+}
+#tut-overlay[style*="opacity: 1"],
+#tut-overlay[style*="opacity:1"] {
+  pointer-events: auto;
+}
+#tut-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none !important;
+}
+
+/* ── Pulsing ring ── */
+#tut-ring {
+  position: fixed;
+  z-index: 8999;
+  border-radius: 0.4375rem;
+  border: 2px solid rgba(232, 0, 45, .75);
+  pointer-events: none;
+  display: none;
+  animation: tut-ring-glow 1.8s ease-in-out infinite;
+  transition:
+    left   .35s cubic-bezier(.4, 0, .2, 1),
+    top    .35s cubic-bezier(.4, 0, .2, 1),
+    width  .35s cubic-bezier(.4, 0, .2, 1),
+    height .35s cubic-bezier(.4, 0, .2, 1);
+}
+@keyframes tut-ring-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(232,0,45,.45); }
+  50%       { box-shadow: 0 0 0 7px rgba(232,0,45,0); }
+}
+
+/* ── Arrow SVG — hidden by default so it never blocks taps ── */
+#tut-arrow-svg {
+  position: fixed;
+  inset: 0;
+  z-index: 9050;
+  pointer-events: none !important;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  display: none;
+  transition: opacity .3s ease .1s;
+}
+#tut-arrow-svg.tut-arrow-visible {
+  display: block;
+  opacity: 1;
+}
+
+/* ── Tooltip card — hidden by default so it never blocks taps ── */
+#tut-card {
+  position: fixed;
+  z-index: 9100;
+  background: #161616;
+  border: 1px solid #2e2e2e;
+  border-top: 2px solid var(--accent);
+  border-radius: 0.5rem;
+  padding: 1.125rem 1.25rem 1rem;
+  width: min(19rem, calc(100vw - 2.5rem));
+  box-shadow: 0 1.5rem 4rem rgba(0,0,0,.85), 0 0 0 1px rgba(232,0,45,.06);
+  pointer-events: none;
+  opacity: 0;
+  display: none;
+  transform: translateY(.625rem) scale(.97);
+  transition: opacity .26s ease, transform .26s cubic-bezier(.34, 1.4, .64, 1);
+}
+#tut-card.tut-visible {
+  display: block;
+  pointer-events: auto;
+  opacity: 1;
+  transform: none;
+}
+
+.tut-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .5rem;
+  font-weight: 700;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: .5rem;
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+.tut-eyebrow::after {
+  content: '';
+  display: block;
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(232,0,45,.35), transparent);
+}
+
+#tut-title {
+  font-family: 'Titillium Web', sans-serif;
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--bright);
+  letter-spacing: -.01em;
+  line-height: 1.2;
+  margin-bottom: .4rem;
+}
+
+#tut-body {
+  font-size: .75rem;
+  color: #999;
+  line-height: 1.7;
+}
+#tut-body strong { color: #d8d8d8; }
+
+.tut-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: .875rem;
+  padding-top: .75rem;
+  border-top: 1px solid #222;
+}
+
+#tut-skip {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .5625rem;
+  color: #484848;
+  background: none;
+  border: none;
+  cursor: pointer;
+  letter-spacing: .06em;
+  transition: color .15s;
+}
+#tut-skip:hover { color: #777; }
+
+.tut-nav { display: flex; align-items: center; gap: .625rem; }
+
+#tut-dots { display: flex; gap: .3125rem; }
+.tut-dot {
+  width: .375rem;
+  height: .375rem;
+  border-radius: 50%;
+  background: #252525;
+  border: 1px solid #333;
+  transition: all .22s ease;
+  cursor: pointer;
+}
+.tut-dot.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  transform: scale(1.25);
+  box-shadow: 0 0 6px rgba(232,0,45,.7);
+}
+.tut-dot.done { background: #383838; border-color: #444; }
+
+#tut-next {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: .25rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: .625rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  padding: .4rem .9rem;
+  cursor: pointer;
+  box-shadow: 0 0 .875rem rgba(232,0,45,.35);
+  transition: background .15s, box-shadow .15s, transform .1s;
+}
+#tut-next:hover  { background: #ff1f4b; box-shadow: 0 0 1.25rem rgba(232,0,45,.6); transform: translateY(-1px); }
+#tut-next:active { transform: none; }
+
+/* ── Finish flash ── */
+#tut-done-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  pointer-events: none;
+  background: rgba(232,0,45,.06);
+  opacity: 0;
+}

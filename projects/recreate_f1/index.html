@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 Race Simulation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Titillium+Web:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- ── ORIENTATION LOCK OVERLAY ───────────────────────────────────
+     Phone: shown when rotated to landscape.
+     Tablet: shown when rotated to portrait.
+─────────────────────────────────────────────────────────────────── -->
+<div id="orientation-lock">
+  <div id="orientation-icon">↻</div>
+  <div id="orientation-msg"></div>
+</div>
+
+<!-- ── DESKTOP SECTOR TOOLTIP (hover) ─────────────────────────── -->
+<div id="sector-tooltip">
+  <div class="stt-header" id="stt-driver">—</div>
+  <div class="stt-section-label">CURRENT</div>
+  <div class="stt-grid">
+    <span class="stt-col-label">S1</span>
+    <span class="stt-col-label">S2</span>
+    <span class="stt-col-label">S3</span>
+    <span class="stt-time grey" id="stt-cur-s1">—</span>
+    <span class="stt-time grey" id="stt-cur-s2">—</span>
+    <span class="stt-time grey" id="stt-cur-s3">—</span>
+  </div>
+  <div class="stt-divider"></div>
+  <div class="stt-section-label">BEST LAP</div>
+  <div class="stt-grid">
+    <span class="stt-col-label">S1</span>
+    <span class="stt-col-label">S2</span>
+    <span class="stt-col-label">S3</span>
+    <span class="stt-time grey" id="stt-best-s1">—</span>
+    <span class="stt-time grey" id="stt-best-s2">—</span>
+    <span class="stt-time grey" id="stt-best-s3">—</span>
+  </div>
+</div>
+
+<!-- ── TABLET DRIVER MODAL (tap on leaderboard row) ───────────── -->
+<div id="drv-modal" aria-hidden="true">
+  <div id="drv-modal-backdrop"></div>
+  <div id="drv-modal-panel">
+
+    <div id="drv-modal-header">
+      <div id="drv-modal-stripe"></div>
+      <div id="drv-modal-title">
+        <span id="drv-modal-code">—</span>
+        <span id="drv-modal-team">—</span>
+      </div>
+      <div id="drv-modal-lap-info">
+        <span id="drv-modal-lap">LAP —</span>
+        <span id="drv-modal-pos">P—</span>
+      </div>
+      <button id="drv-modal-close" aria-label="Close">✕</button>
+    </div>
+
+    <div id="drv-modal-body">
+
+      <div class="drv-modal-section-head">TELEMETRY</div>
+      <div id="drv-modal-tel">
+        <div class="dmt-speed-row">
+          <span id="dmt-speed">0</span>
+          <span class="dmt-unit">km/h</span>
+          <span id="dmt-drs" class="tel-drs">DRS</span>
+        </div>
+        <div class="dmt-stat-row">
+          <div class="dmt-stat"><span class="dmt-val" id="dmt-gear">N</span><span class="dmt-lbl">GEAR</span></div>
+          <div class="dmt-stat"><span class="dmt-val" id="dmt-rpm">0.0k</span><span class="dmt-lbl">RPM</span></div>
+          <div class="dmt-stat">
+            <span class="dmt-val"><span class="tyre" id="dmt-tyre">—</span></span>
+            <span class="dmt-lbl">TYRE</span>
+          </div>
+          <div class="dmt-stat"><span class="dmt-val" id="dmt-tlife">—</span><span class="dmt-lbl">AGE</span></div>
+        </div>
+        <div class="dmt-bars">
+          <div class="bar-row"><span class="bar-lbl">THR</span><div class="bar-track"><div class="bar-fill throttle" id="dmt-throttle" style="width:0%"></div></div></div>
+          <div class="bar-row"><span class="bar-lbl">BRK</span><div class="bar-track"><div class="bar-fill brake" id="dmt-brake" style="width:0%"></div></div></div>
+        </div>
+      </div>
+
+      <div class="drv-modal-section-head">SECTORS</div>
+      <div id="drv-modal-sectors">
+        <div class="dms-row">
+          <span class="dms-label"></span>
+          <span class="dms-cell dms-head">S1</span>
+          <span class="dms-cell dms-head">S2</span>
+          <span class="dms-cell dms-head">S3</span>
+        </div>
+        <div class="dms-row">
+          <span class="dms-label">CUR LAP</span>
+          <span class="dms-cell stt-time grey" id="dmt-cur-s1">—</span>
+          <span class="dms-cell stt-time grey" id="dmt-cur-s2">—</span>
+          <span class="dms-cell stt-time grey" id="dmt-cur-s3">—</span>
+        </div>
+        <div class="dms-row">
+          <span class="dms-label">BEST LAP</span>
+          <span class="dms-cell stt-time grey" id="dmt-best-s1">—</span>
+          <span class="dms-cell stt-time grey" id="dmt-best-s2">—</span>
+          <span class="dms-cell stt-time grey" id="dmt-best-s3">—</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── HEADER ──────────────────────────────────────────────────── -->
+<div id="header">
+  <button id="tut-trigger-btn" title="How to use">?</button>
+  <div class="logo">
+    <div class="logo-badge">
+      <span class="logo-f">F</span>
+      <span class="logo-1">1</span>
+    </div>
+    <span class="logo-year">2025</span>
+  </div>
+  <div id="gp-selector-wrap">
+    <button id="gp-btn">
+      <span id="event-title">LOADING…</span>
+      <span id="gp-arrow">▾</span>
+    </button>
+    <div id="gp-dropdown"></div>
+  </div>
+  <div class="spacer"></div>
+  <div id="lap-counter">LAP <span class="lnum" id="lap-cur">—</span><span class="lsep">/</span><span id="lap-tot">—</span></div>
+  <span id="sim-clock">0:00:00</span>
+</div>
+
+<!-- ── MAIN ────────────────────────────────────────────────────── -->
+<div id="main">
+
+  <div id="left-block">
+    <div class="panel-head">Telemetry — All 20</div>
+    <div id="tel-cards-wrap">
+      <div class="tel-col" id="tel-col-left"></div>
+      <div class="tel-col" id="tel-col-right"></div>
+    </div>
+  </div>
+
+  <div id="centre-col">
+    <!-- Phone mini leaderboard: 5 cols × 4 rows, populated by JS -->
+    <div id="phone-lb"></div>
+    <div id="weather-strip">
+      <div id="weather-body">
+        <div class="wx-cell"><div class="wx-lbl">Air Temp</div><div class="wx-val" id="wx-air">—<span class="wx-unit">°C</span></div></div>
+        <div class="wx-cell"><div class="wx-lbl">Track Temp</div><div class="wx-val" id="wx-track">—<span class="wx-unit">°C</span></div></div>
+        <div class="wx-cell"><div class="wx-lbl">Wind</div><div class="wx-val" id="wx-wind">—<span class="wx-unit">km/h</span></div></div>
+        <div class="wx-cell"><div class="wx-lbl">Humidity</div><div class="wx-val" id="wx-hum">—<span class="wx-unit">%</span></div></div>
+        <div class="wx-cell"><div class="wx-lbl">Pressure</div><div class="wx-val" id="wx-pres">—<span class="wx-unit">mbar</span></div></div>
+        <div class="wx-cell"><div class="wx-lbl">Rainfall</div><div class="wx-val wx-rain-dry" id="wx-rain">DRY</div></div>
+      </div>
+    </div>
+    <div id="canvas-wrap">
+      <canvas id="sim"></canvas>
+      <div id="loading">
+        <div class="load-f1">F1</div>
+        <div class="load-label">Loading Telemetry</div>
+        <div class="load-bar"></div>
+      </div>
+      <div id="fl-banner"></div>
+      <div id="leader-banner">
+        <div class="ld-inner" id="ld-inner">
+          <span class="ld-crown">👑</span>
+          <div style="display:flex;flex-direction:column;gap:0.0625rem">
+            <span class="ld-label">RACE LEADER</span>
+            <span class="ld-name" id="ld-name-text">—</span>
+          </div>
+          <div class="ld-sep"></div>
+          <span class="ld-label" id="ld-team-text" style="font-size:0.5625rem;color:#aaa"></span>
+        </div>
+      </div>
+    </div>
+    <div id="rc-strip">
+      <div class="panel-head"><div id="rc-dot"></div>Race Control</div>
+      <div id="rc-log"></div>
+    </div>
+  </div>
+
+  <div id="lb-panel">
+    <div class="panel-head">Leaderboard</div>
+    <div id="leaderboard"></div>
+    <div id="pos-chart-section">
+      <div class="panel-head" id="pos-chart-toggle"><span>Position Chart</span></div>
+      <div id="pos-chart-wrap"><canvas id="pos-chart"></canvas></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── CONTROLS ────────────────────────────────────────────────── -->
+<div id="controls">
+  <button class="ctrl-btn" id="play-btn">▶  PLAY</button>
+  <div id="speed-btns">
+    <button class="speed-btn" data-speed="1">1×</button>
+    <button class="speed-btn" data-speed="5">5×</button>
+    <button class="speed-btn active" data-speed="20">20×</button>
+    <button class="speed-btn" data-speed="60">60×</button>
+  </div>
+  <div id="scrub-wrap">
+    <div id="scrubber"><div id="scrub-fill"></div></div>
+    <div id="scrub-labels"><span>START</span><span id="scrub-cur">0:00:00</span><span id="scrub-end">—</span></div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+<!-- ── SPOTLIGHT TUTORIAL ──────────────────────────────────────── -->
+
+<!-- Dark overlay with SVG spotlight cutout -->
+<div id="tut-overlay">
+  <svg id="tut-svg" xmlns="http://www.w3.org/2000/svg" style="pointer-events:none">
+    <defs>
+      <mask id="tut-mask">
+        <rect width="100%" height="100%" fill="white"/>
+        <rect id="tut-hole" x="0" y="0" width="0" height="0" rx="6" ry="6" fill="black"/>
+      </mask>
+    </defs>
+    <rect width="100%" height="100%" fill="rgba(0,0,0,0.82)" mask="url(#tut-mask)"/>
+  </svg>
+</div>
+
+<!-- Pulsing highlight ring around focused element -->
+<div id="tut-ring"></div>
+
+<!-- Dashed arrow from card to element -->
+<svg id="tut-arrow-svg">
+  <defs>
+    <marker id="tut-arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M1,1 L7,4 L1,7 Z" fill="rgba(232,0,45,0.85)"/>
+    </marker>
+  </defs>
+  <path id="tut-arrow-path" d="" stroke="rgba(232,0,45,0.6)" stroke-width="1.5"
+        fill="none" stroke-dasharray="5,4" marker-end="url(#tut-arrowhead)"/>
+</svg>
+
+<!-- Tooltip card -->
+<div id="tut-card">
+  <div class="tut-eyebrow" id="tut-eyebrow">STEP 1 OF 8</div>
+  <div id="tut-title"></div>
+  <div id="tut-body"></div>
+  <div class="tut-footer">
+    <button id="tut-skip">Skip tutorial</button>
+    <div class="tut-nav">
+      <div id="tut-dots"></div>
+      <button id="tut-next">NEXT →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Brief red flash on finish -->
+<div id="tut-done-flash"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════════
+   F1 SPOTLIGHT TUTORIAL
+   - Auto-shows on first ever visit (localStorage flag)
+   - Re-triggerable via the ? button in the header
+══════════════════════════════════════════════════════════════ */
+(function(){
+  const STORAGE_KEY = 'f1sim_tutorial_seen';
+  const PAD = 10;
+
+  /* Steps — selector targets your real element IDs */
+  const STEPS = [
+    {
+      sel: null, dir: null,
+      title: 'Welcome to F1 Race Sim',
+      body: 'This quick tour walks you through the key features. Press <strong>NEXT</strong>, hit <strong>→</strong>, or click anywhere to continue.',
+    },
+    {
+      sel: '#gp-selector-wrap', dir: 'down',
+      title: 'Circuit Selector',
+      body: 'Click here to switch between different <strong>Grand Prix circuits</strong>. Each race loads its own full telemetry, lap data, and events.',
+    },
+    {
+      sel: '#play-btn', dir: 'up',
+      title: 'Play & Pause',
+      body: 'Press <strong>▶ PLAY</strong> to start the simulation. Press again at any time to freeze the race.',
+    },
+    {
+      sel: '#speed-btns', dir: 'up',
+      title: 'Simulation Speed',
+      body: 'Control how fast the race unfolds. <strong>1×</strong> is real time; <strong>60×</strong> blasts through in minutes. Switch anytime — your position is kept.',
+    },
+    {
+      sel: '#scrub-wrap', dir: 'up',
+      title: 'Timeline Scrubber',
+      body: '<strong>Drag</strong> the bar to jump instantly to any moment — rewatch an overtake, check a pit window, or replay the race start.',
+    },
+    {
+      sel: '#lb-panel', dir: 'left',
+      title: 'Leaderboard',
+      body: 'All 20 drivers ranked live. <strong>Hover</strong> any row (desktop) or <strong>tap</strong> it (mobile/tablet) to see that driver\'s sector times and full telemetry.',
+    },
+    {
+      sel: '#rc-strip', dir: 'down',
+      title: 'Race Control Log',
+      body: '<strong>Scroll up</strong> inside this panel to browse all historical FIA messages — safety cars, penalties, DRS zones, and more.',
+    },
+    {
+      sel: '#left-block', dir: 'right',
+      title: 'Live Telemetry',
+      body: 'Real-time <strong>speed, gear, throttle &amp; brake</strong> for all 20 drivers. Tyre compound and age are shown too, updated every tick.',
+    },
+  ];
+
+  /* ── DOM refs ── */
+  const overlay   = document.getElementById('tut-overlay');
+  const ring      = document.getElementById('tut-ring');
+  const card      = document.getElementById('tut-card');
+  const arrowSVG  = document.getElementById('tut-arrow-svg');
+  const arrowPath = document.getElementById('tut-arrow-path');
+  const hole      = document.getElementById('tut-hole');
+  const dotsEl    = document.getElementById('tut-dots');
+  const nextBtn   = document.getElementById('tut-next');
+  const skipBtn   = document.getElementById('tut-skip');
+  const flash     = document.getElementById('tut-done-flash');
+  const triggerBtn= document.getElementById('tut-trigger-btn');
+
+  let step = -1;
+  let transitioning = false;
+  let active = false;
+
+  /* ── Helpers ── */
+  function buildDots() {
+    dotsEl.innerHTML = '';
+    STEPS.forEach((_, i) => {
+      const d = document.createElement('div');
+      d.className = 'tut-dot' + (i < step ? ' done' : '') + (i === step ? ' active' : '');
+      d.addEventListener('click', () => { if (!transitioning && i !== step) goTo(i); });
+      dotsEl.appendChild(d);
+    });
+  }
+
+  function measuredCardSize() {
+    // Temporarily make card block but invisible to measure it
+    card.style.display = 'block';
+    card.style.visibility = 'hidden';
+    card.style.opacity = '0';
+    card.style.left = '-9999px';
+    card.style.top = '0';
+    const w = card.offsetWidth, h = card.offsetHeight;
+    card.style.display = '';
+    card.style.visibility = '';
+    card.style.opacity = '';
+    return { w, h };
+  }
+
+  function getCardPos(tRect, cw, ch, dir) {
+    const vw = window.innerWidth, vh = window.innerHeight, m = 16;
+    if (!tRect || !dir) return { x: (vw - cw) / 2, y: (vh - ch) / 2 };
+    const tCx = tRect.left + tRect.width / 2;
+    const tCy = tRect.top + tRect.height / 2;
+    let cx, cy;
+    if (dir === 'down') {
+      cx = Math.min(Math.max(tCx - cw / 2, m), vw - cw - m);
+      cy = tRect.top - ch - 52;
+      if (cy < m) cy = tRect.bottom + 52;
+    } else if (dir === 'up') {
+      cx = Math.min(Math.max(tCx - cw / 2, m), vw - cw - m);
+      cy = tRect.bottom + 52;
+      if (cy + ch > vh - m) cy = tRect.top - ch - 52;
+    } else if (dir === 'right') {
+      cx = tRect.right + 52;
+      cy = Math.min(Math.max(tCy - ch / 2, m), vh - ch - m);
+      if (cx + cw > vw - m) cx = tRect.left - cw - 52;
+    } else { // left
+      cx = tRect.left - cw - 52;
+      cy = Math.min(Math.max(tCy - ch / 2, m), vh - ch - m);
+      if (cx < m) cx = tRect.right + 52;
+    }
+    return {
+      x: Math.min(Math.max(cx, m), vw - cw - m),
+      y: Math.min(Math.max(cy, m), vh - ch - m)
+    };
+  }
+
+  function drawArrow(tRect, cRect, dir) {
+    if (!tRect || !dir) { arrowSVG.classList.remove('tut-arrow-visible'); return; }
+    arrowSVG.classList.add('tut-arrow-visible');
+    const AP = 12;
+    let sx, sy, ex, ey;
+    if (dir === 'down')  { sx = cRect.left + cRect.width/2; sy = cRect.bottom;            ex = tRect.left + tRect.width/2; ey = tRect.top    - AP; }
+    else if (dir === 'up')    { sx = cRect.left + cRect.width/2; sy = cRect.top;               ex = tRect.left + tRect.width/2; ey = tRect.bottom + AP; }
+    else if (dir === 'right') { sx = cRect.left;                 sy = cRect.top + cRect.height/2; ex = tRect.right  + AP;        ey = tRect.top    + tRect.height/2; }
+    else                      { sx = cRect.right;                sy = cRect.top + cRect.height/2; ex = tRect.left   - AP;        ey = tRect.top    + tRect.height/2; }
+    const dx = ex - sx, dy = ey - sy;
+    arrowPath.setAttribute('d', `M${sx},${sy} C${sx+dx*.45},${sy} ${ex-dx*.2},${ey} ${ex},${ey}`);
+  }
+
+  function goTo(s, instant) {
+    if (transitioning) return;
+    transitioning = true;
+    card.classList.remove('tut-visible');
+    arrowSVG.classList.remove('tut-arrow-visible');
+
+    setTimeout(() => {
+      step = s;
+      const data = STEPS[s];
+      const isLast = s === STEPS.length - 1;
+
+      document.getElementById('tut-eyebrow').textContent = `STEP ${s+1} OF ${STEPS.length}`;
+      document.getElementById('tut-title').textContent = data.title;
+      document.getElementById('tut-body').innerHTML = data.body;
+      nextBtn.textContent = isLast ? 'FINISH ✓' : 'NEXT →';
+      buildDots();
+
+      const target = data.sel ? document.querySelector(data.sel) : null;
+      const tRect  = (target && target.offsetParent !== null) ? target.getBoundingClientRect() : null;
+
+      /* Spotlight hole */
+      if (tRect) {
+        hole.setAttribute('x',      tRect.left   - PAD);
+        hole.setAttribute('y',      tRect.top    - PAD);
+        hole.setAttribute('width',  tRect.width  + PAD * 2);
+        hole.setAttribute('height', tRect.height + PAD * 2);
+      } else {
+        hole.setAttribute('width', 0); hole.setAttribute('height', 0);
+      }
+
+      /* Ring */
+      if (tRect) {
+        ring.style.display = 'block';
+        ring.style.left   = (tRect.left   - PAD) + 'px';
+        ring.style.top    = (tRect.top    - PAD) + 'px';
+        ring.style.width  = (tRect.width  + PAD * 2) + 'px';
+        ring.style.height = (tRect.height + PAD * 2) + 'px';
+      } else {
+        ring.style.display = 'none';
+      }
+
+      /* Card position */
+      const { w: cw, h: ch } = measuredCardSize();
+      const pos = getCardPos(tRect, cw, ch, data.dir);
+      card.style.left = pos.x + 'px';
+      card.style.top  = pos.y + 'px';
+
+      requestAnimationFrame(() => {
+        card.classList.add('tut-visible');
+        requestAnimationFrame(() => {
+          drawArrow(tRect, card.getBoundingClientRect(), tRect ? data.dir : null);
+          transitioning = false;
+        });
+      });
+    }, instant ? 0 : 200);
+  }
+
+  function advance() {
+    if (transitioning) return;
+    if (step >= STEPS.length - 1) { endTutorial(); return; }
+    goTo(step + 1);
+  }
+
+  function endTutorial() {
+    active = false;
+    card.classList.remove('tut-visible');
+    arrowSVG.classList.remove('tut-arrow-visible');
+    ring.style.display = 'none';
+
+    overlay.style.transition = 'opacity .55s ease';
+    overlay.style.opacity = '0';
+
+    flash.style.transition = 'none';
+    flash.style.opacity = '1';
+    setTimeout(() => { flash.style.transition = 'opacity .7s ease'; flash.style.opacity = '0'; }, 250);
+
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      overlay.style.opacity = '';
+      overlay.style.transition = '';
+      // Fully hide card and arrow so they can't block any taps
+      card.style.display = 'none';
+      arrowSVG.style.display = 'none';
+      flash.style.opacity = '';
+    }, 650);
+
+    localStorage.setItem(STORAGE_KEY, '1');
+  }
+
+  function startTutorial() {
+    active = true;
+    step = -1;
+    transitioning = false;
+    // Clear any forced display:none from previous endTutorial call
+    card.style.display = '';
+    arrowSVG.style.display = '';
+    overlay.style.display = '';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity .4s ease';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        setTimeout(() => goTo(0), 120);
+      });
+    });
+  }
+
+  /* ── Event wiring ── */
+  nextBtn.addEventListener('click', advance);
+  skipBtn.addEventListener('click', endTutorial);
+  triggerBtn.addEventListener('click', startTutorial);
+
+  overlay.addEventListener('click', e => {
+    if (!card.contains(e.target) && !transitioning) advance();
+  });
+
+  window.addEventListener('keydown', e => {
+    if (!active) return;
+    if (e.key === 'ArrowRight' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); advance(); }
+    if (e.key === 'ArrowLeft' && step > 0 && !transitioning) goTo(step - 1);
+    if (e.key === 'Escape') endTutorial();
+  });
+
+  window.addEventListener('resize', () => {
+    if (active && step >= 0) goTo(step, true);
+  });
+
+  /* ── Auto-show on first visit ── */
+  if (!localStorage.getItem(STORAGE_KEY)) {
+    /* Wait until the app's own loading is likely done */
+    setTimeout(startTutorial, 800);
+  }
+})();
+</script>
+
+<script>
+  /* ── Orientation lock message ──────────────────────────────────── */
+  (function(){
+    const overlay = document.getElementById('orientation-lock');
+    const msg     = document.getElementById('orientation-msg');
+    function updateMsg(){
+      const w = window.innerWidth, h = window.innerHeight;
+      const isPhone  = Math.min(w,h) < 768;
+      const isTablet = Math.min(w,h) >= 768 && Math.max(w,h) < 1200;
+      if(isPhone && w > h){
+        msg.textContent = 'Please rotate your phone\nto portrait mode';
+      } else if(isTablet && h > w){
+        msg.textContent = 'Please rotate your tablet\nto landscape mode';
+      }
+    }
+    updateMsg();
+    window.addEventListener('resize', updateMsg);
+  })();
+</script>
+</body>
+</html>
