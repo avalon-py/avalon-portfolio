@@ -55,48 +55,13 @@ body {
   gap: 0.5625rem;
 }
 
-.logo-year {
-  font-family: 'Titillium Web', sans-serif;
-  font-weight: 900;
-  font-size: clamp(0.875rem, 1.5vw, 1.125rem);
-  color: #fff;
-  letter-spacing: 0.0625rem;
-  line-height: 1;
+.logo-img {
+  height: 1.75rem;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 
-.logo-badge {
-  display: flex;
-  align-items: stretch;
-  height: 1.625rem;
-  font-family: 'Titillium Web', sans-serif;
-  font-weight: 900;
-  font-size: 0.9375rem;
-  letter-spacing: 0;
-  line-height: 1;
-  overflow: hidden;
-  border-radius: 0.1875rem;
-  box-shadow: 0 0.125rem 0.5rem rgba(232, 0, 45, .35);
-}
-
-.logo-f {
-  background: #e8002d;
-  color: #fff;
-  padding: 0 0.875rem 0 0.5rem;
-  display: flex;
-  align-items: center;
-  clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
-  letter-spacing: -0.03125rem;
-}
-
-.logo-1 {
-  background: #f0f0f0;
-  color: #111;
-  padding: 0 0.5rem 0 0.625rem;
-  display: flex;
-  align-items: center;
-  clip-path: polygon(12% 0, 100% 0, 100% 100%, 0 100%);
-  margin-left: -0.125rem;
-}
 
 #gp-selector-wrap {
   position: relative;
