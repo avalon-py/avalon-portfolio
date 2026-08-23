@@ -81,13 +81,28 @@ function validatePayload(body) {
 }
 
 // --- Prompt construction ------------------------------------------------
+// Schema has 5 fields to match the 5-point prompt below. If you edit the
+// prompt's point list again, keep this schema's properties/required array
+// in sync - a mismatch here is exactly what broke the last two deploys.
+
+const ANALYSIS_SCHEMA = {
+  type: "object",
+  properties: {
+    riskReturn: { type: "string", description: "1-2 sentences on the risk/return tradeoff shown." },
+    diversification: { type: "string", description: "1-2 sentences on whether the portfolio is over- or under-diversified, based on the weights." },
+    consideration: { type: "string", description: "1-2 sentences on one thing worth considering (sequence-of-returns risk, Sharpe/Sortino gap, etc)." },
+    rebalanceSuggestion: { type: "string", description: "1-2 sentences naming one asset (only from the provided pool) worth trimming or adding to reduce risk of ruin, phrased as something worth considering rather than an instruction." },
+    actionableInsight: { type: "string", description: "1-2 sentences with one concrete, low-effort adjustment (e.g. lowering annual withdrawal)." },
+  },
+  required: ["riskReturn", "diversification", "consideration", "rebalanceSuggestion", "actionableInsight"],
+};
 
 function buildPrompt({ portfolio, params, results }) {
   const holdings = portfolio
     .map(p => `- ${p.symbol}: ${p.weight}% weight, ${(p.cagr * 100).toFixed(1)}% CAGR, ${(p.volatility * 100).toFixed(1)}% volatility`)
     .join("\n");
 
-  return `You are a portfolio analyst reviewing the output of a Monte Carlo retirement simulation. This is informational commentary on simulated numbers, NOT personalized financial advice - do not tell the user what to buy or sell, and do not claim certainty about future returns.
+  return `You are a portfolio analyst reviewing the output of a Monte Carlo retirement simulation. This is informational commentary on simulated numbers, NOT personalized financial advice - phrase everything as observations worth considering, not instructions to buy or sell, and do not claim certainty about future returns.
 
 PORTFOLIO COMPOSITION:
 ${holdings}
@@ -112,13 +127,11 @@ SIMULATION RESULTS (10,000 iterations):
 - Sharpe ratio: ${results.sharpeRatio.toFixed(2)}
 - Sortino ratio: ${results.sortinoRatio.toFixed(2)}
 
-Give a short analysis (6-8 sentences):
-1. One observation about the risk/return tradeoff this portfolio shows.
-2. One observation about concentration or diversification, based on the weights above, tell if it's too diversified or needs more diversification.
-3. One thing worth considering (e.g. sequence-of-returns risk given the risk of ruin figure, or what the Sharpe/Sortino gap implies).
-4. One asset worth splitting/uninvesting/rebalancing (if it's suitable, recommend which one to divest and which one to reinvest, to lower the risk of ruin, etc.)
-5. One actionable insight (lower annual withdrawal, etc.)
-If you want to recommend an asset, recommend only from this pool:
+Fill in five short fields (1-2 sentences each), grounded only in the numbers above:
+1. riskReturn: the risk/return tradeoff this portfolio shows.
+2. diversification: whether this portfolio is over- or under-diversified, based on the weights above.
+3. consideration: one thing worth considering (e.g. sequence-of-returns risk given the risk of ruin figure, or what the Sharpe/Sortino gap implies).
+4. rebalanceSuggestion: if justified by the numbers, name one asset worth trimming and one worth adding to reduce risk of ruin - phrased as "worth considering," not an instruction. Only recommend assets from this pool:
   { symbol: "SPY", name: "SPY (S&P500 ETF)", cagr: 0.1033, volatility: 0.1832, type: 'equity' },
   { symbol: "QQQ", name: "QQQ (NASDAQ ETF)", cagr: 0.0997, volatility: 0.2644, type: 'equity' },
   { symbol: "DIA", name: "DIA (Dow Jones ETF)", cagr: 0.0867, volatility: 0.1826, type: 'equity' },
@@ -135,7 +148,9 @@ If you want to recommend an asset, recommend only from this pool:
   { symbol: "AVUV", name: "AVUV (Small Cap Value)", cagr: 0.1103, volatility: 0.2555, type: 'equity' },
   { symbol: "AVDV", name: "AVDV (Intl SCV)", cagr: 0.1116, volatility: 0.1742, type: 'equity' },
   { symbol: "AGG", name: "AGG (US Aggregate Bond)", cagr: 0.0410, volatility: 0.0550, type: 'bond' },
-  
+  If nothing is clearly warranted by the numbers, say the current mix looks reasonable instead of forcing a suggestion.
+5. actionableInsight: one concrete, low-effort adjustment (e.g. lowering annual withdrawal).
+
 Keep it plain, concrete, and grounded only in the numbers above. Do not invent facts about specific tickers beyond what's given.`;
 }
 
@@ -174,7 +189,7 @@ export default async function handler(req, res) {
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
-            maxOutputTokens: 400, // cap cost per call
+            maxOutputTokens: 600, // slightly higher cap - now 5 fields instead of 3
             temperature: 0.4,
             responseMimeType: "application/json",
             responseSchema: ANALYSIS_SCHEMA,
@@ -205,7 +220,10 @@ export default async function handler(req, res) {
       return res.status(502).json({ error: "AI returned an unexpected format." });
     }
 
-    if (!analysis.riskReturn || !analysis.diversification || !analysis.consideration) {
+    const requiredFields = ["riskReturn", "diversification", "consideration", "rebalanceSuggestion", "actionableInsight"];
+    const missing = requiredFields.filter(f => !analysis[f]);
+    if (missing.length > 0) {
+      console.error("Missing fields in AI response:", missing);
       return res.status(502).json({ error: "AI response missing expected fields." });
     }
 
