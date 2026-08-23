@@ -322,6 +322,7 @@
                         <div class="flex gap-1 bg-white/70 backdrop-blur-sm p-1 rounded-sm border border-quant-border pointer-events-auto">
                             <button id="tab-projection" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-black text-white transition-colors">Projection</button>
                             <button id="tab-distribution" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 text-quant-subtext hover:text-black transition-colors">Distribution &amp; Risk</button>
+                            <button id="tab-ai" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 text-quant-subtext hover:text-black transition-colors">AI Analytics</button>                        
                         </div>
                         <div id="chart-legend-projection" class="flex gap-4 bg-white/50 px-2 rounded pointer-events-none">
                             <div class="flex items-center gap-2">
@@ -356,6 +357,19 @@
                             <div id="dispersion-stats" class="font-mono"></div>
                         </div>
                     </div>
+
+                    <div id="ai-view" class="w-full h-full pt-8 hidden overflow-y-auto custom-scrollbar">
+                      <div class="max-w-2xl mx-auto">
+                          <button id="btn-ask-ai" class="px-5 py-3 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50">
+                              Ask AI to Analyze Portfolio
+                          </button>
+                          <p class="text-[10px] text-quant-subtext italic mt-2">
+                              Informational commentary on the simulation output above — not personalized financial advice.
+                          </p>
+                          <div id="ai-result" class="mt-6 text-sm leading-relaxed text-quant-text whitespace-pre-wrap"></div>
+                          <div id="ai-error" class="mt-4 text-sm text-red-600 hidden"></div>
+                      </div>
+                   </div>
                 </div>
             </div>
 
