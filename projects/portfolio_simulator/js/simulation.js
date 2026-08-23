@@ -20,7 +20,31 @@ const getPercentile = (arr, p) => {
   return sorted[lower] * (1 - weight) + sorted[upper] * weight;
 };
 
-// --- CORRELATION LOGIC ---
+// Bins an array of values into `binCount` equal-width buckets for a histogram.
+// Returns [{ x0, x1, count }] sorted ascending by x0.
+const buildHistogram = (values, binCount = 24) => {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const binWidth = range / binCount;
+
+  const bins = Array.from({ length: binCount }, (_, i) => ({
+    x0: min + i * binWidth,
+    x1: min + (i + 1) * binWidth,
+    count: 0,
+  }));
+
+  values.forEach((v) => {
+    let idx = Math.floor((v - min) / binWidth);
+    if (idx >= binCount) idx = binCount - 1;
+    if (idx < 0) idx = 0;
+    bins[idx].count++;
+  });
+
+  return bins;
+};
+
+// --- ASSET TYPE / CORRELATION LOGIC ---
 
 const getAssetType = (symbol) => {
     const asset = PREDEFINED_ASSETS.find(a => a.symbol === symbol);
@@ -226,9 +250,11 @@ export const runMonteCarlo = (portfolio, params) => {
       enableFatTails,
       enableCorrelations,
       enableMeanReversion,
+      riskFreeRate = 4,
     } = params;
 
     const n = portfolio.length;
+    const rf = riskFreeRate / 100;
 
     // 1. Normalize Weights
     const totalWeight = portfolio.reduce((sum, item) => sum + item.weight, 0);
@@ -297,6 +323,13 @@ export const runMonteCarlo = (portfolio, params) => {
     // 4. Monte Carlo Loop - simulate each asset individually.
     const allPaths = [];
     const finalValues = [];
+
+    // Realized annual portfolio returns, captured BEFORE withdrawal is
+    // subtracted each year, pooled across every iteration and every year.
+    // This is the sample Sharpe/Sortino are computed from below - it
+    // reflects the actual simulated growth (including fat tails, mean
+    // reversion, and correlation effects), not the raw input assumptions.
+    const annualReturns = [];
 
     // Pre-calculate inflation factors
     const inflationFactors = Array.from({ length: timeHorizon }, (_, i) =>
@@ -367,6 +400,10 @@ export const runMonteCarlo = (portfolio, params) => {
             newTotal += newVal;
         }
 
+        // Capture the blended portfolio return for this year, before the
+        // withdrawal cash flow below touches it.
+        annualReturns.push((newTotal / totalValue) - 1);
+
         // Apply Withdrawal: sell proportionally across holdings so relative
         // weights are preserved, then clamp at zero.
         const currentWithdrawal = annualWithdrawal * inflationFactors[year];
@@ -395,6 +432,37 @@ export const runMonteCarlo = (portfolio, params) => {
 
     const riskOfRuin = (finalValues.filter((v) => v <= 0.01).length / iterations) * 100;
     const medianFinal = getPercentile(finalValues, 50);
+    const p5Final = getPercentile(finalValues, 5);
+    const p95Final = getPercentile(finalValues, 95);
+
+    // 6. Dispersion stats on the terminal wealth distribution - how much
+    //    the 10,000 individual paths actually differ from one another,
+    //    not the input assumptions.
+    const finalMean = finalValues.reduce((s, v) => s + v, 0) / finalValues.length;
+    const finalVariance = finalValues.reduce((s, v) => s + Math.pow(v - finalMean, 2), 0) / finalValues.length;
+    const finalStdDev = Math.sqrt(finalVariance);
+    const within1Std = finalValues.filter((v) => Math.abs(v - finalMean) <= finalStdDev).length;
+    const pctWithin1Std = (within1Std / finalValues.length) * 100;
+    const histogram = buildHistogram(finalValues, 24);
+
+    // 7. Sharpe & Sortino, computed from the pooled realized annual returns
+    //    (every path x every year), against the configured risk-free rate.
+    const meanAnnualReturn = annualReturns.reduce((s, v) => s + v, 0) / annualReturns.length;
+    const returnVariance = annualReturns.reduce((s, v) => s + Math.pow(v - meanAnnualReturn, 2), 0) / annualReturns.length;
+    const annualReturnStdDev = Math.sqrt(returnVariance);
+
+    // Sortino's downside deviation: squared shortfalls below the risk-free
+    // rate, averaged over ALL observations (not just the shortfalls) -
+    // this is the standard definition, so upside variance never counts
+    // against the ratio.
+    const downsideSquaredSum = annualReturns.reduce((s, v) => {
+        const shortfall = v - rf;
+        return shortfall < 0 ? s + shortfall * shortfall : s;
+    }, 0);
+    const downsideDeviation = Math.sqrt(downsideSquaredSum / annualReturns.length);
+
+    const sharpeRatio = annualReturnStdDev > 0 ? (meanAnnualReturn - rf) / annualReturnStdDev : 0;
+    const sortinoRatio = downsideDeviation > 0 ? (meanAnnualReturn - rf) / downsideDeviation : 0;
 
     resolve({
       years,
@@ -405,6 +473,15 @@ export const runMonteCarlo = (portfolio, params) => {
       expectedCAGR: portfolioCagr * 100,
       expectedVol: portfolioVol * 100,
       medianFinal,
+      p5Final,
+      p95Final,
+      finalMean,
+      finalStdDev,
+      pctWithin1Std,
+      histogram,
+      sharpeRatio,
+      sortinoRatio,
+      riskFreeRate,
     });
   });
 };
