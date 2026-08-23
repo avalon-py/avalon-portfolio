@@ -176,6 +176,8 @@ export default async function handler(req, res) {
           generationConfig: {
             maxOutputTokens: 400, // cap cost per call
             temperature: 0.4,
+            responseMimeType: "application/json",
+            responseSchema: ANALYSIS_SCHEMA,
           },
         }),
         signal: controller.signal,
@@ -189,10 +191,22 @@ export default async function handler(req, res) {
     }
 
     const data = await response.json();
-    const analysis = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!analysis) {
+    if (!raw) {
       return res.status(502).json({ error: "No analysis returned." });
+    }
+
+    let analysis;
+    try {
+      analysis = JSON.parse(raw);
+    } catch {
+      console.error("Failed to parse Gemini JSON:", raw);
+      return res.status(502).json({ error: "AI returned an unexpected format." });
+    }
+
+    if (!analysis.riskReturn || !analysis.diversification || !analysis.consideration) {
+      return res.status(502).json({ error: "AI response missing expected fields." });
     }
 
     return res.status(200).json({ analysis });
