@@ -201,6 +201,11 @@
                             <input id="param-horizon" type="number" value="30" class="w-full text-sm p-3 font-mono border border-quant-border focus:border-black focus:ring-0 bg-white">
                         </div>
                     </div>
+                    <div class="space-y-1">
+                        <label class="block text-[10px] uppercase font-bold text-quant-subtext">Risk-Free Rate (%)</label>
+                        <input id="param-riskfree" type="number" step="0.1" value="4.0" class="w-full text-sm p-3 font-mono border border-quant-border focus:border-black focus:ring-0 bg-white">
+                        <p class="text-[10px] text-quant-subtext italic leading-relaxed pt-1">Used as the baseline for Sharpe &amp; Sortino - the return you'd get for free, risk-free.</p>
+                    </div>
                 </div>
 
                 <!-- Advanced -->
@@ -287,7 +292,7 @@
                     <!-- Median Final -->
                     <div class="flex-1 min-w-[140px] px-6 py-4 flex flex-col justify-center hover:bg-gray-50 transition-colors">
                         <span class="text-[10px] uppercase text-quant-subtext font-bold tracking-wider mb-1">Median Final</span>
-                        <span id="metric-median" class="text-3xl font-mono font-medium text-black tracking-tighter">$0.0k</span>
+                        <span id="metric-median" class="text-3xl font-mono font-medium text-black tracking-tighter">$0</span>
                     </div>
                     <!-- CAGR -->
                     <div class="flex-1 min-w-[140px] px-6 py-4 flex flex-col justify-center hover:bg-gray-50 transition-colors">
@@ -299,13 +304,26 @@
                         <span class="text-[10px] uppercase text-quant-subtext font-bold tracking-wider mb-1">Volatility</span>
                         <span id="metric-vol" class="text-3xl font-mono font-medium text-black tracking-tighter">0.00%</span>
                     </div>
+                    <!-- Sharpe -->
+                    <div class="flex-1 min-w-[140px] px-6 py-4 flex flex-col justify-center hover:bg-gray-50 transition-colors">
+                        <span class="text-[10px] uppercase text-quant-subtext font-bold tracking-wider mb-1">Sharpe Ratio</span>
+                        <span id="metric-sharpe" class="text-3xl font-mono font-medium text-black tracking-tighter">0.00</span>
+                    </div>
+                    <!-- Sortino -->
+                    <div class="flex-1 min-w-[140px] px-6 py-4 flex flex-col justify-center hover:bg-gray-50 transition-colors">
+                        <span class="text-[10px] uppercase text-quant-subtext font-bold tracking-wider mb-1">Sortino Ratio</span>
+                        <span id="metric-sortino" class="text-3xl font-mono font-medium text-black tracking-tighter">0.00</span>
+                    </div>
                 </div>
 
                 <!-- Chart Area -->
                 <div class="flex-1 p-8 bg-white relative w-full h-full min-h-0">
-                    <div class="absolute top-4 left-8 right-8 flex justify-between items-center z-10 pointer-events-none">
-                        <h3 class="text-xs font-bold uppercase text-black tracking-widest bg-white/50 px-2">Projection Analysis</h3>
-                        <div class="flex gap-4 bg-white/50 px-2 rounded">
+                    <div class="absolute top-4 left-8 right-8 flex justify-between items-center z-10">
+                        <div class="flex gap-1 bg-white/70 backdrop-blur-sm p-1 rounded-sm border border-quant-border pointer-events-auto">
+                            <button id="tab-projection" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 bg-black text-white transition-colors">Projection</button>
+                            <button id="tab-distribution" class="text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 text-quant-subtext hover:text-black transition-colors">Distribution &amp; Risk</button>
+                        </div>
+                        <div id="chart-legend-projection" class="flex gap-4 bg-white/50 px-2 rounded pointer-events-none">
                             <div class="flex items-center gap-2">
                                 <div class="w-3 h-0.5 bg-emerald-500"></div>
                                 <span class="text-[10px] uppercase font-bold text-quant-subtext">95th %ile</span>
@@ -321,8 +339,22 @@
                         </div>
                     </div>
                     
-                    <div class="w-full h-full">
+                    <!-- Projection View -->
+                    <div id="projection-view" class="w-full h-full pt-8">
                         <canvas id="resultsChart"></canvas>
+                    </div>
+
+                    <!-- Distribution & Risk View -->
+                    <div id="distribution-view" class="w-full h-full pt-8 hidden flex-col md:flex-row gap-6 overflow-y-auto custom-scrollbar">
+                        <div class="flex-1 min-h-[260px]">
+                            <canvas id="histogramChart"></canvas>
+                        </div>
+                        <div class="w-full md:w-[280px] shrink-0 border-l border-quant-border md:pl-6 pt-2">
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-black mb-4 flex items-center gap-2">
+                                <i data-lucide="bar-chart-3" class="w-3 h-3"></i> Path Dispersion
+                            </h4>
+                            <div id="dispersion-stats" class="font-mono"></div>
+                        </div>
                     </div>
                 </div>
             </div>
