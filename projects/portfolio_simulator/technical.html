@@ -280,29 +280,29 @@
                 </h2>
                 <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
                     <p>
-                        Markets tend to cycle. Periods of exceptional returns are often followed by stagnation as valuations normalize. We model this by dynamically adjusting the drift $\mu$ based on the simulation's historical performance using an <strong>Ornstein-Uhlenbeck</strong> logic.
+                        Markets tend to cycle. Periods of exceptional returns are often followed by stagnation as valuations normalize. We model this by dynamically adjusting the drift $\mu$ based on the simulation's prior-year performance using an <strong>Ornstein-Uhlenbeck</strong>-style logic.
                     </p>
                     <div class="text-sm">
-                        $$ \mu_{next} = \mu_{base} + \kappa (\mu_{target} - \mu_{rolling\_actual}) $$
+                        $$ \mu_{next} = \mu_{base} + \kappa (\mu_{target} - r_{previous\_year}) $$
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                         <div>
                             <h4 class="font-medium text-black text-sm mb-2">Variables</h4>
                             <ul class="text-sm text-quant-subtext space-y-2 font-mono">
-                                <li>$\kappa$: Mean reversion speed (0.15)</li>
+                                <li>$\kappa$: Mean reversion speed (0.25)</li>
                                 <li>$\mu_{target}$: Expected Portfolio CAGR</li>
-                                <li>$\mu_{rolling}$: Actual CAGR of the current path</li>
+                                <li>$r_{previous\_year}$: Realized return of the immediately preceding simulated year</li>
                             </ul>
                         </div>
                         <div class="bg-gray-50 border border-quant-border p-5 rounded-sm">
                             <h4 class="font-medium text-black text-xs uppercase tracking-wider mb-2">Example</h4>
                             <p class="text-sm text-quant-subtext">
                                 Target Return: 10%<br>
-                                Path Return (Last 5 yrs): 18% (Bubble)<br>
+                                Prior Year Return: 18% (Bubble)<br>
                                 <br>
-                                Adjustment: $0.15 \times (0.10 - 0.18) = -0.012$<br>
-                                <strong>Next Year Expected Drift: 8.8%</strong> (Lower than avg)
+                                Adjustment: $0.25 \times (0.10 - 0.18) = -0.02$<br>
+                                <strong>Next Year Expected Drift: 8%</strong> (Lower than avg)
                             </p>
                         </div>
                     </div>
@@ -316,20 +316,29 @@
                 </h2>
                 <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
                     <p>
-                        To accurately simulate a multi-asset portfolio, we cannot generate random returns for each asset independently. We must ensure that when Stocks fall, Crypto likely falls (High Correlation), but Gold might rise (Low/Negative Correlation).
+                        To accurately estimate portfolio-level risk, we cannot simply average asset volatilities. When Stocks fall, Crypto likely falls too (high correlation), but Gold might rise (low/negative correlation). These relationships change how much risk survives diversification.
                     </p>
 
-                    <h3 class="font-medium text-black mt-8 text-base">Cholesky Decomposition</h3>
+                    <h3 class="font-medium text-black mt-8 text-base">How Correlation Enters the Model</h3>
                     <p class="text-base text-quant-subtext">
-                        We transform a vector of independent random variables $Z_{uncorr}$ into correlated variables $Z_{corr}$ using the Cholesky matrix $\mathbf{L}$ derived from the correlation matrix $\mathbf{\Sigma}$.
+                        When correlations are enabled, each pair of assets is assigned a correlation coefficient $\rho_{ij}$ (see table below), which feeds directly into the variance-covariance formula from Section 1:
                     </p>
                     <div class="text-sm">
-                        $$ \mathbf{\Sigma} = \mathbf{L}\mathbf{L}^T $$
-                        $$ \mathbf{Z}_{corr} = \mathbf{L} \times \mathbf{Z}_{uncorr} $$
+                        $$ \sigma_p = \sqrt{ \sum_{i=1}^{n} \sum_{j=1}^{n} w_i w_j \sigma_i \sigma_j \rho_{ij} } $$
                     </div>
                     <p class="text-base text-quant-subtext">
-                        This linear algebra transformation ensures that the simulated paths maintain the statistical relationships observed in historical data.
+                        This collapses a multi-asset portfolio into a single blended volatility figure, $\sigma_p$, which is then used to drive one aggregate Geometric Brownian Motion process for the entire portfolio (Section 3).
                     </p>
+
+                    <div class="bg-amber-50 border border-amber-100 p-6 rounded-sm mt-6">
+                        <h4 class="text-amber-900 font-semibold mb-2 text-sm">Current Scope: Aggregate, not Per-Asset, Simulation</h4>
+                        <p class="text-amber-800/80 text-sm leading-relaxed">
+                            It's worth being precise about what this buys you. Correlation here only affects the single scalar $\sigma_p$ computed once at the start of the run — it does not drive per-asset correlated shocks within each simulated year. In other words, the engine does not decompose the correlation matrix (e.g. via Cholesky decomposition, $\Sigma = LL^T$) to generate a vector of correlated per-asset random draws and simulate each asset's price path individually. Instead, the whole portfolio is treated as one lognormal process with a pre-blended $\mu$ and $\sigma$.
+                        </p>
+                        <p class="text-amber-800/80 text-sm leading-relaxed mt-4">
+                            Practically, this means: the median/95th/5th percentile fan chart correctly reflects a diversified portfolio's <em>overall</em> risk level, but it can't show scenario-specific divergence within a single path — e.g. "crypto crashes 60% while gold rises 10% in the same year." A full per-asset engine using Cholesky-decomposed shocks is a natural future extension (see Limitations).
+                        </p>
+                    </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
                         <div class="p-6 border border-quant-border rounded-sm">
@@ -358,7 +367,7 @@
                 </h2>
                 <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
                     <p>
-                        <strong>Definition:</strong> The probability that the portfolio value hits $0.00 (or becomes insufficient to sustain withdrawals) during the simulation period.
+                        <strong>Definition:</strong> The probability that the portfolio value hits \$0.00 (or becomes insufficient to sustain withdrawals) during the simulation period.
                     </p>
                     <div class="text-sm">
                         $$ \text{Risk of Ruin} = \frac{\sum_{i=1}^{N} \mathbb{1}_{\{Min(Path_i) \le 0\}}}{N} \times 100\% $$
@@ -394,7 +403,7 @@
                             <div class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-xs font-bold font-mono shrink-0">B</div>
                             <div>
                                 <h4 class="font-medium text-black text-sm">Withdrawal Indexing</h4>
-                                <p class="text-sm text-quant-subtext">Crucially, if you set a monthly withdrawal of $5,000, the engine increases this amount annually by the inflation rate. In Year 20, you might be withdrawing $9,000 nominal dollars just to buy the same basket of goods.</p>
+                                <p class="text-sm text-quant-subtext">Crucially, if you set an annual withdrawal of \$5,000, the engine increases this amount annually by the inflation rate. In Year 20, you might be withdrawing \$9,000 nominal dollars just to buy the same basket of goods.</p>
                             </div>
                         </div>
                     </div>
@@ -466,6 +475,12 @@
                 </h2>
                 <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
                     <ul class="space-y-4">
+                        <li class="flex gap-4 items-start">
+                            <div class="w-1.5 h-1.5 rounded-full bg-black mt-2.5 shrink-0"></div>
+                            <div>
+                                <strong class="text-black">Aggregate, not Per-Asset, Simulation:</strong> Correlation currently only shapes the single blended portfolio volatility ($\sigma_p$) used to drive one aggregate GBM process. The engine does not yet simulate each asset's price path individually with Cholesky-decomposed correlated shocks, so single-path scenarios can't show one asset falling while another rises within the same year.
+                            </div>
+                        </li>
                         <li class="flex gap-4 items-start">
                             <div class="w-1.5 h-1.5 rounded-full bg-black mt-2.5 shrink-0"></div>
                             <div>
