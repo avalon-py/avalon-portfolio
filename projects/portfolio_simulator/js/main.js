@@ -666,7 +666,6 @@ async function askAiToAnalyze() {
     elems.aiError.classList.add('hidden');
     elems.aiCards.classList.add('hidden');
     elems.aiEmpty.classList.add('hidden');
-    
 
     try {
         const response = await fetch('/api/portfolio-simulator/analyze-portfolio', {
@@ -691,6 +690,8 @@ async function askAiToAnalyze() {
         elems.aiCardRiskReturn.textContent = data.analysis.riskReturn;
         elems.aiCardDiversification.textContent = data.analysis.diversification;
         elems.aiCardConsideration.textContent = data.analysis.consideration;
+        elems.aiCardRebalance.textContent = data.analysis.rebalanceSuggestion;
+        elems.aiCardActionable.textContent = data.analysis.actionableInsight;
         elems.aiCards.classList.remove('hidden');
     } catch (err) {
         console.error(err);
