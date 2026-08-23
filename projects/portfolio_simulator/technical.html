@@ -316,28 +316,42 @@
                 </h2>
                 <div class="space-y-6 text-quant-text text-lg font-light leading-relaxed">
                     <p>
-                        To accurately estimate portfolio-level risk, we cannot simply average asset volatilities. When Stocks fall, Crypto likely falls too (high correlation), but Gold might rise (low/negative correlation). These relationships change how much risk survives diversification.
+                        To simulate a multi-asset portfolio realistically, we cannot generate each asset's random return independently. When equities fall, crypto likely falls too (high correlation); gold might rise instead (low/negative correlation). The engine reproduces these relationships every simulated year, for every asset, individually.
                     </p>
 
-                    <h3 class="font-medium text-black mt-8 text-base">How Correlation Enters the Model</h3>
+                    <h3 class="font-medium text-black mt-8 text-base">Step 1: The Covariance Matrix</h3>
                     <p class="text-base text-quant-subtext">
-                        When correlations are enabled, each pair of assets is assigned a correlation coefficient $\rho_{ij}$ (see table below), which feeds directly into the variance-covariance formula from Section 1:
+                        Each pair of assets is assigned a correlation coefficient $\rho_{ij}$ (see table below). Combined with each asset's own volatility, this builds an $n \times n$ covariance matrix:
                     </p>
                     <div class="text-sm">
-                        $$ \sigma_p = \sqrt{ \sum_{i=1}^{n} \sum_{j=1}^{n} w_i w_j \sigma_i \sigma_j \rho_{ij} } $$
+                        $$ \Sigma_{ij} = \sigma_i \sigma_j \rho_{ij} $$
+                    </div>
+
+                    <h3 class="font-medium text-black mt-8 text-base">Step 2: Cholesky Decomposition</h3>
+                    <p class="text-base text-quant-subtext">
+                        Any valid covariance matrix can be factored as $\Sigma = LL^T$, where $L$ is lower-triangular. This $L$ is the tool that lets us turn a set of <em>independent</em> random draws into <em>correlated</em> ones:
+                    </p>
+                    <div class="text-sm">
+                        $$ \mathbf{Z}_{corr} = \mathbf{L} \, \mathbf{Z}_{uncorr} $$
                     </div>
                     <p class="text-base text-quant-subtext">
-                        This collapses a multi-asset portfolio into a single blended volatility figure, $\sigma_p$, which is then used to drive one aggregate Geometric Brownian Motion process for the entire portfolio (Section 3).
+                        Each year, we draw one independent standard normal per asset ($\mathbf{Z}_{uncorr}$), then multiply by $L$ to get a vector of shocks that respects every pairwise correlation at once.
                     </p>
 
-                    <div class="bg-amber-50 border border-amber-100 p-6 rounded-sm mt-6">
-                        <h4 class="text-amber-900 font-semibold mb-2 text-sm">Current Scope: Aggregate, not Per-Asset, Simulation</h4>
-                        <p class="text-amber-800/80 text-sm leading-relaxed">
-                            It's worth being precise about what this buys you. Correlation here only affects the single scalar $\sigma_p$ computed once at the start of the run — it does not drive per-asset correlated shocks within each simulated year. In other words, the engine does not decompose the correlation matrix (e.g. via Cholesky decomposition, $\Sigma = LL^T$) to generate a vector of correlated per-asset random draws and simulate each asset's price path individually. Instead, the whole portfolio is treated as one lognormal process with a pre-blended $\mu$ and $\sigma$.
-                        </p>
-                        <p class="text-amber-800/80 text-sm leading-relaxed mt-4">
-                            Practically, this means: the median/95th/5th percentile fan chart correctly reflects a diversified portfolio's <em>overall</em> risk level, but it can't show scenario-specific divergence within a single path — e.g. "crypto crashes 60% while gold rises 10% in the same year." A full per-asset engine using Cholesky-decomposed shocks is a natural future extension (see Limitations).
-                        </p>
+                    <h3 class="font-medium text-black mt-8 text-base">Step 3: Per-Asset Simulation</h3>
+                    <p class="text-base text-quant-subtext">
+                        Unlike a single blended portfolio-level process, each asset is stepped forward with its own drift and volatility, using its own correlated shock $Z_{corr,i}$:
+                    </p>
+                    <div class="text-sm">
+                        $$ S_i^{(t+1)} = S_i^{(t)} \exp\left( \left(\mu_i - \tfrac{1}{2}\sigma_i^2\right) + \sigma_i Z_{corr,i} \right) $$
+                    </div>
+                    <p class="text-base text-quant-subtext">
+                        The asset values are then summed to get that year's total portfolio value. This is what lets a single simulated path show equities down and gold up in the same year — the correlation structure plays out asset-by-asset rather than being pre-baked into one aggregate number.
+                    </p>
+
+                    <div class="bg-gray-50 border border-quant-border p-5 rounded-sm text-sm">
+                        <span class="font-bold text-black block mb-2 font-mono text-xs uppercase tracking-wider">Note</span>
+                        Hand-assigned correlations aren't automatically guaranteed to form a valid ($\Sigma = LL^T$-solvable) matrix once a portfolio has several assets. The engine detects this and applies a small diagonal correction before decomposing, so the simulation always runs.
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
@@ -478,13 +492,7 @@
                         <li class="flex gap-4 items-start">
                             <div class="w-1.5 h-1.5 rounded-full bg-black mt-2.5 shrink-0"></div>
                             <div>
-                                <strong class="text-black">Aggregate, not Per-Asset, Simulation:</strong> Correlation currently only shapes the single blended portfolio volatility ($\sigma_p$) used to drive one aggregate GBM process. The engine does not yet simulate each asset's price path individually with Cholesky-decomposed correlated shocks, so single-path scenarios can't show one asset falling while another rises within the same year.
-                            </div>
-                        </li>
-                        <li class="flex gap-4 items-start">
-                            <div class="w-1.5 h-1.5 rounded-full bg-black mt-2.5 shrink-0"></div>
-                            <div>
-                                <strong class="text-black">Constant Correlations:</strong> We assume correlations are static. In reality, during crashes, correlations often converge to 1 (everything falls together).
+                                <strong class="text-black">Constant Correlations:</strong> We assume correlations are static throughout the simulation. In reality, during crashes, correlations often converge to 1 (everything falls together) — our jump-diffusion crash model (Section 4) approximates this by applying one shared shock to all assets in a crash year, but correlations don't dynamically shift in non-crash years.
                             </div>
                         </li>
                         <li class="flex gap-4 items-start">
