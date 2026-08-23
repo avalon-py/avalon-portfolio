@@ -72,6 +72,10 @@ const getCorrelation = (symbolA, symbolB, typeA, typeB) => {
     
     // METAL CORRELATIONS (gold and silver move together)
     if (typeA === 'metal' && typeB === 'metal') return 0.82;
+
+    // NAV-PRICED BOND FUNDS (e.g. AGG) - correlated with each other via
+    // shared exposure to interest rate moves.
+    if (typeA === 'bond' && typeB === 'bond') return 0.85;
     
     // CROSS-ASSET CORRELATIONS
     
@@ -89,6 +93,30 @@ const getCorrelation = (symbolA, symbolB, typeA, typeB) => {
     if ((typeA === 'metal' && typeB === 'equity') || (typeA === 'equity' && typeB === 'metal')) {
         return 0.05; // Near-zero, safe haven behavior
     }
+
+    // Bonds vs Equity (classic diversifier - negative to near-zero,
+    // "flight to quality" during equity selloffs)
+    if ((typeA === 'bond' && typeB === 'equity') || (typeA === 'equity' && typeB === 'bond')) {
+        return -0.15;
+    }
+
+    // Bonds vs Crypto (largely unrelated markets)
+    if ((typeA === 'bond' && typeB === 'crypto') || (typeA === 'crypto' && typeB === 'bond')) {
+        return -0.05;
+    }
+
+    // Bonds vs Metal (mild positive - both benefit from falling real rates)
+    if ((typeA === 'bond' && typeB === 'metal') || (typeA === 'metal' && typeB === 'bond')) {
+        return 0.15;
+    }
+
+    // NOTE: Custom assets (e.g. a user-built near-zero-volatility fixed
+    // income position via the Custom tab) don't carry a `type` and default
+    // to 'equity' here, meaning they'd fall into the equity-equity bucket
+    // above if paired with another equity. This sounds wrong but is
+    // harmless in practice: since covariance = sigma_i * sigma_j * rho,
+    // a near-zero sigma on the custom asset makes its covariance with
+    // anything negligible regardless of which correlation bucket it lands in.
     
     return 0.30; // Fallback
 };
