@@ -1,6 +1,25 @@
 import { PREDEFINED_ASSETS } from './constants.js';
 import { runMonteCarlo } from './simulation.js';
 
+// --- FORMATTING HELPERS ---
+
+// Compact currency formatting that scales its own unit (k / M / B) instead
+// of always dividing by 1,000 - so a $452,500,323 result reads as "$4.53M"
+// (in fact 452.5M, but the point stands) rather than an unreadable "452500.3k".
+function formatCompactCurrency(value, decimals = 2) {
+    const sign = value < 0 ? '-' : '';
+    const abs = Math.abs(value);
+    if (abs >= 1e9) return `${sign}$${(abs / 1e9).toFixed(decimals)}B`;
+    if (abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(decimals)}M`;
+    if (abs >= 1e3) return `${sign}$${(abs / 1e3).toFixed(1)}k`;
+    return `${sign}$${abs.toFixed(0)}`;
+}
+
+function formatRatio(value) {
+    if (!isFinite(value)) return '—';
+    return value.toFixed(2);
+}
+
 // --- STATE ---
 const state = {
     portfolio: [],
@@ -9,15 +28,18 @@ const state = {
         annualWithdrawal: 4000,
         inflationRate: 2.5,
         timeHorizon: 30,
+        riskFreeRate: 4.0,
         iterations: 10000,
         enableFatTails: false,
         enableCorrelations: false,
         enableMeanReversion: false,
     },
     isCustomMode: false,
+    activeChartTab: 'projection',
     charts: {
         allocation: null,
-        results: null
+        results: null,
+        histogram: null,
     }
 };
 
@@ -43,6 +65,7 @@ const elems = {
     paramWithdrawal: document.getElementById('param-withdrawal'),
     paramInflation: document.getElementById('param-inflation'),
     paramHorizon: document.getElementById('param-horizon'),
+    paramRiskFree: document.getElementById('param-riskfree'),
     checkCorrelations: document.getElementById('check-correlations'),
     checkTails: document.getElementById('check-tails'),
     checkMeanReversion: document.getElementById('check-mean-reversion'),
@@ -60,6 +83,16 @@ const elems = {
     metricMedian: document.getElementById('metric-median'),
     metricCagr: document.getElementById('metric-cagr'),
     metricVol: document.getElementById('metric-vol'),
+    metricSharpe: document.getElementById('metric-sharpe'),
+    metricSortino: document.getElementById('metric-sortino'),
+
+    // Chart tabs / distribution panel
+    tabProjection: document.getElementById('tab-projection'),
+    tabDistribution: document.getElementById('tab-distribution'),
+    projectionView: document.getElementById('projection-view'),
+    distributionView: document.getElementById('distribution-view'),
+    projectionLegend: document.getElementById('chart-legend-projection'),
+    dispersionStats: document.getElementById('dispersion-stats'),
 };
 
 // --- INITIALIZATION ---
@@ -121,13 +154,14 @@ function setupEventListeners() {
         state.params.annualWithdrawal = parseFloat(elems.paramWithdrawal.value) || 0;
         state.params.inflationRate = parseFloat(elems.paramInflation.value) || 0;
         state.params.timeHorizon = parseFloat(elems.paramHorizon.value) || 0;
+        state.params.riskFreeRate = parseFloat(elems.paramRiskFree.value) || 0;
         state.params.enableCorrelations = elems.checkCorrelations.checked;
         state.params.enableFatTails = elems.checkTails.checked;
         state.params.enableMeanReversion = elems.checkMeanReversion.checked;
     };
 
-    [elems.paramInitial, elems.paramWithdrawal, elems.paramInflation, elems.paramHorizon].forEach(el => {
-        el.addEventListener('input', updateParams);
+    [elems.paramInitial, elems.paramWithdrawal, elems.paramInflation, elems.paramHorizon, elems.paramRiskFree].forEach(el => {
+        if (el) el.addEventListener('input', updateParams);
     });
     [elems.checkCorrelations, elems.checkTails, elems.checkMeanReversion].forEach(el => {
         el.addEventListener('change', updateParams);
@@ -135,6 +169,12 @@ function setupEventListeners() {
 
     // Run Simulation
     elems.btnRunSim.addEventListener('click', runSimulation);
+
+    // Chart Tabs
+    if (elems.tabProjection && elems.tabDistribution) {
+        elems.tabProjection.addEventListener('click', () => setActiveChartTab('projection'));
+        elems.tabDistribution.addEventListener('click', () => setActiveChartTab('distribution'));
+    }
 }
 
 // --- LOGIC ---
@@ -272,6 +312,38 @@ function updatePortfolioUI() {
     updatePieChart();
 }
 
+// --- CHART TABS ---
+
+function setActiveChartTab(tab) {
+    state.activeChartTab = tab;
+    if (!elems.tabProjection || !elems.tabDistribution) return;
+
+    const activate = (btn) => {
+        btn.classList.add('bg-black', 'text-white');
+        btn.classList.remove('text-quant-subtext', 'hover:text-black');
+    };
+    const deactivate = (btn) => {
+        btn.classList.remove('bg-black', 'text-white');
+        btn.classList.add('text-quant-subtext', 'hover:text-black');
+    };
+
+    if (tab === 'projection') {
+        activate(elems.tabProjection);
+        deactivate(elems.tabDistribution);
+        elems.projectionView.classList.remove('hidden');
+        elems.distributionView.classList.add('hidden');
+        if (elems.projectionLegend) elems.projectionLegend.classList.remove('hidden');
+        if (state.charts.results) state.charts.results.resize();
+    } else {
+        activate(elems.tabDistribution);
+        deactivate(elems.tabProjection);
+        elems.distributionView.classList.remove('hidden');
+        elems.projectionView.classList.add('hidden');
+        if (elems.projectionLegend) elems.projectionLegend.classList.add('hidden');
+        if (state.charts.histogram) state.charts.histogram.resize();
+    }
+}
+
 // --- CHARTS ---
 
 function updatePieChart() {
@@ -385,7 +457,7 @@ function updateResultsChart(results) {
                         ticks: {
                             font: { family: 'JetBrains Mono', size: 10 },
                             color: '#a3a3a3',
-                            callback: (val) => '$' + (val / 1000).toFixed(0) + 'k'
+                            callback: (val) => formatCompactCurrency(val, 0)
                         }
                     }
                 },
@@ -401,16 +473,141 @@ function updateResultsChart(results) {
                         displayColors: true,
                         callbacks: {
                             title: (ctx) => `Year ${ctx[0].label}`,
-                            label: (ctx) => {
-                                const val = Math.round(ctx.raw).toLocaleString();
-                                return ` ${ctx.dataset.label}: $${val}`;
-                            }
+                            label: (ctx) => ` ${ctx.dataset.label}: ${formatCompactCurrency(ctx.raw)}`
                         }
                     }
                 }
             }
         });
     }
+}
+
+// Histogram of terminal (final-year) portfolio values across all 10,000
+// simulated paths - shows how spread out the outcomes actually are,
+// rather than just the three summary percentile lines on the projection
+// chart.
+function updateHistogramChart(results) {
+    const canvas = document.getElementById('histogramChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    const bins = results.histogram;
+    const labels = bins.map(b => formatCompactCurrency((b.x0 + b.x1) / 2, 1));
+    const counts = bins.map(b => b.count);
+
+    // Highlight the bin containing the mean outcome so it's easy to see
+    // where the "average" path actually sits relative to the spread.
+    const meanIdx = bins.findIndex(b => results.finalMean >= b.x0 && results.finalMean <= b.x1);
+    const colors = bins.map((_, i) => i === meanIdx ? '#171717' : '#d4d4d4');
+
+    const data = {
+        labels,
+        datasets: [{
+            label: 'Simulated Paths',
+            data: counts,
+            backgroundColor: colors,
+            borderWidth: 0,
+            categoryPercentage: 1.0,
+            barPercentage: 0.95,
+        }]
+    };
+
+    if (state.charts.histogram) {
+        state.charts.histogram.data = data;
+        state.charts.histogram.update();
+    } else {
+        state.charts.histogram = new Chart(ctx, {
+            type: 'bar',
+            data: data,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { family: 'JetBrains Mono', size: 9 },
+                            color: '#a3a3a3',
+                            maxRotation: 60,
+                            minRotation: 60,
+                            autoSkip: true,
+                            maxTicksLimit: 12,
+                        }
+                    },
+                    y: {
+                        grid: { color: '#f5f5f5' },
+                        ticks: {
+                            font: { family: 'JetBrains Mono', size: 10 },
+                            color: '#a3a3a3',
+                        },
+                        title: {
+                            display: true,
+                            text: '# OF PATHS',
+                            font: { family: 'JetBrains Mono', size: 9 },
+                            color: '#a3a3a3',
+                        }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: '#171717',
+                        titleFont: { family: 'JetBrains Mono', size: 10 },
+                        bodyFont: { family: 'JetBrains Mono', size: 12 },
+                        padding: 12,
+                        cornerRadius: 0,
+                        displayColors: false,
+                        callbacks: {
+                            title: (ctx) => `Outcome ≈ ${ctx[0].label}`,
+                            label: (ctx) => ` ${ctx.raw.toLocaleString()} paths`
+                        }
+                    }
+                }
+            }
+        });
+    }
+}
+
+function updateDispersionStats(results) {
+    if (!elems.dispersionStats) return;
+
+    const spread = results.p95Final - results.p5Final;
+
+    elems.dispersionStats.innerHTML = `
+        <div class="space-y-4">
+            <div>
+                <div class="flex justify-between text-[10px] uppercase font-bold text-quant-subtext mb-1">
+                    <span>Mean Outcome</span>
+                </div>
+                <div class="text-lg font-mono text-black">${formatCompactCurrency(results.finalMean)}</div>
+            </div>
+            <div>
+                <div class="flex justify-between text-[10px] uppercase font-bold text-quant-subtext mb-1">
+                    <span>Std. Deviation</span>
+                </div>
+                <div class="text-lg font-mono text-black">${formatCompactCurrency(results.finalStdDev)}</div>
+            </div>
+            <div class="pt-3 border-t border-quant-border text-[11px] leading-relaxed text-quant-subtext">
+                <strong class="text-black">${results.pctWithin1Std.toFixed(1)}%</strong> of the 10,000 simulated paths
+                landed within one standard deviation of the mean outcome
+                (${formatCompactCurrency(Math.max(0, results.finalMean - results.finalStdDev))} –
+                ${formatCompactCurrency(results.finalMean + results.finalStdDev)}).
+            </div>
+            <div class="text-[11px] leading-relaxed text-quant-subtext">
+                The middle 90% of outcomes (5th–95th percentile) ranged from
+                <strong class="text-black">${formatCompactCurrency(results.p5Final)}</strong> to
+                <strong class="text-black">${formatCompactCurrency(results.p95Final)}</strong>,
+                a spread of <strong class="text-black">${formatCompactCurrency(spread)}</strong>.
+            </div>
+            <div class="pt-3 border-t border-quant-border text-[11px] leading-relaxed text-quant-subtext">
+                <strong class="text-black">Sharpe</strong> weighs excess return against total volatility -
+                upside and downside swings count equally against it.
+                <strong class="text-black">Sortino</strong> only counts downside swings below the
+                ${results.riskFreeRate.toFixed(1)}% risk-free rate. A Sortino well above Sharpe means most
+                of this portfolio's volatility has been on the upside.
+            </div>
+        </div>
+    `;
 }
 
 // --- SIMULATION ---
@@ -438,12 +635,17 @@ async function runSimulation() {
         elems.metricRisk.className = `text-3xl font-mono font-medium tracking-tighter ${results.riskOfRuin > 5 ? 'text-red-600' : 'text-emerald-600'}`;
         elems.riskDot.className = `w-1.5 h-1.5 rounded-full ${results.riskOfRuin > 5 ? 'bg-red-600' : 'bg-emerald-500'}`;
         
-        elems.metricMedian.textContent = '$' + (results.medianFinal / 1000).toFixed(1) + 'k';
+        elems.metricMedian.textContent = formatCompactCurrency(results.medianFinal);
         elems.metricCagr.textContent = results.expectedCAGR.toFixed(2) + '%';
         elems.metricVol.textContent = results.expectedVol.toFixed(2) + '%';
+        if (elems.metricSharpe) elems.metricSharpe.textContent = formatRatio(results.sharpeRatio);
+        if (elems.metricSortino) elems.metricSortino.textContent = formatRatio(results.sortinoRatio);
 
-        // Render Chart
+        // Render Charts
         updateResultsChart(results);
+        updateHistogramChart(results);
+        updateDispersionStats(results);
+        setActiveChartTab(state.activeChartTab || 'projection');
 
     } catch (e) {
         console.error(e);
