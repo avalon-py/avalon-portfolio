@@ -14,4 +14,5 @@ export const PREDEFINED_ASSETS = [
   { symbol: "VWO", name: "VWO (Emerging Mkts)", cagr: 0.0633, volatility: 0.2552, type: 'equity' },
   { symbol: "AVUV", name: "AVUV (Small Cap Value)", cagr: 0.1103, volatility: 0.2555, type: 'equity' },
   { symbol: "AVDV", name: "AVDV (Intl SCV)", cagr: 0.1116, volatility: 0.1742, type: 'equity' },
+  { symbol: "AGG", name: "AGG (US Aggregate Bond)", cagr: 0.0410, volatility: 0.0550, type: 'bond' },
 ];
