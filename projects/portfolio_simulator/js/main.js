@@ -101,7 +101,12 @@ const elems = {
     tabAi: document.getElementById('tab-ai'),
     aiView: document.getElementById('ai-view'),
     btnAskAi: document.getElementById('btn-ask-ai'),
-    aiResult: document.getElementById('ai-result'),
+    btnAskAiLabel: document.getElementById('btn-ask-ai-label'),
+    aiEmpty: document.getElementById('ai-empty'),
+    aiCards: document.getElementById('ai-cards'),
+    aiCardRiskReturn: document.getElementById('ai-card-risk-return'),
+    aiCardDiversification: document.getElementById('ai-card-diversification'),
+    aiCardConsideration: document.getElementById('ai-card-consideration'),
     aiError: document.getElementById('ai-error'),
 };
 
@@ -636,11 +641,12 @@ function updateDispersionStats(results) {
 // --- AI ANALYTICS ---
 
 function resetAiPanel() {
-    if (elems.aiResult) elems.aiResult.textContent = '';
     if (elems.aiError) elems.aiError.classList.add('hidden');
+    if (elems.aiCards) elems.aiCards.classList.add('hidden');
+    if (elems.aiEmpty) elems.aiEmpty.classList.remove('hidden');
     if (elems.btnAskAi) {
         elems.btnAskAi.disabled = false;
-        elems.btnAskAi.textContent = 'Ask AI to Analyze Portfolio';
+        if (elems.btnAskAiLabel) elems.btnAskAiLabel.textContent = 'Ask AI to Analyze Portfolio';
     }
 }
 
@@ -654,9 +660,10 @@ async function askAiToAnalyze() {
     }
 
     elems.btnAskAi.disabled = true;
-    elems.btnAskAi.textContent = 'Analyzing...';
+    if (elems.btnAskAiLabel) elems.btnAskAiLabel.textContent = 'Analyzing...';
     elems.aiError.classList.add('hidden');
-    elems.aiResult.textContent = '';
+    elems.aiCards.classList.add('hidden');
+    elems.aiEmpty.classList.add('hidden');
 
     try {
         const response = await fetch('/api/portfolio-simulator/analyze-portfolio', {
@@ -674,17 +681,22 @@ async function askAiToAnalyze() {
         if (!response.ok) {
             elems.aiError.textContent = data.error || 'Something went wrong.';
             elems.aiError.classList.remove('hidden');
+            elems.aiEmpty.classList.remove('hidden');
             return;
         }
 
-        elems.aiResult.textContent = data.analysis;
+        elems.aiCardRiskReturn.textContent = data.analysis.riskReturn;
+        elems.aiCardDiversification.textContent = data.analysis.diversification;
+        elems.aiCardConsideration.textContent = data.analysis.consideration;
+        elems.aiCards.classList.remove('hidden');
     } catch (err) {
         console.error(err);
         elems.aiError.textContent = 'Network error - try again.';
         elems.aiError.classList.remove('hidden');
+        elems.aiEmpty.classList.remove('hidden');
     } finally {
         elems.btnAskAi.disabled = false;
-        elems.btnAskAi.textContent = 'Ask AI to Analyze Portfolio';
+        if (elems.btnAskAiLabel) elems.btnAskAiLabel.textContent = 'Ask AI to Analyze Portfolio';
     }
 }
 
