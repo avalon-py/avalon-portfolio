@@ -599,13 +599,6 @@ function updateDispersionStats(results) {
                 <strong class="text-black">${formatCompactCurrency(results.p95Final)}</strong>,
                 a spread of <strong class="text-black">${formatCompactCurrency(spread)}</strong>.
             </div>
-            <div class="pt-3 border-t border-quant-border text-[11px] leading-relaxed text-quant-subtext">
-                <strong class="text-black">Sharpe</strong> weighs excess return against total volatility -
-                upside and downside swings count equally against it.
-                <strong class="text-black">Sortino</strong> only counts downside swings below the
-                ${results.riskFreeRate.toFixed(1)}% risk-free rate. A Sortino well above Sharpe means most
-                of this portfolio's volatility has been on the upside.
-            </div>
         </div>
     `;
 }
