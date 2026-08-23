@@ -112,11 +112,30 @@ SIMULATION RESULTS (10,000 iterations):
 - Sharpe ratio: ${results.sharpeRatio.toFixed(2)}
 - Sortino ratio: ${results.sortinoRatio.toFixed(2)}
 
-Give a short analysis (4-6 sentences):
+Give a short analysis (6-8 sentences):
 1. One observation about the risk/return tradeoff this portfolio shows.
-2. One observation about concentration or diversification, based on the weights above.
+2. One observation about concentration or diversification, based on the weights above, tell if it's too diversified or needs more diversification.
 3. One thing worth considering (e.g. sequence-of-returns risk given the risk of ruin figure, or what the Sharpe/Sortino gap implies).
-
+4. One asset worth splitting/uninvesting/rebalancing (if it's suitable, recommend which one to divest and which one to reinvest, to lower the risk of ruin, etc.)
+5. One actionable insight (lower annual withdrawal, etc.)
+If you want to recommend an asset, recommend only from this pool:
+  { symbol: "SPY", name: "SPY (S&P500 ETF)", cagr: 0.1033, volatility: 0.1832, type: 'equity' },
+  { symbol: "QQQ", name: "QQQ (NASDAQ ETF)", cagr: 0.0997, volatility: 0.2644, type: 'equity' },
+  { symbol: "DIA", name: "DIA (Dow Jones ETF)", cagr: 0.0867, volatility: 0.1826, type: 'equity' },
+  { symbol: "IDX", name: "IDX (JKSE ETF)", cagr: 0.0643, volatility: 0.2651, type: 'equity' },
+  { symbol: "BTC", name: "Bitcoin", cagr: 0.5062, volatility: 0.6265, type: 'crypto' },
+  { symbol: "ETH", name: "Ethereum", cagr: 0.2606, volatility: 0.7760, type: 'crypto' },
+  { symbol: "SOL", name: "Solana", cagr: 1.0399, volatility: 1.1124, type: 'crypto' },
+  { symbol: "SLV", name: "SLV (Silver ETF)", cagr: 0.0796, volatility: 0.3038, type: 'metal' },
+  { symbol: "IAU", name: "IAU (Gold ETF)", cagr: 0.1093, volatility: 0.1725, type: 'metal' },
+  { symbol: "VOO", name: "VOO (S&P500)", cagr: 0.1320, volatility: 0.1623, type: 'equity' },
+  { symbol: "VTI", name: "VTI (Total Market)", cagr: 0.0900, volatility: 0.1861, type: 'equity' },
+  { symbol: "VEA", name: "VEA (Developed Mkts)", cagr: 0.0437, volatility: 0.2070, type: 'equity' },
+  { symbol: "VWO", name: "VWO (Emerging Mkts)", cagr: 0.0633, volatility: 0.2552, type: 'equity' },
+  { symbol: "AVUV", name: "AVUV (Small Cap Value)", cagr: 0.1103, volatility: 0.2555, type: 'equity' },
+  { symbol: "AVDV", name: "AVDV (Intl SCV)", cagr: 0.1116, volatility: 0.1742, type: 'equity' },
+  { symbol: "AGG", name: "AGG (US Aggregate Bond)", cagr: 0.0410, volatility: 0.0550, type: 'bond' },
+  
 Keep it plain, concrete, and grounded only in the numbers above. Do not invent facts about specific tickers beyond what's given.`;
 }
 
