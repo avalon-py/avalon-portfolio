@@ -354,7 +354,7 @@
                         Hand-assigned correlations aren't automatically guaranteed to form a valid ($\Sigma = LL^T$-solvable) matrix once a portfolio has several assets. The engine detects this and applies a small diagonal correction before decomposing, so the simulation always runs.
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
                         <div class="p-6 border border-quant-border rounded-sm">
                             <div class="text-3xl font-mono font-bold mb-2">0.92</div>
                             <div class="text-xs font-bold uppercase tracking-widest text-quant-subtext mb-2">Crypto / Crypto</div>
@@ -369,6 +369,11 @@
                             <div class="text-3xl font-mono font-bold mb-2">-0.10</div>
                             <div class="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-2">Crypto / Gold</div>
                             <p class="text-sm text-neutral-300">Diversification benefit.</p>
+                        </div>
+                        <div class="p-6 border border-quant-border rounded-sm">
+                            <div class="text-3xl font-mono font-bold mb-2">-0.15</div>
+                            <div class="text-xs font-bold uppercase tracking-widest text-quant-subtext mb-2">AGG / Equities</div>
+                            <p class="text-sm text-neutral-600">Classic flight-to-quality diversifier.</p>
                         </div>
                     </div>
                 </div>
@@ -458,7 +463,7 @@
                                     <td class="px-6 py-4">18.2%</td>
                                 </tr>
                                 <tr class="bg-white">
-                                    <td class="px-6 py-4 font-sans font-medium">US Bonds</td>
+                                    <td class="px-6 py-4 font-sans font-medium">US Aggregate Bonds</td>
                                     <td class="px-6 py-4 text-quant-subtext">AGG</td>
                                     <td class="px-6 py-4">4.1%</td>
                                     <td class="px-6 py-4">5.5%</td>
@@ -479,6 +484,16 @@
                         </table>
                     </div>
                     <p class="text-xs text-quant-subtext mt-2">* Bitcoin historical data is skewed by early adoption phases. We recommend being conservative with forward-looking projections.</p>
+
+                    <div class="bg-gray-50 border border-quant-border p-6 rounded-sm mt-6">
+                        <h4 class="text-black font-semibold mb-2 text-sm">Two Ways to Model a Bond</h4>
+                        <p class="text-sm text-quant-subtext leading-relaxed">
+                            <strong class="text-black">AGG</strong> represents a bond <em>fund</em> - it never matures and is continuously marked to market, so its 5.5% volatility is real, realized interest-rate risk (see the Volatility Drag discussion in Section 3).
+                        </p>
+                        <p class="text-sm text-quant-subtext leading-relaxed mt-3">
+                            If instead you're modeling a bond (or bond ladder) you intend to <strong class="text-black">hold to maturity</strong>, we deliberately don't hardcode a ticker for that - coupon rates move too often for a static number to stay meaningful. Add one yourself via the <strong class="text-black">Custom</strong> tab: enter today's rate as the return and a near-zero volatility (e.g. 0.5%), since interim price swings are never realized if you never have to sell early. This is a simplification - it doesn't capture reinvestment-rate risk (what rate you'll get when it matures and rolls over), and withdrawals in this simulator are still funded proportionally across all holdings each year.
+                        </p>
+                    </div>
                 </div>
             </section>
 
