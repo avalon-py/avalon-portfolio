@@ -659,7 +659,7 @@ async function askAiToAnalyze() {
     elems.aiResult.textContent = '';
 
     try {
-        const response = await fetch('/api/analyze-portfolio', {
+        const response = await fetch('/api/portfolio-simulator/analyze-portfolio', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
