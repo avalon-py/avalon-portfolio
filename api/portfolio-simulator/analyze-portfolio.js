@@ -1,25 +1,39 @@
-// api/analyze-portfolio.js
+// api/portfolio-simulator/analyze-portfolio.js
 //
 // Server-side only: holds GEMINI_API_KEY, never sent to the client.
-// Rate-limited by IP using Upstash Redis (works on Vercel's serverless/edge runtime).
 //
-// Setup:
-//   npm install @upstash/redis @upstash/ratelimit
-//   Vercel env vars: GEMINI_API_KEY, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
-//   (Upstash has a free tier; create a Redis DB at upstash.com, or use Vercel KV
-//   which is Upstash under the hood and wires the env vars automatically.)
+// Rate limiting: in-memory, per warm function instance. This is NOT a hard
+// guarantee on serverless (a cold start resets the counter), but for a
+// personal/hobby-scale project it's a reasonable speed bump without needing
+// Redis. If this ever gets real traffic, swap this block for Upstash again.
 
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+const requestLog = new Map(); // ip -> array of timestamps (ms)
+const WINDOW_MS = 60 * 60 * 1000; // 1 hour
+const MAX_REQUESTS = 5;
 
-const ratelimit = new Ratelimit({
-  redis: Redis.fromEnv(),
-  // 5 requests per hour per IP. Adjust to taste - this endpoint costs you
-  // real money per call, so keep it tight for an unauthenticated feature.
-  limiter: Ratelimit.slidingWindow(5, "1 h"),
-  analytics: true,
-  prefix: "quantsim:ai-analysis",
-});
+function isRateLimited(ip) {
+  const now = Date.now();
+  const timestamps = (requestLog.get(ip) || []).filter(t => now - t < WINDOW_MS);
+
+  if (timestamps.length >= MAX_REQUESTS) {
+    requestLog.set(ip, timestamps);
+    return true;
+  }
+
+  timestamps.push(now);
+  requestLog.set(ip, timestamps);
+
+  // Cheap cleanup so the Map doesn't grow forever on a long-lived warm instance.
+  if (requestLog.size > 500) {
+    for (const [key, times] of requestLog) {
+      const fresh = times.filter(t => now - t < WINDOW_MS);
+      if (fresh.length === 0) requestLog.delete(key);
+      else requestLog.set(key, fresh);
+    }
+  }
+
+  return false;
+}
 
 // --- Input validation -------------------------------------------------
 // Don't trust the client. Someone can POST directly to this route without
@@ -111,20 +125,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // --- Rate limit by IP -------------------------------------------------
+  // --- Rate limit by IP (in-memory, best-effort) -------------------------
   const ip =
     req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
     req.socket?.remoteAddress ||
     "unknown";
 
-  const { success, limit, remaining, reset } = await ratelimit.limit(ip);
-  res.setHeader("X-RateLimit-Limit", limit);
-  res.setHeader("X-RateLimit-Remaining", remaining);
-  if (!success) {
-    return res.status(429).json({
-      error: "Rate limit exceeded. Try again later.",
-      resetAt: new Date(reset).toISOString(),
-    });
+  if (isRateLimited(ip)) {
+    return res.status(429).json({ error: "Rate limit exceeded. Try again later." });
   }
 
   // --- Validate payload ---------------------------------------------------
