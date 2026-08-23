@@ -359,15 +359,43 @@
                     </div>
 
                     <div id="ai-view" class="w-full h-full pt-8 hidden overflow-y-auto custom-scrollbar">
-                      <div class="max-w-2xl mx-auto">
-                          <button id="btn-ask-ai" class="px-5 py-3 bg-black text-white text-xs font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50">
-                              Ask AI to Analyze Portfolio
-                          </button>
-                          <p class="text-[10px] text-quant-subtext italic mt-2">
+                      <div class="max-w-3xl mx-auto">
+                          <div class="flex items-center justify-between mb-6">
+                              <h4 class="text-[10px] font-bold uppercase tracking-widest text-black flex items-center gap-2">
+                                  <i data-lucide="sparkles" class="w-3 h-3"></i> AI Analysis
+                              </h4>
+                              <button id="btn-ask-ai" class="px-5 py-2.5 bg-black text-white text-[10px] font-bold uppercase tracking-widest hover:bg-gray-800 transition-colors disabled:opacity-50 flex items-center gap-2">
+                                  <i data-lucide="wand-sparkles" class="w-3 h-3"></i>
+                                  <span id="btn-ask-ai-label">Ask AI to Analyze Portfolio</span>
+                              </button>
+                          </div>
+                    
+                          <div id="ai-empty" class="border border-dashed border-quant-border p-10 text-center text-quant-subtext text-xs uppercase tracking-widest">
+                              Press the button above to generate an analysis
+                          </div>
+                    
+                          <div id="ai-cards" class="hidden space-y-4">
+                              <div class="border border-quant-border bg-white p-5">
+                                  <div class="text-[10px] font-bold uppercase tracking-widest text-quant-subtext mb-2 font-mono">Risk / Return</div>
+                                  <p id="ai-card-risk-return" class="text-sm leading-relaxed text-quant-text"></p>
+                              </div>
+                              <div class="border border-quant-border bg-white p-5">
+                                  <div class="text-[10px] font-bold uppercase tracking-widest text-quant-subtext mb-2 font-mono">Diversification</div>
+                                  <p id="ai-card-diversification" class="text-sm leading-relaxed text-quant-text"></p>
+                              </div>
+                              <div class="border border-amber-100 bg-amber-50 p-5">
+                                  <div class="text-[10px] font-bold uppercase tracking-widest text-amber-900 mb-2 font-mono flex items-center gap-1">
+                                      <i data-lucide="alert-triangle" class="w-3 h-3"></i> Worth Considering
+                                  </div>
+                                  <p id="ai-card-consideration" class="text-sm leading-relaxed text-amber-900/80"></p>
+                              </div>
+                          </div>
+                    
+                          <div id="ai-error" class="mt-4 text-sm text-red-600 hidden"></div>
+                    
+                          <p class="text-[10px] text-quant-subtext italic mt-6">
                               Informational commentary on the simulation output above — not personalized financial advice.
                           </p>
-                          <div id="ai-result" class="mt-6 text-sm leading-relaxed text-quant-text whitespace-pre-wrap"></div>
-                          <div id="ai-error" class="mt-4 text-sm text-red-600 hidden"></div>
                       </div>
                    </div>
                 </div>
