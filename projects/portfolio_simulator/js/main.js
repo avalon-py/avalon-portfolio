@@ -107,6 +107,8 @@ const elems = {
     aiCardRiskReturn: document.getElementById('ai-card-risk-return'),
     aiCardDiversification: document.getElementById('ai-card-diversification'),
     aiCardConsideration: document.getElementById('ai-card-consideration'),
+    aiCardRebalance: document.getElementById('ai-card-rebalance'),
+    aiCardActionable: document.getElementById('ai-card-actionable'),
     aiError: document.getElementById('ai-error'),
 };
 
@@ -664,6 +666,7 @@ async function askAiToAnalyze() {
     elems.aiError.classList.add('hidden');
     elems.aiCards.classList.add('hidden');
     elems.aiEmpty.classList.add('hidden');
+    
 
     try {
         const response = await fetch('/api/portfolio-simulator/analyze-portfolio', {
