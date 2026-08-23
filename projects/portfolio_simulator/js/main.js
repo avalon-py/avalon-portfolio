@@ -72,11 +72,28 @@ function init() {
         elems.assetSelect.appendChild(option);
     });
 
+    // Fixed-income note: we don't hardcode a hold-to-maturity bond ticker
+    // since coupon rates move constantly. Point users to the Custom tab
+    // instead, where they can enter today's rate themselves.
+    addFixedIncomeNote();
+
     // Icons
     lucide.createIcons();
 
     // Event Listeners
     setupEventListeners();
+}
+
+function addFixedIncomeNote() {
+    const note = document.createElement('p');
+    note.id = 'fixed-income-note';
+    note.className = 'text-xs text-quant-subtext italic mt-2 leading-relaxed';
+    note.innerHTML = 'Want other fixed income exposure? Coupon rates change constantly, so head to ' +
+        '<button type="button" id="fixed-income-note-link" class="underline hover:text-black font-medium not-italic">Custom</button> ' +
+        'and add a near-zero-volatility asset using today\'s rate as the return.';
+    elems.assetSelect.insertAdjacentElement('afterend', note);
+
+    document.getElementById('fixed-income-note-link').addEventListener('click', () => setCustomMode(true));
 }
 
 function setupEventListeners() {
