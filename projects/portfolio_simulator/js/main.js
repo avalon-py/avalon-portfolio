@@ -40,7 +40,10 @@ const state = {
         allocation: null,
         results: null,
         histogram: null,
-    }
+    },
+    // Cached results from the most recent successful runMonteCarlo() call.
+    // The AI Analytics tab reads from this instead of re-running the sim.
+    lastResults: null,
 };
 
 // --- DOM ELEMENTS ---
@@ -59,7 +62,7 @@ const elems = {
     totalWeightDisplay: document.getElementById('total-weight-display'),
     pieChartContainer: document.getElementById('pie-chart-container'),
     btnRunSim: document.getElementById('btn-run-sim'),
-    
+
     // Params
     paramInitial: document.getElementById('param-initial'),
     paramWithdrawal: document.getElementById('param-withdrawal'),
@@ -76,7 +79,7 @@ const elems = {
     resultsContent: document.getElementById('results-content'),
     statusIndicator: document.getElementById('status-indicator'),
     statusText: document.getElementById('status-text'),
-    
+
     // Metrics
     metricRisk: document.getElementById('metric-risk'),
     riskDot: document.getElementById('risk-dot'),
@@ -93,6 +96,13 @@ const elems = {
     distributionView: document.getElementById('distribution-view'),
     projectionLegend: document.getElementById('chart-legend-projection'),
     dispersionStats: document.getElementById('dispersion-stats'),
+
+    // AI Analytics tab
+    tabAi: document.getElementById('tab-ai'),
+    aiView: document.getElementById('ai-view'),
+    btnAskAi: document.getElementById('btn-ask-ai'),
+    aiResult: document.getElementById('ai-result'),
+    aiError: document.getElementById('ai-error'),
 };
 
 // --- INITIALIZATION ---
@@ -175,6 +185,14 @@ function setupEventListeners() {
         elems.tabProjection.addEventListener('click', () => setActiveChartTab('projection'));
         elems.tabDistribution.addEventListener('click', () => setActiveChartTab('distribution'));
     }
+    if (elems.tabAi) {
+        elems.tabAi.addEventListener('click', () => setActiveChartTab('ai'));
+    }
+
+    // AI Analytics
+    if (elems.btnAskAi) {
+        elems.btnAskAi.addEventListener('click', askAiToAnalyze);
+    }
 }
 
 // --- LOGIC ---
@@ -185,7 +203,7 @@ function setCustomMode(isCustom) {
         elems.btnCustomAsset.classList.replace('text-gray-500', 'bg-white');
         elems.btnCustomAsset.classList.replace('hover:text-black', 'shadow-sm');
         elems.btnCustomAsset.classList.add('text-black');
-        
+
         elems.btnStdAsset.classList.remove('bg-white', 'shadow-sm', 'text-black');
         elems.btnStdAsset.classList.add('text-gray-500', 'hover:text-black');
 
@@ -225,7 +243,7 @@ function addAsset() {
             volatility: vol / 100,
             isCustom: true
         };
-        
+
         // Reset Inputs
         elems.customTicker.value = '';
         elems.customCagr.value = '';
@@ -234,9 +252,9 @@ function addAsset() {
     } else {
         const symbol = elems.assetSelect.value;
         const asset = PREDEFINED_ASSETS.find(a => a.symbol === symbol);
-        
+
         const existing = state.portfolio.find(p => p.symbol === symbol && !p.isCustom);
-        
+
         if (existing) {
             existing.weight += weight;
             updatePortfolioUI();
@@ -267,7 +285,7 @@ function removeAsset(id) {
 function updatePortfolioUI() {
     // 1. Update List
     elems.portfolioList.innerHTML = '';
-    
+
     if (state.portfolio.length === 0) {
         elems.portfolioList.innerHTML = '<li class="text-quant-subtext text-xs italic py-6 text-center">No assets configured.</li>';
         elems.pieChartContainer.classList.add('hidden');
@@ -276,7 +294,6 @@ function updatePortfolioUI() {
         state.portfolio.forEach(item => {
             const li = document.createElement('li');
             li.className = 'flex justify-between items-center px-3 py-2 hover:bg-gray-50 group transition-colors';
-            // Removed the custom tag logic as requested
             li.innerHTML = `
                 <div>
                   <span class="font-bold text-xs text-black block">${item.symbol}</span>
@@ -296,7 +313,7 @@ function updatePortfolioUI() {
     // 2. Update Total Weight
     const totalWeight = state.portfolio.reduce((sum, p) => sum + p.weight, 0);
     elems.totalWeightDisplay.textContent = totalWeight.toFixed(1) + '%';
-    
+
     const isValid = Math.abs(totalWeight - 100) < 0.1;
     if (isValid) {
         elems.totalWeightDisplay.classList.remove('text-red-600');
@@ -310,6 +327,11 @@ function updatePortfolioUI() {
 
     // 3. Update Pie Chart
     updatePieChart();
+
+    // Portfolio changed - any previously fetched AI analysis (and cached
+    // results) no longer describes the current setup, so clear both.
+    state.lastResults = null;
+    resetAiPanel();
 }
 
 // --- CHART TABS ---
@@ -327,20 +349,28 @@ function setActiveChartTab(tab) {
         btn.classList.add('text-quant-subtext', 'hover:text-black');
     };
 
+    // Deactivate all tabs, hide all views first, then activate/show the
+    // selected one - keeps this correct regardless of how many tabs exist.
+    [elems.tabProjection, elems.tabDistribution, elems.tabAi].forEach(btn => {
+        if (btn) deactivate(btn);
+    });
+    if (elems.projectionView) elems.projectionView.classList.add('hidden');
+    if (elems.distributionView) elems.distributionView.classList.add('hidden');
+    if (elems.aiView) elems.aiView.classList.add('hidden');
+    if (elems.projectionLegend) elems.projectionLegend.classList.add('hidden');
+
     if (tab === 'projection') {
         activate(elems.tabProjection);
-        deactivate(elems.tabDistribution);
         elems.projectionView.classList.remove('hidden');
-        elems.distributionView.classList.add('hidden');
         if (elems.projectionLegend) elems.projectionLegend.classList.remove('hidden');
         if (state.charts.results) state.charts.results.resize();
-    } else {
+    } else if (tab === 'distribution') {
         activate(elems.tabDistribution);
-        deactivate(elems.tabProjection);
         elems.distributionView.classList.remove('hidden');
-        elems.projectionView.classList.add('hidden');
-        if (elems.projectionLegend) elems.projectionLegend.classList.add('hidden');
         if (state.charts.histogram) state.charts.histogram.resize();
+    } else if (tab === 'ai') {
+        if (elems.tabAi) activate(elems.tabAi);
+        if (elems.aiView) elems.aiView.classList.remove('hidden');
     }
 }
 
@@ -348,7 +378,7 @@ function setActiveChartTab(tab) {
 
 function updatePieChart() {
     const ctx = document.getElementById('allocationChart').getContext('2d');
-    
+
     const data = {
         labels: state.portfolio.map(p => p.symbol),
         datasets: [{
@@ -388,7 +418,7 @@ function updatePieChart() {
 
 function updateResultsChart(results) {
     const ctx = document.getElementById('resultsChart').getContext('2d');
-    
+
     // Create Gradients
     const gradientTop = ctx.createLinearGradient(0, 0, 0, 400);
     gradientTop.addColorStop(0, 'rgba(16, 185, 129, 0.1)');
@@ -603,6 +633,61 @@ function updateDispersionStats(results) {
     `;
 }
 
+// --- AI ANALYTICS ---
+
+function resetAiPanel() {
+    if (elems.aiResult) elems.aiResult.textContent = '';
+    if (elems.aiError) elems.aiError.classList.add('hidden');
+    if (elems.btnAskAi) {
+        elems.btnAskAi.disabled = false;
+        elems.btnAskAi.textContent = 'Ask AI to Analyze Portfolio';
+    }
+}
+
+async function askAiToAnalyze() {
+    if (!state.lastResults) {
+        if (elems.aiError) {
+            elems.aiError.textContent = 'Run a simulation first.';
+            elems.aiError.classList.remove('hidden');
+        }
+        return;
+    }
+
+    elems.btnAskAi.disabled = true;
+    elems.btnAskAi.textContent = 'Analyzing...';
+    elems.aiError.classList.add('hidden');
+    elems.aiResult.textContent = '';
+
+    try {
+        const response = await fetch('/api/analyze-portfolio', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                portfolio: state.portfolio,
+                params: state.params,
+                results: state.lastResults,
+            }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            elems.aiError.textContent = data.error || 'Something went wrong.';
+            elems.aiError.classList.remove('hidden');
+            return;
+        }
+
+        elems.aiResult.textContent = data.analysis;
+    } catch (err) {
+        console.error(err);
+        elems.aiError.textContent = 'Network error - try again.';
+        elems.aiError.classList.remove('hidden');
+    } finally {
+        elems.btnAskAi.disabled = false;
+        elems.btnAskAi.textContent = 'Ask AI to Analyze Portfolio';
+    }
+}
+
 // --- SIMULATION ---
 
 async function runSimulation() {
@@ -618,16 +703,21 @@ async function runSimulation() {
 
     try {
         const results = await runMonteCarlo(state.portfolio, state.params);
-        
+
+        // Cache results for the AI Analytics tab - it reads this instead
+        // of re-running the simulation when the button is pressed.
+        state.lastResults = results;
+        resetAiPanel();
+
         // Render Results
         elems.emptyState.classList.add('hidden');
         elems.resultsContent.classList.remove('hidden');
-        
+
         // Update Metrics
         elems.metricRisk.textContent = results.riskOfRuin.toFixed(2) + '%';
         elems.metricRisk.className = `text-3xl font-mono font-medium tracking-tighter ${results.riskOfRuin > 5 ? 'text-red-600' : 'text-emerald-600'}`;
         elems.riskDot.className = `w-1.5 h-1.5 rounded-full ${results.riskOfRuin > 5 ? 'bg-red-600' : 'bg-emerald-500'}`;
-        
+
         elems.metricMedian.textContent = formatCompactCurrency(results.medianFinal);
         elems.metricCagr.textContent = results.expectedCAGR.toFixed(2) + '%';
         elems.metricVol.textContent = results.expectedVol.toFixed(2) + '%';
