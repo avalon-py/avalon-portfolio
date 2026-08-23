@@ -296,11 +296,24 @@ export const runMonteCarlo = (portfolio, params) => {
     }
     const portfolioVol = Math.sqrt(portfolioVariance);
 
-    // 3. Build the asset-level covariance matrix and its Cholesky factor.
-    //    This matrix is NOT weighted by portfolio allocation - it's the raw
-    //    covariance structure between assets themselves. Weights only
-    //    determine how many dollars sit in each asset (step 4 below).
-    const covMatrix = Array.from({ length: n }, () => new Array(n).fill(0));
+    // 3. Build the asset-level CORRELATION matrix (unit diagonal, NOT
+    //    covariance) and its Cholesky factor.
+    //
+    //    L * zUncorr below must produce correlated STANDARD normals (each
+    //    with variance 1), because every place that consumes zCorr - the
+    //    per-asset return formula a few lines down, and the fat-tail crash
+    //    branch - multiplies it by that asset's own `sigma` afterward to get
+    //    the actual return shock. If this matrix were the covariance matrix
+    //    (volA*volB*rho) instead, volatility would get applied twice: once
+    //    baked into L, once again via `sigma *`. That double-application is
+    //    especially visible for a single-asset portfolio, where it silently
+    //    shrinks the realized volatility from vol down to vol^2 - which in
+    //    turn makes Sharpe/Sortino (and the median/mean outcome) look far
+    //    better than the stated volatility should produce. Building L from
+    //    the pure correlation matrix keeps zCorr unit-scale so the later
+    //    `sigma * zCorr[a]` is correct for both the normal-year draw and the
+    //    fat-tail crash draw, which was already written to expect that.
+    const corrMatrix = Array.from({ length: n }, () => new Array(n).fill(0));
     for (let i = 0; i < n; i++) {
         for (let j = 0; j < n; j++) {
             const assetA = normalizedPortfolio[i];
@@ -315,10 +328,10 @@ export const runMonteCarlo = (portfolio, params) => {
                 rho = 0;
             }
 
-            covMatrix[i][j] = assetA.volatility * assetB.volatility * rho;
+            corrMatrix[i][j] = rho;
         }
     }
-    const L = choleskyWithFallback(covMatrix);
+    const L = choleskyWithFallback(corrMatrix);
 
     // 4. Monte Carlo Loop - simulate each asset individually.
     const allPaths = [];
