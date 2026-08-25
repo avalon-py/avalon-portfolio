@@ -75,6 +75,25 @@
                     <span class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>Directional Acc</span>
                     <span class="flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>RMSE</span>
                 </div>
+
+                <!-- GitHub + Predict Buttons -->
+                <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
+                    <a href="https://github.com/avalon-py/speech2market-sourcecode" target="_blank" rel="noopener noreferrer" class="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-medium text-white bg-zinc-900 border border-zinc-700 rounded-full overflow-hidden transition-all duration-300 hover:bg-zinc-800 hover:border-zinc-500 hover:scale-105 shadow-lg shadow-black/50">
+                        <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
+                        <svg class="w-5 h-5 mr-2.5 text-zinc-400 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                        </svg>
+                        <span>View Project on GitHub</span>
+                    </a>
+
+                    <a href="https://fed-speech-app.streamlit.app/" target="_blank" rel="noopener noreferrer" class="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-semibold text-white bg-indigo-600 border border-indigo-500 rounded-full overflow-hidden transition-all duration-300 hover:bg-indigo-500 hover:scale-105 shadow-lg shadow-indigo-500/20">
+                        <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
+                        <svg class="w-5 h-5 mr-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                        <span>Predict the S&P500</span>
+                    </a>
+                </div>
             </div>
 
             <!-- SPX Section -->
@@ -297,15 +316,84 @@
                 </div>
              </div>
 
-             <!-- GitHub Button Section -->
-             <div class="flex justify-center pt-8 pb-12">
-                <a href="https://github.com/avalon-py/speech2market-sourcecode" target="_blank" rel="noopener noreferrer" class="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-medium text-white bg-zinc-900 border border-zinc-700 rounded-full overflow-hidden transition-all duration-300 hover:bg-zinc-800 hover:border-zinc-500 hover:scale-105 shadow-lg shadow-black/50">
-                    <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
-                    <svg class="w-5 h-5 mr-2.5 text-zinc-400 group-hover:text-white transition-colors" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
-                    </svg>
-                    <span>View Project on GitHub</span>
-                </a>
+             <!-- Feature Importance Section -->
+             <section class="space-y-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">Feature Importance: FinBERT Embedding Share</h2>
+                    <p class="text-zinc-400 text-sm mt-1 max-w-3xl leading-relaxed">
+                        Each asset/horizon pair (e.g. SPX t+3, GOLD t+30) is a <span class="text-white font-medium">separate model</span> with its own independent feature importance ranking. "Embedding share" below is the portion of total feature importance attributable to the FinBERT-derived embedding of the FED speech text, relative to the other macroeconomic/market features fed into that specific model.
+                    </p>
+                </div>
+
+                <div class="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm">
+                    <table class="min-w-full divide-y divide-zinc-800">
+                        <thead class="bg-zinc-900/80">
+                            <tr>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">Asset</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">t+3</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">t+7</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">t+30</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-zinc-800">
+                            <tr class="hover:bg-zinc-800/50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">SPX</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">27.61%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-300 font-mono font-bold">40.45%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">28.74%</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-800/50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">GOLD</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-400 font-mono font-bold">98.86%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">34.10%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">18.09%</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-800/50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">VIX</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">25.52%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 font-mono">3.78%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 font-mono">5.02%</td>
+                            </tr>
+                            <tr class="hover:bg-zinc-800/50 transition-colors">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">TNX</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-400 font-mono font-bold">82.82%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-300 font-mono">71.46%</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">53.07%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-xs text-zinc-500 leading-relaxed max-w-3xl">
+                    Notably, GOLD t+3 and TNX (across all horizons) lean heavily on the speech embedding, suggesting FED rhetoric is a dominant driver for those specific models. VIX t+7 and t+30, on the other hand, rely almost entirely on non-embedding features.
+                </p>
+             </section>
+
+             <!-- Disclaimer -->
+             <div class="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 space-y-3">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wide">Disclaimer</h3>
+                </div>
+                <p class="text-zinc-400 text-sm leading-relaxed">
+                    The directional accuracy figures above look modest and the ROC-AUC scores sit in a middle range, but by quantitative trading standards this still constitutes a real, exploitable signal, assuming trading fees, slippage, and other real-world execution frictions are ignored. Financial markets have a notoriously low signal-to-noise ratio, so an edge this size, applied consistently at scale, is meaningful rather than negligible.
+                </p>
+                <p class="text-zinc-500 text-xs leading-relaxed">
+                    Marcos López de Prado, in <span class="italic">Advances in Financial Machine Learning</span>, argues that models claiming very high out-of-the-box AUC (e.g. above ~0.70) on directional price forecasts are usually a red flag for data leakage or look-ahead bias, not genuine skill. Read in that light, the mid-range AUCs reported here are more plausible as a real, if modest, signal than a suspiciously "too good" one would be.
+                </p>
+             </div>
+
+             <!-- Inference Caveat -->
+             <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6 space-y-3">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="text-sm font-bold text-zinc-300 uppercase tracking-wide">A Note on Inference-Time Sign Flips</h3>
+                </div>
+                <p class="text-zinc-400 text-sm leading-relaxed">
+                    Not every prediction will make intuitive sense in isolation. A speech read as bearish by the FED can still be followed by positive returns across multiple asset classes and horizons, and vice versa. This isn't necessarily a model failure, since markets are largely efficient, meaning most available information is already priced in <span class="text-white">before</span> a statement becomes official. During downturns, even overtly bearish commentary can trigger a relief rally, simply because the worst was already priced in weeks earlier and any small sliver of hope gets bought. During upturns, even bullish commentary can trigger selling, since good news has already been priced in and it becomes a convenient point for profit taking.
+                </p>
+                <p class="text-zinc-500 text-xs leading-relaxed">
+                    This dynamic is consistent with Eugene Fama's <span class="italic">Efficient Market Hypothesis</span> and Andrew Lo's <span class="italic">Adaptive Market Hypothesis</span>, both of which help explain why markets are so difficult to predict from news sentiment alone. The relationship between "news tone" and "price direction" is regime-dependent rather than fixed.
+                </p>
              </div>
 
         </div>
