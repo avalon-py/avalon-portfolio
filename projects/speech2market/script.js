@@ -340,7 +340,7 @@ function initOrbitalTimeline() {
         {
             id: 5,
             title: "Predictive Model",
-            subtitle: "Gradient Boosting Regressor",
+            subtitle: "Two Stage Gradient Boosting Regressor",
             tags: ["ML", "Regression", "Tree-Based"],
             meta: [
                 { label: "Algo", value: "HistGradientBoosting" },
@@ -351,6 +351,8 @@ function initOrbitalTimeline() {
             borderColor: "border-cyan-500/50",
             content: `
                 <p class="mb-4">Engineered features modeled using HistGradientBoostingRegressor to forecast Forward Returns and Volatility. Learns interactions between central bank tone, economics, and market regime.</p>
+                
+                <p class="mb-4">Uses a two-staged prediction pipeline, with F1Score-optimized-HGB predicting the direction (+/-) and AUC-optimized HGB predicting the magnitude, with Optuna as the optimizer. The final forecast is [+/-]|magnitude|</p>
                 
                 <p>As a member of the GradientBoosting tree model, HistGradientBoosting can capture complex relationship between features, even with the presence of NULLs or NaNs in the dataset, treating the absence of data as an information.</p>
             `,
