@@ -46,7 +46,6 @@
                 </div>
             </div>
         </div>
-        <!-- Mobile Menu -->
         <div class="hidden md:hidden border-t border-zinc-800 bg-zinc-950" id="mobile-menu">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="index.html" class="text-zinc-300 hover:bg-zinc-800 hover:text-white block px-3 py-2 rounded-md text-base font-medium">Home</a>
@@ -58,25 +57,36 @@
 
     <div class="flex-grow pt-24 px-4 pb-24">
         <div class="max-w-5xl mx-auto space-y-16">
-            
+
             <!-- Intro -->
             <div class="space-y-6 border-b border-zinc-800 pb-10">
                 <h1 class="text-4xl md:text-6xl font-black tracking-tight text-white">Model Performance Summary</h1>
                 <p class="text-zinc-400 leading-relaxed text-lg max-w-3xl">
-                    The predictive performance of the proposed macro-sentiment framework was evaluated across four primary financial instruments:
-                    <span class="text-white font-medium">S&P 500 Index (SPX)</span>, <span class="text-white font-medium">Gold Futures (GOLD)</span>, <span class="text-white font-medium">CBOE Volatility Index (VIX)</span>, and the <span class="text-white font-medium">10-Year U.S. Treasury Yield (TNX)</span>.
+                    The predictive performance of the proposed macro-sentiment framework was evaluated across three
+                    financial instruments: <span class="text-white font-medium">S&P 500 Index (SPX)</span>,
+                    <span class="text-white font-medium">Gold Futures (GOLD)</span>, and the
+                    <span class="text-white font-medium">CBOE Volatility Index (VIX)</span>.
+                    The <span class="text-white font-medium">10-Year U.S. Treasury Yield (TNX)</span> is reported for
+                    completeness but was excluded from significance testing — its signal was judged too noisy during
+                    development to draw reliable conclusions from.
                 </p>
                 <p class="text-zinc-400 leading-relaxed text-lg max-w-3xl">
-                    The model was trained using transcribed FED speeches from 1996-2022, and evaluated using dataset from 2023-2025. All look-ahead bias has been meticulously avoided.
+                    The model uses a <span class="text-white font-medium">two-stage sign / magnitude architecture</span>:
+                    a HistGradientBoosting classifier predicts direction (optimized for macro-F1, with a threshold
+                    tuned out-of-fold), and a separate HistGradientBoosting regressor predicts the size of the move
+                    (optimized for ranking quality via AUC). The final prediction is
+                    <code class="text-indigo-300 text-base">sign × |magnitude|</code>. Both stages use purged,
+                    time-series cross-validation so that no training fold's label window overlaps its validation
+                    window. The model was trained on Fed speeches through 2022 and evaluated out-of-sample on
+                    2023–2025.
                 </p>
 
-                <div class="flex gap-4 text-sm text-zinc-500 font-mono">
+                <div class="flex gap-4 text-sm text-zinc-500 font-mono flex-wrap">
                     <span class="flex items-center"><span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>ROC-AUC</span>
-                    <span class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>Directional Acc</span>
+                    <span class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>F1 (macro)</span>
                     <span class="flex items-center"><span class="w-2 h-2 bg-emerald-500 rounded-full mr-2"></span>RMSE</span>
                 </div>
 
-                <!-- GitHub + Predict Buttons -->
                 <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
                     <a href="https://github.com/avalon-py/speech2market-sourcecode" target="_blank" rel="noopener noreferrer" class="group relative inline-flex items-center justify-center px-8 py-3 text-sm font-medium text-white bg-zinc-900 border border-zinc-700 rounded-full overflow-hidden transition-all duration-300 hover:bg-zinc-800 hover:border-zinc-500 hover:scale-105 shadow-lg shadow-black/50">
                         <span class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></span>
@@ -98,66 +108,72 @@
 
             <!-- SPX Section -->
             <section class="space-y-6 animate-fade-in-up">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-wrap gap-3">
                     <div>
                         <h2 class="text-2xl font-bold text-white flex items-center gap-2">S&P 500 (SPX)</h2>
                         <p class="text-zinc-400 text-sm mt-1">Equity Market • Risk On</p>
                     </div>
-                    <span class="text-xs font-bold text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 rounded-full uppercase tracking-wider">Strong Signal</span>
+                    <span class="text-xs font-bold text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 rounded-full uppercase tracking-wider">Embeddings help most at t+30</span>
                 </div>
-                
+
                 <div class="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm">
                     <table class="min-w-full divide-y divide-zinc-800">
                         <thead class="bg-zinc-900/80">
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">Horizon</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">ROC-AUC</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">Directional Acc</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">F1 (macro)</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">RMSE</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-800">
                             <tr class="hover:bg-zinc-800/50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">t+3</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-300 font-bold">0.573</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.590</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.0128</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.583</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.561</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.013</td>
                             </tr>
                             <tr class="hover:bg-zinc-800/50 transition-colors">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">t+7</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.566</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.575</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.0194</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.576</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.547</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.020</td>
                             </tr>
                             <tr class="bg-indigo-500/10 hover:bg-indigo-500/20 transition-colors border-l-2 border-indigo-500">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">t+30</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-300 font-black text-lg">0.640</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-200 font-semibold">0.617</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">0.0422</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-300 font-black text-lg">0.569</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-200 font-semibold">0.543</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">0.045</td>
                             </tr>
                             <tr class="bg-zinc-900 font-semibold">
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-400 uppercase">Overall</td>
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.581</td>
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.594</td>
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300 font-mono">0.0278</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-400 uppercase">Mean</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.576</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.550</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300 font-mono">0.026</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                 <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
                      <p class="text-zinc-400 text-sm leading-relaxed">
-                        Speech embeddings derived from <span class="text-white font-medium">Vice Chair communications</span> exhibited comparatively stronger predictive alignment in short-term SPX forecasts, achieving ROC-AUC values up to <span class="text-indigo-400">0.786 at t+3</span> in specific subsets.
+                        SPX t+30 is the standout result of this study: a paired bootstrap significance test (see
+                        <a href="#ablation" class="text-indigo-400 hover:underline">Embeddings Ablation</a> below)
+                        shows speech embeddings deliver a statistically significant improvement over a price/macro-only
+                        baseline on <span class="text-white">all three metrics at once</span> — AUC, F1, and RMSE.
+                        At t+3 and t+7, the improvement from embeddings is smaller and not statistically distinguishable
+                        from noise at this sample size.
                     </p>
                 </div>
             </section>
 
             <!-- Gold Section -->
             <section class="space-y-6 animate-fade-in-up" style="animation-delay: 0.1s;">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between flex-wrap gap-3">
                      <div>
                         <h2 class="text-2xl font-bold text-white flex items-center gap-2">Gold Futures (GOLD)</h2>
                         <p class="text-zinc-400 text-sm mt-1">Commodity • Inflation Hedge</p>
                     </div>
+                    <span class="text-xs font-bold text-yellow-400 border border-yellow-500/30 bg-yellow-500/10 px-3 py-1 rounded-full uppercase tracking-wider">Mixed / partial signal</span>
                 </div>
                 <div class="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm">
                     <table class="min-w-full divide-y divide-zinc-800">
@@ -165,41 +181,44 @@
                             <tr>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">Horizon</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">ROC-AUC</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">Directional Acc</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">F1 (macro)</th>
                                 <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">RMSE</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-zinc-800">
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">t+3</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.569</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.524</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.0156</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.499</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.506</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.016</td>
                             </tr>
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">t+7</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.550</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.617</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.0258</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.521</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.500</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.026</td>
                             </tr>
                             <tr class="bg-yellow-500/5">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">t+30</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-500 font-bold">0.581</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.551</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.0427</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-500 font-bold">0.512</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300">0.478</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-400 font-mono">0.042</td>
                             </tr>
                             <tr class="bg-zinc-900 font-semibold">
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-400 uppercase">Overall</td>
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.564</td>
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.564</td>
-                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300 font-mono">0.0302</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-400 uppercase">Mean</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.511</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300">0.495</td>
+                                <td class="px-6 py-3 whitespace-nowrap text-xs text-zinc-300 font-mono">0.028</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
                  <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
                      <p class="text-zinc-400 text-sm leading-relaxed">
-                        Medium-term forecasts displayed improved classification performance, suggesting <span class="text-white">delayed transmission</span> of monetary policy sentiment into commodity pricing dynamics.
+                        GOLD's raw scores sit close to a coin flip (AUC ≈ 0.50–0.52) across all horizons — expected,
+                        since gold's price is driven by many forces beyond Fed communication. Embeddings still add a
+                        significant, narrow benefit in two spots: F1 at t+3, and RMSE at t+30. Everything else is
+                        statistically indistinguishable from the no-embeddings baseline.
                     </p>
                 </div>
             </section>
@@ -208,9 +227,9 @@
              <div class="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in-up" style="animation-delay: 0.2s;">
                  <!-- VIX -->
                  <div class="space-y-4">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
                         <h2 class="text-2xl font-bold text-white">Volatility (VIX)</h2>
-                        <span class="text-xs font-bold text-emerald-400 border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 rounded">Best Class.</span>
+                        <span class="text-xs font-bold text-amber-400 border border-amber-500/30 bg-amber-500/10 px-2 py-1 rounded">Embeddings hurt at t+30</span>
                     </div>
                     <div class="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40">
                         <table class="min-w-full divide-y divide-zinc-800">
@@ -218,46 +237,50 @@
                                 <tr>
                                     <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">Hzn</th>
                                     <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">AUC</th>
-                                    <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">Acc</th>
+                                    <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">F1</th>
                                     <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">RMSE</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-800">
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-white">t+3</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-300">0.576</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-400">0.545</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.0909</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-300">0.554</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-400">0.520</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.091</td>
                                 </tr>
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-white">t+7</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-300">0.607</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-400">0.518</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.1364</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-300">0.612</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-400">0.565</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.138</td>
                                 </tr>
-                                <tr class="bg-emerald-500/10">
+                                <tr class="bg-amber-500/10">
                                     <td class="px-4 py-3 text-sm text-white font-bold">t+30</td>
-                                    <td class="px-4 py-3 text-sm text-emerald-400 font-bold">0.645</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-300">0.560</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.2356</td>
+                                    <td class="px-4 py-3 text-sm text-amber-400 font-bold">0.622</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-300">0.571</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.242</td>
                                 </tr>
                                 <tr class="bg-zinc-900/50 text-xs">
-                                    <td class="px-4 py-2 text-zinc-500 uppercase">Avg</td>
-                                    <td class="px-4 py-2 text-zinc-300">0.612</td>
-                                    <td class="px-4 py-2 text-zinc-300">0.541</td>
-                                    <td class="px-4 py-2 text-zinc-500 font-mono">0.1657</td>
+                                    <td class="px-4 py-2 text-zinc-500 uppercase">Mean</td>
+                                    <td class="px-4 py-2 text-zinc-300">0.596</td>
+                                    <td class="px-4 py-2 text-zinc-300">0.552</td>
+                                    <td class="px-4 py-2 text-zinc-500 font-mono">0.157</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <p class="text-xs text-zinc-400">VIX predictions exhibited the strongest classification performance among all modeled assets, particularly over medium-horizon forecasts.</p>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        VIX has the highest raw scores of any asset in this study — but at t+30, that's <em>despite</em>
+                        embeddings, not because of them: the significance test shows a price/macro-only baseline
+                        significantly beats the embeddings model on both AUC and RMSE at that horizon.
+                    </p>
                  </div>
 
                  <!-- TNX -->
                  <div class="space-y-4">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
                          <h2 class="text-2xl font-bold text-white">10Y Treasury (TNX)</h2>
-                         <span class="text-xs font-bold text-red-400 border border-red-500/30 bg-red-500/10 px-2 py-1 rounded">Weak Signal</span>
+                         <span class="text-xs font-bold text-red-400 border border-red-500/30 bg-red-500/10 px-2 py-1 rounded">Not significance-tested</span>
                     </div>
                     <div class="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40">
                         <table class="min-w-full divide-y divide-zinc-800">
@@ -265,41 +288,238 @@
                                 <tr>
                                     <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">Hzn</th>
                                     <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">AUC</th>
-                                    <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">Acc</th>
+                                    <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">F1</th>
                                     <th class="px-4 py-2 text-left text-[10px] text-zinc-500 uppercase">RMSE</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-zinc-800">
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-white">t+3</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-300">0.550</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-400">0.521</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.0189</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-300">0.486</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-400">0.473</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.020</td>
                                 </tr>
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-white">t+7</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-300">0.519</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-400">0.479</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.0376</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-300">0.488</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-400">0.487</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.036</td>
                                 </tr>
                                 <tr>
                                     <td class="px-4 py-3 text-sm text-white">t+30</td>
-                                    <td class="px-4 py-3 text-sm text-red-400">0.430</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-400">0.470</td>
-                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.0714</td>
+                                    <td class="px-4 py-3 text-sm text-red-400">0.397</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-400">0.453</td>
+                                    <td class="px-4 py-3 text-sm text-zinc-500 font-mono">0.073</td>
                                 </tr>
                                 <tr class="bg-zinc-900/50 text-xs">
-                                    <td class="px-4 py-2 text-zinc-500 uppercase">Avg</td>
-                                    <td class="px-4 py-2 text-zinc-300">0.489</td>
-                                    <td class="px-4 py-2 text-zinc-300">0.490</td>
-                                    <td class="px-4 py-2 text-zinc-500 font-mono">0.0478</td>
+                                    <td class="px-4 py-2 text-zinc-500 uppercase">Mean</td>
+                                    <td class="px-4 py-2 text-zinc-300">0.457</td>
+                                    <td class="px-4 py-2 text-zinc-300">0.471</td>
+                                    <td class="px-4 py-2 text-zinc-500 font-mono">0.043</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                    <p class="text-xs text-zinc-400">Comparatively weaker, potentially reflecting the sensitivity of sovereign yields to external macroeconomic shocks beyond policy communication signals.</p>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        TNX scores hover at or below the 0.50 coin-flip line, including one horizon below random.
+                        Rather than force a conclusion out of noise, this asset was excluded from the embeddings
+                        ablation and significance testing below.
+                    </p>
                  </div>
              </div>
+
+             <!-- Ablation / Significance Section -->
+             <section id="ablation" class="space-y-6 animate-fade-in-up" style="animation-delay: 0.3s;">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">Embeddings Ablation: Does Speech Content Actually Help?</h2>
+                    <p class="text-zinc-400 text-sm mt-1 max-w-3xl leading-relaxed">
+                        The full two-stage architecture was fit twice per target — once with Fed speech embeddings
+                        included as features, once without — holding everything else identical (search space, purge
+                        logic, sample weighting). A paired bootstrap (n = 2,000 resamples, 90% confidence interval,
+                        334 held-out test rows) tests whether the difference between the two is distinguishable from
+                        noise. Each line below spans the 90% CI of <span class="text-white">(no-embeddings score −
+                        with-embeddings score)</span>; the dot marks the observed difference. A dashed line at zero
+                        marks "no difference." <span class="text-indigo-400">Indigo</span> = embeddings significantly
+                        better. <span class="text-red-400">Red</span> = embeddings significantly worse. Gray = not
+                        statistically significant at this sample size (line crosses zero).
+                    </p>
+                </div>
+
+                <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 text-center">AUC</h3>
+                            <svg viewBox="0 0 300 259" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, monospace">
+<line x1="200.1" y1="2" x2="200.1" y2="257" stroke="#52525b" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="70.0" y="24.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">SPX_t+3</text>
+<line x1="175.9" y1="21.5" x2="281.5" y2="21.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="175.9" y1="18.5" x2="175.9" y2="24.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="281.5" y1="18.5" x2="281.5" y2="24.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="228.9" cy="21.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="51.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">SPX_t+7</text>
+<line x1="124.4" y1="48.5" x2="216.5" y2="48.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="124.4" y1="45.5" x2="124.4" y2="51.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="216.5" y1="45.5" x2="216.5" y2="51.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="170.8" cy="48.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="78.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">SPX_t+30</text>
+<line x1="122.9" y1="75.5" x2="190.6" y2="75.5" stroke="#818cf8" stroke-width="2.5" opacity="1"/>
+<line x1="122.9" y1="72.5" x2="122.9" y2="78.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<line x1="190.6" y1="72.5" x2="190.6" y2="78.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<circle cx="157.3" cy="75.5" r="3.2" fill="#818cf8" opacity="1"/>
+<text x="70.0" y="105.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">GOLD_t+3</text>
+<line x1="136.0" y1="102.5" x2="238.1" y2="102.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="136.0" y1="99.5" x2="136.0" y2="105.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="238.1" y1="99.5" x2="238.1" y2="105.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="187.9" cy="102.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="132.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">GOLD_t+7</text>
+<line x1="87.2" y1="129.5" x2="200.8" y2="129.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="87.2" y1="126.5" x2="87.2" y2="132.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="200.8" y1="126.5" x2="200.8" y2="132.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="143.2" cy="129.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="159.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">GOLD_t+30</text>
+<line x1="173.8" y1="156.5" x2="272.6" y2="156.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="173.8" y1="153.5" x2="173.8" y2="159.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="272.6" y1="153.5" x2="272.6" y2="159.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="222.4" cy="156.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="186.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">VIX_t+3</text>
+<line x1="145.4" y1="183.5" x2="246.5" y2="183.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="145.4" y1="180.5" x2="145.4" y2="186.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="246.5" y1="180.5" x2="246.5" y2="186.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="196.0" cy="183.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="213.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">VIX_t+7</text>
+<line x1="171.5" y1="210.5" x2="259.4" y2="210.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="171.5" y1="207.5" x2="171.5" y2="213.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="259.4" y1="207.5" x2="259.4" y2="213.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="216.1" cy="210.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="240.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">VIX_t+30</text>
+<line x1="206.4" y1="237.5" x2="273.5" y2="237.5" stroke="#f87171" stroke-width="2.5" opacity="1"/>
+<line x1="206.4" y1="234.5" x2="206.4" y2="240.5" stroke="#f87171" stroke-width="1.5" opacity="1"/>
+<line x1="273.5" y1="234.5" x2="273.5" y2="240.5" stroke="#f87171" stroke-width="1.5" opacity="1"/>
+<circle cx="240.7" cy="237.5" r="3.2" fill="#f87171" opacity="1"/>
+</svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 text-center">F1 (macro)</h3>
+                            <svg viewBox="0 0 300 259" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, monospace">
+<line x1="200.1" y1="2" x2="200.1" y2="257" stroke="#52525b" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="70.0" y="24.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">SPX_t+3</text>
+<line x1="177.1" y1="21.5" x2="269.7" y2="21.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="177.1" y1="18.5" x2="177.1" y2="24.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="269.7" y1="18.5" x2="269.7" y2="24.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="222.1" cy="21.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="51.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">SPX_t+7</text>
+<line x1="142.9" y1="48.5" x2="226.3" y2="48.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="142.9" y1="45.5" x2="142.9" y2="51.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="226.3" y1="45.5" x2="226.3" y2="51.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="184.7" cy="48.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="78.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">SPX_t+30</text>
+<line x1="117.8" y1="75.5" x2="192.5" y2="75.5" stroke="#818cf8" stroke-width="2.5" opacity="1"/>
+<line x1="117.8" y1="72.5" x2="117.8" y2="78.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<line x1="192.5" y1="72.5" x2="192.5" y2="78.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<circle cx="155.4" cy="75.5" r="3.2" fill="#818cf8" opacity="1"/>
+<text x="70.0" y="105.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">GOLD_t+3</text>
+<line x1="98.2" y1="102.5" x2="192.7" y2="102.5" stroke="#818cf8" stroke-width="2.5" opacity="1"/>
+<line x1="98.2" y1="99.5" x2="98.2" y2="105.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<line x1="192.7" y1="99.5" x2="192.7" y2="105.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<circle cx="147.1" cy="102.5" r="3.2" fill="#818cf8" opacity="1"/>
+<text x="70.0" y="132.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">GOLD_t+7</text>
+<line x1="112.9" y1="129.5" x2="204.1" y2="129.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="112.9" y1="126.5" x2="112.9" y2="132.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="204.1" y1="126.5" x2="204.1" y2="132.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="159.5" cy="129.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="159.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">GOLD_t+30</text>
+<line x1="163.2" y1="156.5" x2="249.8" y2="156.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="163.2" y1="153.5" x2="163.2" y2="159.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="249.8" y1="153.5" x2="249.8" y2="159.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="206.5" cy="156.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="186.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">VIX_t+3</text>
+<line x1="151.6" y1="183.5" x2="246.4" y2="183.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="151.6" y1="180.5" x2="151.6" y2="186.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="246.4" y1="180.5" x2="246.4" y2="186.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="201.0" cy="183.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="213.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">VIX_t+7</text>
+<line x1="105.5" y1="210.5" x2="192.1" y2="210.5" stroke="#818cf8" stroke-width="2.5" opacity="1"/>
+<line x1="105.5" y1="207.5" x2="105.5" y2="213.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<line x1="192.1" y1="207.5" x2="192.1" y2="213.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<circle cx="147.8" cy="210.5" r="3.2" fill="#818cf8" opacity="1"/>
+<text x="70.0" y="240.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">VIX_t+30</text>
+<line x1="158.6" y1="237.5" x2="230.7" y2="237.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="158.6" y1="234.5" x2="158.6" y2="240.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="230.7" y1="234.5" x2="230.7" y2="240.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="194.8" cy="237.5" r="2.4" fill="#52525b" opacity="0.8"/>
+</svg>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 text-center">RMSE</h3>
+                            <svg viewBox="0 0 300 259" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace, monospace">
+<line x1="217.4" y1="2" x2="217.4" y2="257" stroke="#52525b" stroke-width="1" stroke-dasharray="2,2"/>
+<text x="70.0" y="24.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">SPX_t+3</text>
+<line x1="215.5" y1="21.5" x2="219.8" y2="21.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="215.5" y1="18.5" x2="215.5" y2="24.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="219.8" y1="18.5" x2="219.8" y2="24.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="218.0" cy="21.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="51.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">SPX_t+7</text>
+<line x1="220.4" y1="48.5" x2="230.1" y2="48.5" stroke="#818cf8" stroke-width="2.5" opacity="1"/>
+<line x1="220.4" y1="45.5" x2="220.4" y2="51.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<line x1="230.1" y1="45.5" x2="230.1" y2="51.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<circle cx="225.2" cy="48.5" r="3.2" fill="#818cf8" opacity="1"/>
+<text x="70.0" y="78.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">SPX_t+30</text>
+<line x1="241.6" y1="75.5" x2="267.0" y2="75.5" stroke="#818cf8" stroke-width="2.5" opacity="1"/>
+<line x1="241.6" y1="72.5" x2="241.6" y2="78.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<line x1="267.0" y1="72.5" x2="267.0" y2="78.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<circle cx="254.3" cy="75.5" r="3.2" fill="#818cf8" opacity="1"/>
+<text x="70.0" y="105.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">GOLD_t+3</text>
+<line x1="217.4" y1="102.5" x2="218.6" y2="102.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="217.4" y1="99.5" x2="217.4" y2="105.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="218.6" y1="99.5" x2="218.6" y2="105.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="218.0" cy="102.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="132.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">GOLD_t+7</text>
+<line x1="215.5" y1="129.5" x2="219.8" y2="129.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="215.5" y1="126.5" x2="215.5" y2="132.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="219.8" y1="126.5" x2="219.8" y2="132.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="217.4" cy="129.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="159.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">GOLD_t+30</text>
+<line x1="230.7" y1="156.5" x2="246.4" y2="156.5" stroke="#818cf8" stroke-width="2.5" opacity="1"/>
+<line x1="230.7" y1="153.5" x2="230.7" y2="159.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<line x1="246.4" y1="153.5" x2="246.4" y2="159.5" stroke="#818cf8" stroke-width="1.5" opacity="1"/>
+<circle cx="238.0" cy="156.5" r="3.2" fill="#818cf8" opacity="1"/>
+<text x="70.0" y="186.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">VIX_t+3</text>
+<line x1="210.7" y1="183.5" x2="218.6" y2="183.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="210.7" y1="180.5" x2="210.7" y2="186.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="218.6" y1="180.5" x2="218.6" y2="186.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="214.3" cy="183.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="213.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="400">VIX_t+7</text>
+<line x1="204.0" y1="210.5" x2="230.1" y2="210.5" stroke="#52525b" stroke-width="2.5" opacity="0.55"/>
+<line x1="204.0" y1="207.5" x2="204.0" y2="213.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<line x1="230.1" y1="207.5" x2="230.1" y2="213.5" stroke="#52525b" stroke-width="1.5" opacity="0.55"/>
+<circle cx="217.4" cy="210.5" r="2.4" fill="#52525b" opacity="0.8"/>
+<text x="70.0" y="240.5" text-anchor="end" font-size="9.5" fill="#a1a1aa" font-weight="600">VIX_t+30</text>
+<line x1="98.6" y1="237.5" x2="179.8" y2="237.5" stroke="#f87171" stroke-width="2.5" opacity="1"/>
+<line x1="98.6" y1="234.5" x2="98.6" y2="240.5" stroke="#f87171" stroke-width="1.5" opacity="1"/>
+<line x1="179.8" y1="234.5" x2="179.8" y2="240.5" stroke="#f87171" stroke-width="1.5" opacity="1"/>
+<circle cx="139.8" cy="237.5" r="3.2" fill="#f87171" opacity="1"/>
+</svg>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-zinc-500 mt-4 text-center">
+                        For AUC/F1, a line entirely left of zero (indigo) means embeddings win. For RMSE, a line
+                        entirely right of zero (indigo) means embeddings win — lower RMSE is better, so the sign
+                        convention flips for that panel.
+                    </p>
+                </div>
+
+                <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
+                    <p class="text-zinc-400 text-sm leading-relaxed">
+                        Out of 9 target × metric batteries tested significant, <span class="text-white">SPX t+30 is
+                        the only target where all three metrics agree</span> — the strongest, most internally
+                        consistent evidence in this study that embeddings carry real signal. Everything else is a
+                        single metric out of three, which is close to the false-positive rate you'd expect from
+                        testing this many comparisons at a 90% confidence level without correction — worth reading
+                        as suggestive rather than conclusive. VIX t+30 is a genuine negative result in the opposite
+                        direction: embeddings measurably hurt there.
+                    </p>
+                </div>
+             </section>
 
              <!-- Summary Card -->
              <div class="bg-gradient-to-r from-zinc-900 to-indigo-950/20 rounded-3xl p-8 border border-zinc-800 shadow-2xl shadow-indigo-500/5">
@@ -310,63 +530,19 @@
                     <div>
                         <h3 class="text-xl font-bold text-white mb-2">Final Conclusion</h3>
                         <p class="text-zinc-300 leading-relaxed">
-                            Overall results indicate that central bank communication embeddings, when integrated with macroeconomic indicators and financial market data, provide <span class="text-white font-semibold">measurable predictive signal</span> for equity market returns and implied volatility regimes, while demonstrating comparatively limited explanatory power in sovereign yield forecasting.
+                            Central bank speech embeddings do not provide a uniform edge across every asset and
+                            horizon. The evidence for a genuine effect is <span class="text-white font-semibold">narrow
+                            and asset/horizon-specific</span>: a clean, three-metric-significant improvement for SPX
+                            at the 30-day horizon, a handful of single-metric improvements for GOLD and VIX at shorter
+                            horizons, and a significant negative effect for VIX at 30 days. Most target/metric
+                            combinations show no statistically distinguishable difference. TNX did not clear the bar
+                            for inclusion in significance testing at all. The honest read is that Fed speech content
+                            carries some real, situational information — most convincingly for medium-term equity
+                            positioning — rather than a broad, dependable signal across every market this study touched.
                         </p>
                     </div>
                 </div>
              </div>
-
-             <!-- Feature Importance Section -->
-             <section class="space-y-6 animate-fade-in-up" style="animation-delay: 0.3s;">
-                <div>
-                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">Feature Importance: FinBERT Embedding Share</h2>
-                    <p class="text-zinc-400 text-sm mt-1 max-w-3xl leading-relaxed">
-                        Each asset/horizon pair (e.g. SPX t+3, GOLD t+30) is a <span class="text-white font-medium">separate model</span> with its own independent feature importance ranking. "Embedding share" below is the portion of total feature importance attributable to the FinBERT-derived embedding of the FED speech text, relative to the other macroeconomic/market features fed into that specific model.
-                    </p>
-                </div>
-
-                <div class="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/40 backdrop-blur-sm">
-                    <table class="min-w-full divide-y divide-zinc-800">
-                        <thead class="bg-zinc-900/80">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">Asset</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">t+3</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">t+7</th>
-                                <th class="px-6 py-4 text-left text-xs font-bold text-zinc-500 uppercase tracking-wider">t+30</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-zinc-800">
-                            <tr class="hover:bg-zinc-800/50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">SPX</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">27.61%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-indigo-300 font-mono font-bold">40.45%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">28.74%</td>
-                            </tr>
-                            <tr class="hover:bg-zinc-800/50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">GOLD</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-yellow-400 font-mono font-bold">98.86%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">34.10%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">18.09%</td>
-                            </tr>
-                            <tr class="hover:bg-zinc-800/50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">VIX</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">25.52%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 font-mono">3.78%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 font-mono">5.02%</td>
-                            </tr>
-                            <tr class="hover:bg-zinc-800/50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">TNX</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-400 font-mono font-bold">82.82%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-emerald-300 font-mono">71.46%</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-300 font-mono">53.07%</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <p class="text-xs text-zinc-500 leading-relaxed max-w-3xl">
-                    Notably, GOLD t+3 and TNX (across all horizons) lean heavily on the speech embedding, suggesting FED rhetoric is a dominant driver for those specific models. VIX t+7 and t+30, on the other hand, rely almost entirely on non-embedding features.
-                </p>
-             </section>
 
              <!-- Disclaimer -->
              <div class="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 space-y-3">
@@ -375,10 +551,19 @@
                     <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wide">Disclaimer</h3>
                 </div>
                 <p class="text-zinc-400 text-sm leading-relaxed">
-                    The directional accuracy figures above look modest and the ROC-AUC scores sit in a middle range, but by quantitative trading standards this still constitutes a real, exploitable signal, assuming trading fees, slippage, and other real-world execution frictions are ignored. Financial markets have a notoriously low signal-to-noise ratio, so an edge this size, applied consistently at scale, is meaningful rather than negligible.
+                    The AUC and F1 scores above sit in a modest middle range, well short of what would be needed for
+                    a standalone trading strategy — none of this has been backtested against real trading costs,
+                    slippage, or execution frictions, and it should not be read as one. Financial markets have a
+                    notoriously low signal-to-noise ratio, so a narrow, statistically significant edge like the one
+                    found for SPX at t+30 is a meaningful research finding, even though it falls well short of a
+                    "too good to be true" number.
                 </p>
                 <p class="text-zinc-500 text-xs leading-relaxed">
-                    Marcos López de Prado, in <span class="italic">Advances in Financial Machine Learning</span>, argues that models claiming very high out-of-the-box AUC (e.g. above ~0.70) on directional price forecasts are usually a red flag for data leakage or look-ahead bias, not genuine skill. Read in that light, the mid-range AUCs reported here are more plausible as a real, if modest, signal than a suspiciously "too good" one would be.
+                    Marcos López de Prado, in <span class="italic">Advances in Financial Machine Learning</span>,
+                    argues that models claiming very high out-of-the-box AUC (roughly above 0.70) on directional
+                    price forecasts are usually a red flag for data leakage or look-ahead bias, not genuine skill.
+                    Read in that light, the mid-range AUCs reported here are more plausible as a real, if modest and
+                    narrow, signal than a suspiciously high one would be.
                 </p>
              </div>
 
@@ -389,10 +574,20 @@
                     <h3 class="text-sm font-bold text-zinc-300 uppercase tracking-wide">A Note on Inference-Time Sign Flips</h3>
                 </div>
                 <p class="text-zinc-400 text-sm leading-relaxed">
-                    Not every prediction will make intuitive sense in isolation. A speech read as bearish by the FED can still be followed by positive returns across multiple asset classes and horizons, and vice versa. This isn't necessarily a model failure, since markets are largely efficient, meaning most available information is already priced in <span class="text-white">before</span> a statement becomes official. During downturns, even overtly bearish commentary can trigger a relief rally, simply because the worst was already priced in weeks earlier and any small sliver of hope gets bought. During upturns, even bullish commentary can trigger selling, since good news has already been priced in and it becomes a convenient point for profit taking.
+                    Not every prediction will make intuitive sense in isolation. A speech read as bearish by the Fed
+                    can still be followed by positive returns across multiple asset classes and horizons, and vice
+                    versa. This isn't necessarily a model failure — markets are largely efficient, meaning most
+                    available information is already priced in <span class="text-white">before</span> a statement
+                    becomes official. During downturns, even overtly bearish commentary can trigger a relief rally
+                    simply because the worst was already priced in weeks earlier. During upturns, even bullish
+                    commentary can trigger selling, since good news has already been priced in and it becomes a
+                    convenient point for profit-taking.
                 </p>
                 <p class="text-zinc-500 text-xs leading-relaxed">
-                    This dynamic is consistent with Eugene Fama's <span class="italic">Efficient Market Hypothesis</span> and Andrew Lo's <span class="italic">Adaptive Market Hypothesis</span>, both of which help explain why markets are so difficult to predict from news sentiment alone. The relationship between "news tone" and "price direction" is regime-dependent rather than fixed.
+                    This dynamic is consistent with Eugene Fama's <span class="italic">Efficient Market Hypothesis</span>
+                    and Andrew Lo's <span class="italic">Adaptive Market Hypothesis</span>, both of which help explain
+                    why markets are so difficult to predict from news sentiment alone. The relationship between
+                    "news tone" and "price direction" is regime-dependent rather than fixed.
                 </p>
              </div>
 
