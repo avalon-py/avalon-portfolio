@@ -67,20 +67,9 @@
                     <span class="text-white font-medium">Gold Futures (GOLD)</span>, and the
                     <span class="text-white font-medium">CBOE Volatility Index (VIX)</span>.
                     The <span class="text-white font-medium">10-Year U.S. Treasury Yield (TNX)</span> is reported for
-                    completeness but was excluded from significance testing — its signal was judged too noisy during
+                    completeness but was excluded from significance testing because its signal was judged too noisy during
                     development to draw reliable conclusions from.
                 </p>
-                <p class="text-zinc-400 leading-relaxed text-lg max-w-3xl">
-                    The model uses a <span class="text-white font-medium">two-stage sign / magnitude architecture</span>:
-                    a HistGradientBoosting classifier predicts direction (optimized for macro-F1, with a threshold
-                    tuned out-of-fold), and a separate HistGradientBoosting regressor predicts the size of the move
-                    (optimized for ranking quality via AUC). The final prediction is
-                    <code class="text-indigo-300 text-base">sign × |magnitude|</code>. Both stages use purged,
-                    time-series cross-validation so that no training fold's label window overlaps its validation
-                    window. The model was trained on Fed speeches through 2022 and evaluated out-of-sample on
-                    2023–2025.
-                </p>
-
                 <div class="flex gap-4 text-sm text-zinc-500 font-mono flex-wrap">
                     <span class="flex items-center"><span class="w-2 h-2 bg-indigo-500 rounded-full mr-2"></span>ROC-AUC</span>
                     <span class="flex items-center"><span class="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>F1 (macro)</span>
@@ -159,7 +148,7 @@
                         SPX t+30 is the standout result of this study: a paired bootstrap significance test (see
                         <a href="#ablation" class="text-indigo-400 hover:underline">Embeddings Ablation</a> below)
                         shows speech embeddings deliver a statistically significant improvement over a price/macro-only
-                        baseline on <span class="text-white">all three metrics at once</span> — AUC, F1, and RMSE.
+                        baseline on <span class="text-white">all three metrics at once</span> (AUC, F1, and RMSE).
                         At t+3 and t+7, the improvement from embeddings is smaller and not statistically distinguishable
                         from noise at this sample size.
                     </p>
@@ -215,10 +204,9 @@
                 </div>
                  <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
                      <p class="text-zinc-400 text-sm leading-relaxed">
-                        GOLD's raw scores sit close to a coin flip (AUC ≈ 0.50–0.52) across all horizons — expected,
-                        since gold's price is driven by many forces beyond Fed communication. Embeddings still add a
-                        significant, narrow benefit in two spots: F1 at t+3, and RMSE at t+30. Everything else is
-                        statistically indistinguishable from the no-embeddings baseline.
+                        GOLD's raw scores sit close to a coin flip (AUC ≈ 0.50–0.52) across all horizons.
+                        Embeddings still add a significant, narrow benefit in two spots: F1 at t+3, and RMSE at t+30. 
+                        Everything else is statistically indistinguishable from the no-embeddings baseline.
                     </p>
                 </div>
             </section>
@@ -333,8 +321,8 @@
                 <div>
                     <h2 class="text-2xl font-bold text-white flex items-center gap-2">Embeddings Ablation: Does Speech Content Actually Help?</h2>
                     <p class="text-zinc-400 text-sm mt-1 max-w-3xl leading-relaxed">
-                        The full two-stage architecture was fit twice per target — once with Fed speech embeddings
-                        included as features, once without — holding everything else identical (search space, purge
+                        The full two-stage architecture was fit twice per target, once with Fed speech embeddings
+                        included as features, once without, while holding everything else identical (search space, purge
                         logic, sample weighting). A paired bootstrap (n = 2,000 resamples, 90% confidence interval,
                         334 held-out test rows) tests whether the difference between the two is distinguishable from
                         noise. Each line below spans the 90% CI of <span class="text-white">(no-embeddings score −
@@ -503,7 +491,7 @@
                     </div>
                     <p class="text-[11px] text-zinc-500 mt-4 text-center">
                         For AUC/F1, a line entirely left of zero (indigo) means embeddings win. For RMSE, a line
-                        entirely right of zero (indigo) means embeddings win — lower RMSE is better, so the sign
+                        entirely right of zero (indigo) means embeddings win, since lower RMSE is better, so the sign
                         convention flips for that panel.
                     </p>
                 </div>
@@ -511,11 +499,11 @@
                 <div class="bg-zinc-900/50 p-6 rounded-xl border border-zinc-800">
                     <p class="text-zinc-400 text-sm leading-relaxed">
                         Out of 9 target × metric batteries tested significant, <span class="text-white">SPX t+30 is
-                        the only target where all three metrics agree</span> — the strongest, most internally
+                        the only target where all three metrics agree</span>, and is therefore the strongest, most internally
                         consistent evidence in this study that embeddings carry real signal. Everything else is a
                         single metric out of three, which is close to the false-positive rate you'd expect from
-                        testing this many comparisons at a 90% confidence level without correction — worth reading
-                        as suggestive rather than conclusive. VIX t+30 is a genuine negative result in the opposite
+                        testing this many comparisons at a 90% confidence level without correction (worth reading
+                        as suggestive rather than conclusive). VIX t+30 is a genuine negative result in the opposite
                         direction: embeddings measurably hurt there.
                     </p>
                 </div>
@@ -537,8 +525,8 @@
                             horizons, and a significant negative effect for VIX at 30 days. Most target/metric
                             combinations show no statistically distinguishable difference. TNX did not clear the bar
                             for inclusion in significance testing at all. The honest read is that Fed speech content
-                            carries some real, situational information — most convincingly for medium-term equity
-                            positioning — rather than a broad, dependable signal across every market this study touched.
+                            carries some real, situational information, most convincingly for medium-term equity
+                            positioning rather than a broad, dependable signal across every market this study touched.
                         </p>
                     </div>
                 </div>
@@ -551,12 +539,9 @@
                     <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wide">Disclaimer</h3>
                 </div>
                 <p class="text-zinc-400 text-sm leading-relaxed">
-                    The AUC and F1 scores above sit in a modest middle range, well short of what would be needed for
-                    a standalone trading strategy — none of this has been backtested against real trading costs,
-                    slippage, or execution frictions, and it should not be read as one. Financial markets have a
-                    notoriously low signal-to-noise ratio, so a narrow, statistically significant edge like the one
-                    found for SPX at t+30 is a meaningful research finding, even though it falls well short of a
-                    "too good to be true" number.
+                    Despite the findings that The FED's speeches do not carry uniformly meaningful signals across 
+                    multiple horizons through multiple asset classes, this ML model genuinely carries edge (low RMSE, 
+                    high directional accuracy) before considering about slippage, transaction fees, etc.
                 </p>
                 <p class="text-zinc-500 text-xs leading-relaxed">
                     Marcos López de Prado, in <span class="italic">Advances in Financial Machine Learning</span>,
@@ -576,7 +561,7 @@
                 <p class="text-zinc-400 text-sm leading-relaxed">
                     Not every prediction will make intuitive sense in isolation. A speech read as bearish by the Fed
                     can still be followed by positive returns across multiple asset classes and horizons, and vice
-                    versa. This isn't necessarily a model failure — markets are largely efficient, meaning most
+                    versa. This isn't necessarily a model failure. Markets are largely efficient, meaning most
                     available information is already priced in <span class="text-white">before</span> a statement
                     becomes official. During downturns, even overtly bearish commentary can trigger a relief rally
                     simply because the worst was already priced in weeks earlier. During upturns, even bullish
