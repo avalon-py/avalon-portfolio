@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exploratory Data Analysis | GP Predictor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="style.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        f1: {
+                            red: '#e10600',
+                            dark: '#15151e',
+                            carbon: '#1f1f1f'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Orbitron', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-zinc-950 text-white overflow-x-hidden selection:bg-f1-red selection:text-white">
+
+    <nav class="fixed top-0 w-full z-50 bg-zinc-950/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="text-2xl font-display font-black tracking-tighter italic">
+                GP<span class="text-f1-red">PREDICT</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Home</a>
+                <a href="technical.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Technical</a>
+                <a href="eda.html" class="text-white font-medium hover:text-f1-red transition-colors">EDA</a>
+                <a href="results.html" class="text-zinc-400 font-medium hover:text-white transition-colors">Results</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Header Section -->
+    <div class="pt-32 pb-16 px-6 max-w-7xl mx-auto border-b border-white/10">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+            <div>
+                <header class="border-l-4 border-f1-red pl-6">
+                    <h1 class="text-4xl md:text-6xl font-display font-bold uppercase mb-4">Exploratory Analysis</h1>
+                    <p class="text-xl text-zinc-400 max-w-2xl">Before the model, the questions: who actually beats their teammate, does edge cost reliability, and which circuits misbehave.</p>
+                </header>
+            </div>
+            <div class="flex gap-4">
+                <a href="https://github.com/avalon-py/f1-prediction-sourcecode" target="_blank" class="flex items-center px-4 py-2 bg-zinc-900 border border-zinc-800 rounded hover:bg-zinc-800 hover:text-white transition-colors text-zinc-400 text-sm font-bold">
+                    <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                    Source Code
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="max-w-7xl mx-auto px-6 py-12">
+
+        <!-- Intro -->
+        <section class="mb-24 max-w-3xl">
+            <p class="text-zinc-400 text-lg leading-relaxed">
+                Every feature in the model started as a question asked of the raw results — filtered to the 2015–2024 seasons, where car and data quality are directly comparable. Two drivers arguments run through this notebook: isolate a driver's contribution from the car underneath them, and check whether the track itself explains the chaos we see.
+            </p>
+        </section>
+
+        <!-- Section 1: Driver + Car Decomposition -->
+        <section class="mb-24 relative pl-8 border-l border-zinc-800">
+            <span class="absolute -left-3 top-0 flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 border-2 border-zinc-950 text-f1-red text-xs font-bold">1</span>
+            <h2 class="text-3xl font-display font-bold text-white mb-4">Driver + Car Decomposition</h2>
+            <p class="text-zinc-400 text-lg leading-relaxed mb-12 max-w-4xl">
+                A driver's raw finishing position is mostly the car. The only clean control available in the data is a same-car, same-race comparison — so every metric here is a driver's result measured against their own teammate, not against the field.
+            </p>
+
+            <!-- A. Teammate Delta -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-white mb-2">A. Teammate Delta</h3>
+                <p class="text-zinc-500 mb-6 max-w-3xl">
+                    Average finishing-position delta versus teammate, restricted to drivers with 50+ shared races so the sample is trustworthy. Negative means ahead of the teammate on average.
+                </p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                        <img src="assets/eda/teammate-delta.png" alt="Bar chart of average teammate race-position delta by driver" class="w-full rounded">
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 flex flex-col justify-center">
+                        <p class="text-zinc-400 text-sm leading-relaxed">
+                            Verstappen leads the field at <span class="text-white font-mono">−1.13</span> positions per race versus his teammates across 209 shared races, ahead of Norris (<span class="text-white font-mono">−0.72</span>) and Albon (<span class="text-white font-mono">−0.68</span>). The error bars are wide relative to the deltas themselves — race-to-race variance is large enough that a single race tells you almost nothing about who the better driver is.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- A.ii Sharpe -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-white mb-2">A.ii — Consistency-Adjusted Edge</h3>
+                <p class="text-zinc-500 mb-6 max-w-3xl">
+                    Raw delta rewards drivers who get lucky as much as drivers who are actually better. Dividing outperformance by its own standard deviation — a driver-level Sharpe ratio — down-weights edges built on high variance.
+                </p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                        <img src="assets/eda/sharpe-ratio.png" alt="Bar chart of driver Sharpe ratio versus teammate" class="w-full rounded">
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                        <img src="assets/eda/consistency-vs-edge.png" alt="Scatter plot of consistency versus edge, bubble size by race count" class="w-full rounded">
+                    </div>
+                </div>
+                <p class="text-zinc-500 text-sm mt-4 max-w-3xl">
+                    The ranking barely moves versus raw delta — Verstappen, Norris, Albon, Hamilton, and Gasly hold the top five either way — which says the top group's edge is real, not a variance artifact. The bottom of the table shifts more: Latifi's poor average delta is compounded by high inconsistency, giving him the worst Sharpe ratio in the sample.
+                </p>
+            </div>
+
+            <!-- B. DNF -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-white mb-2">B. Consistency vs. DNF Cost</h3>
+                <p class="text-zinc-500 mb-6 max-w-3xl">
+                    DNFs are split into driver-fault (accidents, collisions, spins) and mechanical causes, using status codes cross-checked against the existing <span class="font-mono text-xs text-zinc-400 bg-zinc-900 px-1 rounded">is_problematic</span> flag. The question: does an aggressive driver who out-races their teammate pay for it in reliability?
+                </p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                        <img src="assets/eda/dnf-breakdown.png" alt="Stacked bar chart of driver-fault versus mechanical DNF rate" class="w-full rounded">
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                        <img src="assets/eda/edge-vs-reliability.png" alt="Scatter plot of Sharpe ratio versus driver-fault DNF rate" class="w-full rounded">
+                    </div>
+                </div>
+                <p class="text-zinc-500 text-sm max-w-3xl">
+                    No — the opposite. Sharpe ratio correlates <span class="text-white font-mono">-0.31</span> with driver-fault DNF rate, and variance itself correlates <span class="text-white font-mono">-0.41</span>. The drivers with the biggest, most consistent edge over their teammates (Hamilton, Norris, Verstappen) also crash out the least. Reading this causally would be a mistake — car reliability and team-level risk tolerance sit underneath both variables — but there's no sign here that beating your teammate requires taking on driver-fault risk.
+                </p>
+            </div>
+
+            <!-- C. Quali-Race gap -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-white mb-2">C. Qualifying Edge vs. Race Edge</h3>
+                <p class="text-zinc-500 mb-6 max-w-3xl">
+                    Splitting each driver's teammate-delta into a qualifying component and a race component separates raw pace from race-day execution — overtaking, strategy, tire management.
+                </p>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4 max-w-2xl">
+                    <img src="assets/eda/quali-race-gap.png" alt="Scatter plot of qualifying edge versus race edge, colored by race-craft gap" class="w-full rounded">
+                </div>
+                <p class="text-zinc-500 text-sm mt-4 max-w-3xl">
+                    Most drivers sit close to the diagonal — qualifying edge and race edge move together, which is expected since grid position mechanically constrains the race. The interesting cases are the ones furthest off the line: drivers whose race result consistently over- or under-delivers relative to where they qualified are the ones actually gaining or losing positions on track, rather than in the garage.
+                </p>
+            </div>
+
+            <!-- D. Car tier -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-white mb-2">D. Edge by Car Competitiveness</h3>
+                <p class="text-zinc-500 mb-6 max-w-3xl">
+                    Races are bucketed into weak/mid/strong car tiers using <span class="font-mono text-xs text-zinc-400 bg-zinc-900 px-1 rounded">constructor_form</span>, keeping only drivers with 5+ races in both the weak and strong tier. This tests whether a driver's edge over their teammate is stable, or whether it only shows up when the car is (or isn't) competitive.
+                </p>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <img src="assets/eda/car-tier-edge.png" alt="Grouped bar chart of teammate edge in weak car versus strong car" class="w-full rounded">
+                </div>
+                <p class="text-zinc-500 text-sm mt-4 max-w-3xl">
+                    Verstappen's edge is essentially flat across car quality — he beats his teammates by a similar margin whether the car is strong or weak. Others swing hard: several drivers who are competitive or even ahead in a weak car fall behind once the car becomes a front-runner, which reads as a midfield-scrapping skill that doesn't transfer directly to fighting for wins.
+                </p>
+            </div>
+
+            <!-- E. Specialization -->
+            <div class="mb-16">
+                <h3 class="text-xl font-bold text-white mb-2">E. Track-Type Specialization</h3>
+                <p class="text-zinc-500 mb-6 max-w-3xl">
+                    Circuits are labeled by dominant characteristic — technical, hard-to-overtake, high-weather-risk, or balanced — using percentile thresholds on the circuit's own feature columns, then teammate edge is recomputed per track type.
+                </p>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                        <img src="assets/eda/specialist-drivers.png" alt="Bar chart of drivers ranked by standard deviation of edge across track types" class="w-full rounded">
+                        <p class="text-zinc-600 text-xs mt-3">Highest variance of edge across track types — these drivers are strong in some conditions and weak in others.</p>
+                    </div>
+                    <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                        <img src="assets/eda/generalist-drivers.png" alt="Bar chart of best generalist drivers ranked by average edge across track types" class="w-full rounded">
+                        <p class="text-zinc-600 text-xs mt-3">Ranked by actual average edge, not consistency — sigma shown per bar for reference.</p>
+                    </div>
+                </div>
+                <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+                    <img src="assets/eda/track-type-identity.png" alt="Four-panel bar chart of top 10 drivers by track type" class="w-full rounded">
+                </div>
+                <p class="text-zinc-500 text-sm mt-4 max-w-3xl">
+                    Verstappen and Hamilton show up at or near the top in three of the four track-type buckets — their edge isn't conditional on circuit character. Button and Vandoorne sit at the opposite extreme: high variance across track types with a small sample, more likely an artifact of limited races than a real specialization signal.
+                </p>
+            </div>
+        </section>
+
+        <!-- Section 2: Circuit Analysis -->
+        <section class="relative pl-8 border-l border-zinc-800 border-transparent">
+            <span class="absolute -left-3 top-0 flex items-center justify-center w-6 h-6 rounded-full bg-zinc-800 border-2 border-zinc-950 text-f1-red text-xs font-bold">2</span>
+
+            <div class="bg-gradient-to-r from-zinc-900 to-zinc-950 border border-zinc-800 p-8 rounded-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-64 h-64 bg-f1-red/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+                <h2 class="text-3xl font-display font-bold text-white mb-6">Circuit Analysis</h2>
+                <div class="text-zinc-400 max-w-none mb-8">
+                    <p class="mb-4">
+                        Each circuit is fingerprinted by its average technicality, weather index, weather volatility, overtaking difficulty, and track-chaos factor, then correlated against its DNF rate (minimum 5 races per circuit, n=48).
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4">
+                        <img src="assets/eda/circuit-correlations.png" alt="Correlation heatmap of circuit features against DNF rate" class="w-full rounded">
+                    </div>
+                    <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4 flex flex-col justify-center">
+                        <p class="text-zinc-400 text-sm leading-relaxed">
+                            None of the five candidate features reach significance at this sample size. Technicality has the strongest relationship (r = <span class="text-white font-mono">−0.23</span>, p = <span class="text-white font-mono">0.12</span>) — more technical circuits trend toward slightly fewer DNFs, not more. Weather index is next (r = <span class="text-white font-mono">0.18</span>, p = <span class="text-white font-mono">0.23</span>), directionally the "more weather risk, more chaos" relationship used in the simulator, but not something 48 circuits can confirm on its own.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-zinc-950 border border-zinc-900 rounded-xl p-4">
+                    <img src="assets/eda/circuit-scatter.png" alt="Scatter plots of technicality and weather index against DNF rate, labeled by circuit" class="w-full rounded">
+                </div>
+                <p class="text-zinc-500 text-sm mt-4 max-w-3xl">
+                    The scatter makes clear why: short-lived street and one-off circuits (Reims-Gueux, Aintree, Brands Hatch, Detroit) sit at the extremes with only a handful of races each, pulling on the correlation without enough data to trust individually. Modern permanent circuits cluster much more tightly in the middle of both plots.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <footer class="py-10 border-t border-white/10 bg-zinc-950">
+        <div class="max-w-7xl mx-auto px-6 text-center text-zinc-600 text-sm">
+            <p>&copy; 2025 GP Predictor Project. Static Analysis.</p>
+        </div>
+    </footer>
+</body>
+</html>
