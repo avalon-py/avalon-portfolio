@@ -2,6 +2,7 @@
 // Set to true to use real CSV file, false for mock data
 const USE_REAL_CSV = true;
 const CSV_FILE_PATH = 'assets/2025_prediction.csv';
+const ABLATION_CSV_PATH = 'assets/ablation_results.csv';
 
 // Global State
 let currentYear = '2025';
@@ -12,7 +13,7 @@ let cachedData = null;  // Cache the loaded data
 
 async function loadCSVData(year) {
     if (year === '2026') return null;
-    
+
     if (USE_REAL_CSV) {
         try {
             const response = await fetch(CSV_FILE_PATH);
@@ -32,22 +33,22 @@ function generateMockCSV(year) {
     if (year === '2026') return null;
 
     const tracks = [
-        "Australian", "Chinese", "Japanese", "Bahrain", "Saudi Arabian", "Miami", 
-        "Emilia Romagna", "Monaco", "Spanish", "Canadian", "Austrian", "British", 
-        "Belgian", "Hungarian", "Dutch", "Italian", "Azerbaijan", "Singapore", 
+        "Australian", "Chinese", "Japanese", "Bahrain", "Saudi Arabian", "Miami",
+        "Emilia Romagna", "Monaco", "Spanish", "Canadian", "Austrian", "British",
+        "Belgian", "Hungarian", "Dutch", "Italian", "Azerbaijan", "Singapore",
         "United States", "Mexican", "Sao Paulo", "Las Vegas", "Qatar", "Abu Dhabi"
     ];
 
     const drivers = [
-        "Max Verstappen", "Lando Norris", "Lewis Hamilton", "Charles Leclerc", 
+        "Max Verstappen", "Lando Norris", "Lewis Hamilton", "Charles Leclerc",
         "Oscar Piastri", "George Russell", "Fernando Alonso", "Carlos Sainz",
-        "Alex Albon", "Yuki Tsunoda", "Pierre Gasly", "Esteban Ocon", 
+        "Alex Albon", "Yuki Tsunoda", "Pierre Gasly", "Esteban Ocon",
         "Andrea Kimi Antonelli", "Liam Lawson", "Oliver Bearman", "Nico Hulkenberg",
         "Gabriel Bortoleto", "Jack Doohan", "Lance Stroll", "Isack Hadjar"
     ];
 
     let csv = "round,Track,driver,grid,positionOrder,model_only_prediction,probabilistic_prediction,deterministic_prediction\n";
-    
+
     let seed = 12345;
     const random = () => {
         const x = Math.sin(seed++) * 10000;
@@ -56,22 +57,22 @@ function generateMockCSV(year) {
 
     tracks.forEach((track, round) => {
         const shuffled = [...drivers].sort(() => random() - 0.5);
-        
+
         shuffled.forEach((driver, idx) => {
             const grid = idx + 1;
-            
+
             // Simulate actual position with some variance
             const actual = Math.max(1, Math.min(20, grid + Math.floor(random() * 8 - 4)));
-            
+
             // Model-only: decent prediction with some error
             const modelOnly = Math.max(1, Math.min(20, actual + Math.floor(random() * 6 - 3)));
-            
+
             // Probabilistic: Monte Carlo not ranked, more variance
             const probabilistic = Math.max(1, Math.min(20, actual + Math.floor(random() * 8 - 4)));
-            
+
             // Deterministic: Monte Carlo ranked, best accuracy
             const deterministic = Math.max(1, Math.min(20, actual + Math.floor(random() * 4 - 2)));
-            
+
             csv += `${round + 1},${track},${driver},${grid},${actual},${modelOnly},${probabilistic},${deterministic}\n`;
         });
     });
@@ -132,10 +133,10 @@ function calculateAllMAE(entries) {
 
 function sortTable(raceId, field) {
     if (!cachedData) return;
-    
+
     const racesData = parseCSV(cachedData);
     const trackName = raceId.replace('race-', '').replace(/-/g, ' ');
-    
+
     // Find the matching track
     let entries = null;
     for (let track in racesData) {
@@ -144,7 +145,7 @@ function sortTable(raceId, field) {
             break;
         }
     }
-    
+
     if (!entries) return;
 
     // Toggle sort direction
@@ -173,7 +174,7 @@ function updateSortIndicators(raceId, activeField, isAsc) {
     headers.forEach(th => {
         const field = th.getAttribute('data-sort');
         const indicator = th.querySelector('.sort-indicator');
-        
+
         if (field === activeField) {
             indicator.textContent = isAsc ? ' ▲' : ' ▼';
             indicator.classList.remove('opacity-0');
@@ -214,7 +215,7 @@ async function renderRaces(year) {
     container.innerHTML = '<div class="text-center py-20 text-zinc-500 animate-pulse">Loading prediction data...</div>';
 
     const csvData = await loadCSVData(year);
-    
+
     if (!csvData) {
         container.innerHTML = `
             <div class="p-8 border border-dashed border-zinc-800 rounded-xl text-center">
@@ -233,20 +234,20 @@ async function renderRaces(year) {
     trackNames.forEach((track, index) => {
         const entries = racesData[track];
         const mae = calculateAllMAE(entries);
-        
+
         // Default sort by actual position
         entries.sort((a, b) => a.actual - b.actual);
 
         const raceId = `race-${track.toLowerCase().replace(/\s+/g, '-')}`;
         const card = document.createElement('div');
         card.className = "border border-zinc-800 rounded-xl bg-zinc-900 overflow-hidden";
-        
+
         const bestMAE = Math.min(
-            parseFloat(mae.modelOnly), 
-            parseFloat(mae.probabilistic), 
+            parseFloat(mae.modelOnly),
+            parseFloat(mae.probabilistic),
             parseFloat(mae.deterministic)
         ).toFixed(2);
-        
+
         card.innerHTML = `
             <button onclick="toggleAccordion('${raceId}')" class="w-full flex items-center justify-between p-6 bg-zinc-900 hover:bg-zinc-800/50 transition-colors text-left group">
                 <div class="flex items-center gap-4">
@@ -263,7 +264,7 @@ async function renderRaces(year) {
                     <svg id="icon-${raceId}" class="w-6 h-6 text-zinc-500 transform transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </div>
             </button>
-            
+
             <div id="${raceId}" class="accordion-content bg-zinc-950/50">
                 <div class="p-6 overflow-x-auto">
                     <table class="w-full text-left text-sm">
@@ -291,7 +292,7 @@ async function renderRaces(year) {
                             ${generateTableRows(entries)}
                         </tbody>
                     </table>
-                    
+
                     <div class="mt-6 p-4 bg-zinc-900 border border-zinc-800 rounded-lg">
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div class="text-center">
@@ -321,7 +322,7 @@ async function renderRaces(year) {
 
         container.appendChild(card);
     });
-    
+
     // Add overall summary at the bottom
     renderOverallSummary(racesData);
 }
@@ -331,7 +332,7 @@ async function renderRaces(year) {
 function toggleAccordion(id) {
     const content = document.getElementById(id);
     const icon = document.getElementById(`icon-${id}`);
-    
+
     if (content.style.maxHeight) {
         content.style.maxHeight = null;
         content.classList.remove('active');
@@ -347,27 +348,29 @@ function toggleAccordion(id) {
 
 function switchYear(year) {
     currentYear = year;
-    
-    document.getElementById('btn-2025').className = year === '2025' 
+
+    document.getElementById('btn-2025').className = year === '2025'
         ? "px-6 py-2 rounded font-bold text-sm transition-all bg-f1-red text-white shadow-lg shadow-f1-red/20"
         : "px-6 py-2 rounded font-bold text-sm transition-all text-zinc-400 hover:text-white";
-        
-    document.getElementById('btn-2026').className = year === '2026' 
+
+    document.getElementById('btn-2026').className = year === '2026'
         ? "px-6 py-2 rounded font-bold text-sm transition-all bg-f1-red text-white shadow-lg shadow-f1-red/20"
         : "px-6 py-2 rounded font-bold text-sm transition-all text-zinc-400 hover:text-white";
 
     renderRaces(year);
+    // Ablation is 2025-only (that's the only year the sim has been run through
+    // the ablation script), so it doesn't re-fetch on year switch.
 }
 
 // --- Overall Summary ---
 
 function renderOverallSummary(racesData) {
     const container = document.getElementById('races-container');
-    
+
     // Calculate overall MAE across all races
     let totalGrid = 0, totalModelOnly = 0, totalProbabilistic = 0, totalDeterministic = 0;
     let raceCount = 0;
-    
+
     for (let track in racesData) {
         const mae = calculateAllMAE(racesData[track]);
         totalGrid += parseFloat(mae.grid);
@@ -376,99 +379,233 @@ function renderOverallSummary(racesData) {
         totalDeterministic += parseFloat(mae.deterministic);
         raceCount++;
     }
-    
+
     const avgGrid = (totalGrid / raceCount).toFixed(2);
     const avgModelOnly = (totalModelOnly / raceCount).toFixed(2);
     const avgProbabilistic = (totalProbabilistic / raceCount).toFixed(2);
     const avgDeterministic = (totalDeterministic / raceCount).toFixed(2);
-    
+
     // Find best performing method
     const bestMAE = Math.min(parseFloat(avgModelOnly), parseFloat(avgProbabilistic), parseFloat(avgDeterministic));
-    const bestMethod = bestMAE === parseFloat(avgModelOnly) ? 'Model Only' : 
-                       bestMAE === parseFloat(avgProbabilistic) ? 'Monte Carlo (Not Ranked)' : 
+    const bestMethod = bestMAE === parseFloat(avgModelOnly) ? 'Model Only' :
+                       bestMAE === parseFloat(avgProbabilistic) ? 'Monte Carlo (Not Ranked)' :
                        'Monte Carlo (Ranked)';
-    
+
     // Calculate improvement percentages
     const improvementVsBaseline = (((parseFloat(avgGrid) - bestMAE) / parseFloat(avgGrid)) * 100).toFixed(1);
     const improvementVsModel = (((parseFloat(avgModelOnly) - bestMAE) / parseFloat(avgModelOnly)) * 100).toFixed(1);
-    
+
     // Determine if MC methods beat model only
-    const mcBetterThanModel = (parseFloat(avgDeterministic) < parseFloat(avgModelOnly)) || 
+    const mcBetterThanModel = (parseFloat(avgDeterministic) < parseFloat(avgModelOnly)) ||
                               (parseFloat(avgProbabilistic) < parseFloat(avgModelOnly));
-    
+
     const summaryCard = document.createElement('div');
     summaryCard.className = "mt-12 border-2 border-f1-red rounded-xl bg-gradient-to-br from-zinc-900 to-zinc-950 overflow-hidden";
-    
+
     summaryCard.innerHTML = `
         <div class="p-8">
             <div class="flex items-center gap-3 mb-6">
                 <div class="w-1 h-8 bg-f1-red rounded"></div>
                 <h2 class="text-3xl font-display font-bold uppercase">Overall Performance Summary</h2>
             </div>
-            
+
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
                 <div class="text-center p-6 bg-zinc-900/50 rounded-lg border border-zinc-800">
                     <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">Grid Baseline</div>
                     <div class="text-3xl font-bold text-zinc-400">${avgGrid}</div>
                     <div class="text-xs text-zinc-600 mt-1">AVG MAE</div>
                 </div>
-                
+
                 <div class="text-center p-6 bg-zinc-900/50 rounded-lg border border-zinc-800 ${parseFloat(avgModelOnly) === bestMAE ? 'ring-2 ring-green-500' : ''}">
                     <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">Model Only</div>
                     <div class="text-3xl font-bold ${parseFloat(avgModelOnly) === bestMAE ? 'text-green-500' : parseFloat(avgModelOnly) < 3 ? 'text-yellow-500' : 'text-orange-500'}">${avgModelOnly}</div>
                     <div class="text-xs text-zinc-600 mt-1">AVG MAE</div>
                 </div>
-                
+
                 <div class="text-center p-6 bg-zinc-900/50 rounded-lg border border-zinc-800 ${parseFloat(avgProbabilistic) === bestMAE ? 'ring-2 ring-green-500' : ''}">
                     <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">MC (Not Ranked)</div>
                     <div class="text-3xl font-bold ${parseFloat(avgProbabilistic) === bestMAE ? 'text-green-500' : parseFloat(avgProbabilistic) < 3 ? 'text-yellow-500' : 'text-orange-500'}">${avgProbabilistic}</div>
                     <div class="text-xs text-zinc-600 mt-1">AVG MAE</div>
                 </div>
-                
+
                 <div class="text-center p-6 bg-zinc-900/50 rounded-lg border border-zinc-800 ${parseFloat(avgDeterministic) === bestMAE ? 'ring-2 ring-green-500' : ''}">
                     <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">MC (Ranked)</div>
                     <div class="text-3xl font-bold ${parseFloat(avgDeterministic) === bestMAE ? 'text-green-500' : parseFloat(avgDeterministic) < 3 ? 'text-yellow-500' : 'text-orange-500'}">${avgDeterministic}</div>
                     <div class="text-xs text-zinc-600 mt-1">AVG MAE</div>
                 </div>
             </div>
-            
+
             <div class="p-6 bg-zinc-950 border border-zinc-800 rounded-lg">
                 <div class="flex items-start gap-4">
                     <div class="text-4xl">📊</div>
                     <div class="flex-1">
                         <h3 class="text-xl font-bold text-white mb-3">Key Findings</h3>
                         <p class="text-zinc-300 leading-relaxed mb-4">
-                            <span class="text-f1-red font-bold">${bestMethod}</span> achieved the best overall performance with an average MAE of 
-                            <span class="text-green-500 font-bold">${bestMAE}</span>, representing a 
+                            <span class="text-f1-red font-bold">${bestMethod}</span> achieved the best overall performance with an average MAE of
+                            <span class="text-green-500 font-bold">${bestMAE}</span>, representing a
                             <span class="text-green-500 font-bold">${improvementVsBaseline}%</span> improvement over the baseline grid position predictor.
                         </p>
                         ${mcBetterThanModel ? `
                         <p class="text-zinc-300 leading-relaxed">
-                            <span class="text-green-500 font-bold">✓ Monte Carlo Simulation has proven to exceed the Model Only approach by 
-                            ${improvementVsModel}%</span>, demonstrating that this model works exceptionally well under randomness and uncertainty. 
+                            <span class="text-green-500 font-bold">✓ Monte Carlo Simulation has proven to exceed the Model Only approach by
+                            ${improvementVsModel}%</span>, demonstrating that this model works exceptionally well under randomness and uncertainty.
                             The probabilistic nature of Monte Carlo simulations better captures the chaotic and unpredictable elements of Formula 1 racing.
                         </p>
                         ` : `
                         <p class="text-zinc-300 leading-relaxed">
-                            The Model Only approach achieved competitive results, though Monte Carlo methods provide valuable probabilistic insights 
+                            The Model Only approach achieved competitive results, though Monte Carlo methods provide valuable probabilistic insights
                             for understanding prediction uncertainty across the ${raceCount} races analyzed.
                         </p>
                         `}
                     </div>
                 </div>
             </div>
-            
+
             <div class="mt-6 text-center text-xs text-zinc-600 font-mono">
                 Analysis based on ${raceCount} races | Lower MAE indicates better prediction accuracy
             </div>
         </div>
     `;
-    
+
     container.appendChild(summaryCard);
+}
+
+// --- Ablation Study ---
+
+async function loadAblationData() {
+    try {
+        const response = await fetch(ABLATION_CSV_PATH);
+        if (!response.ok) throw new Error('Ablation CSV not found');
+        return await response.text();
+    } catch (error) {
+        console.error('Error loading ablation data:', error);
+        return null;
+    }
+}
+
+// Parses the CSV saved by predict2025_ablation.py:
+// variant,mae,delta_vs_model_pct,delta_vs_grid_pct,delta_vs_previous_pct
+// Percentage fields are blank for the two baseline rows (model_only, grid_baseline).
+function parseAblationCSV(csvText) {
+    const lines = csvText.trim().split('\n');
+    const rows = [];
+
+    for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(',');
+        if (cols.length < 5) continue;
+
+        const toNum = (v) => (v === undefined || v === '' ? null : parseFloat(v));
+
+        rows.push({
+            variant: cols[0],
+            mae: parseFloat(cols[1]),
+            deltaVsModel: toNum(cols[2]),
+            deltaVsGrid: toNum(cols[3]),
+            deltaVsPrevious: toNum(cols[4])
+        });
+    }
+    return rows;
+}
+
+function formatPct(value) {
+    if (value === null || Number.isNaN(value)) return '—';
+    const sign = value > 0 ? '+' : '';
+    return `${sign}${value.toFixed(2)}%`;
+}
+
+function pctColorClass(value) {
+    if (value === null || Number.isNaN(value)) return 'text-zinc-500';
+    if (value > 0.001) return 'text-green-500';
+    if (value < -0.001) return 'text-red-500';
+    return 'text-zinc-400';
+}
+
+// Friendly labels for the raw variant keys coming out of the ablation script
+const ABLATION_LABELS = {
+    'model_only': 'Model Only',
+    'grid_baseline': 'Grid Baseline',
+    'mc_noise_only': 'MC — Noise Only',
+    '+ dnf_correlated': '+ Correlated DNFs',
+    '+ dnf_independent': '+ Independent DNFs',
+    '+ overtaking_shuffle': '+ Overtaking Shuffle',
+    'full_mc (production)': 'Full MC (Production)'
+};
+
+function renderAblationTable(rows) {
+    const container = document.getElementById('ablation-container');
+
+    if (!rows || rows.length === 0) {
+        container.innerHTML = `
+            <div class="p-8 border border-dashed border-zinc-800 rounded-xl text-center">
+                <p class="text-zinc-500 text-xl">Ablation results not found.</p>
+                <p class="text-zinc-600 text-sm mt-2 font-mono">Run predict2025_ablation.py to generate assets/ablation_results.csv</p>
+            </div>`;
+        return;
+    }
+
+    const baselineRows = rows.filter(r => r.variant === 'model_only' || r.variant === 'grid_baseline');
+    const buildRows = rows.filter(r => r.variant !== 'model_only' && r.variant !== 'grid_baseline');
+
+    const baselineChips = baselineRows.map(r => `
+        <div class="text-center p-6 bg-zinc-900/50 rounded-lg border border-zinc-800">
+            <div class="text-xs text-zinc-500 uppercase tracking-wider mb-2">${ABLATION_LABELS[r.variant] || r.variant}</div>
+            <div class="text-3xl font-bold text-zinc-300">${r.mae.toFixed(4)}</div>
+            <div class="text-xs text-zinc-600 mt-1">MAE</div>
+        </div>
+    `).join('');
+
+    const tableRows = buildRows.map(r => {
+        const isProduction = r.variant === 'full_mc (production)';
+        return `
+        <tr class="table-row-hover transition-colors ${isProduction ? 'bg-f1-red/10' : ''}">
+            <td class="py-3 pl-2 font-medium text-white">
+                ${ABLATION_LABELS[r.variant] || r.variant}
+                ${isProduction ? '<span class="ml-2 text-[10px] uppercase tracking-wider font-bold text-f1-red border border-f1-red/50 rounded px-1.5 py-0.5">Production</span>' : ''}
+            </td>
+            <td class="py-3 text-center text-white font-bold">${r.mae.toFixed(4)}</td>
+            <td class="py-3 text-center ${pctColorClass(r.deltaVsModel)}">${formatPct(r.deltaVsModel)}</td>
+            <td class="py-3 text-center ${pctColorClass(r.deltaVsGrid)}">${formatPct(r.deltaVsGrid)}</td>
+            <td class="py-3 text-center font-bold ${pctColorClass(r.deltaVsPrevious)}">${formatPct(r.deltaVsPrevious)}</td>
+        </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            ${baselineChips}
+        </div>
+
+        <div class="border border-zinc-800 rounded-xl bg-zinc-900 overflow-hidden">
+            <div class="p-6 overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                    <thead class="text-xs text-zinc-500 uppercase font-bold border-b border-zinc-800">
+                        <tr>
+                            <th class="pb-3 pl-2">Variant</th>
+                            <th class="pb-3 text-center">MAE</th>
+                            <th class="pb-3 text-center">Δ vs Model Only</th>
+                            <th class="pb-3 text-center">Δ vs Grid</th>
+                            <th class="pb-3 text-center">Δ vs Previous</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        ${tableRows}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <p class="mt-4 text-xs text-zinc-600 font-mono text-center">
+            Build-up rows are ordered by measured MAE impact, not strictly by simulation build order — each row is a distinct mechanism config, not necessarily "previous row + one more mechanism."
+        </p>
+    `;
 }
 
 // --- Initialize ---
 
 document.addEventListener('DOMContentLoaded', () => {
     renderRaces('2025');
+
+    loadAblationData().then(csvText => {
+        const rows = csvText ? parseAblationCSV(csvText) : [];
+        renderAblationTable(rows);
+    });
 });
