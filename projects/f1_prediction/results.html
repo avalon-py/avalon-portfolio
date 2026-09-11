@@ -44,14 +44,14 @@
     </nav>
 
     <div class="pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto min-h-screen">
-        
+
         <!-- Header & Year Selector -->
         <div class="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-white/10 pb-6 gap-6">
             <div>
                 <h1 class="text-4xl md:text-5xl font-display font-bold uppercase mb-2">Race Predictions</h1>
                 <p class="text-zinc-400">Monte Carlo simulation results versus actual race classifications.</p>
             </div>
-            
+
             <!-- Tab Selector -->
             <div class="flex bg-zinc-900 p-1 rounded-lg border border-zinc-800">
                 <button id="btn-2025" onclick="switchYear('2025')" class="px-6 py-2 rounded font-bold text-sm transition-all bg-f1-red text-white shadow-lg shadow-f1-red/20">2025</button>
@@ -70,6 +70,17 @@
         <div id="races-container" class="space-y-4">
             <!-- Content injected by script.js -->
             <div class="text-center py-20 text-zinc-500 animate-pulse">Loading prediction data...</div>
+        </div>
+
+        <!-- Ablation Study -->
+        <div class="mt-20">
+            <div class="mb-8 border-b border-white/10 pb-6">
+                <h2 class="text-3xl md:text-4xl font-display font-bold uppercase mb-2">Mechanism Ablation</h2>
+                <p class="text-zinc-400">Cumulative effect of each simulation mechanism on 2025 MAE, built up in order of measured impact.</p>
+            </div>
+            <div id="ablation-container">
+                <div class="text-center py-20 text-zinc-500 animate-pulse">Loading ablation data...</div>
+            </div>
         </div>
 
     </div>
