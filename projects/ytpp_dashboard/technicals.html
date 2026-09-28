@@ -1,0 +1,32 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Technicals: how the model works</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<div id="progress"></div>
+<header class="top"><a class="logo" href="home.html"><span class="mark"></span>Thumbnail check</a>
+<nav class="chips" aria-label="Pages"><a class="chip " href="home.html">Overview</a><a class="chip on" href="technicals.html">Technicals</a><a class="chip " href="results.html">Results</a></nav>
+<a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a></header>
+<main><h1>How the model works</h1><p class="mut">A frozen-encoder, late-fusion regressor, wrapped in a retraining pipeline.</p>
+<h2>What it predicts</h2>
+<p>The target is the log of a video's views minus the log of the channel's trailing average, <code>log(1+views) − log(1+trailing_avg)</code>. The trailing average is the mean of the channel's five previous uploads, so a video never sees itself. Positive means it beat the channel's usual, negative means it fell short. The predicted value is converted back to an expected view count.</p>
+<h2>Architecture</h2>
+<div class="arch">
+<div><div class="box"><b>Thumbnail</b><small>CLIP ViT-B/32, frozen, 512 dimensions</small></div><div class="arrow">↓</div><div class="box"><b>Image branch</b><small>Linear 512 to 32, ReLU, dropout</small></div></div>
+<div><div class="box"><b>Title</b><small>CLIP text encoder, frozen, 512 dimensions</small></div><div class="arrow">↓</div><div class="box"><b>Text branch</b><small>Linear 512 to 32, ReLU, dropout</small></div></div>
+<div><div class="box"><b>Tabular features</b><small>Log subscribers and trailing views, duration, title statistics, genre</small></div><div class="arrow">↓</div><div class="box"><b>Tabular branch</b><small>Linear to 32, ReLU, dropout</small></div></div>
+</div>
+<div class="arrow">↓</div>
+<div class="head"><div class="box"><b>Concatenate</b><small>96 dimensions</small></div><i>→</i><div class="box"><b>64</b></div><i>→</i><div class="box"><b>16</b></div><i>→</i><div class="box"><b>Score</b><small>predicted log ratio</small></div></div>
+<p class="mut" style="margin-top:14px">Only the three small branches and the head are trained. Embeddings are computed once and stored in Postgres (pgvector), so training takes minutes on a CPU.</p>
+<h2>Training setup</h2>
+<table><tr><th>Choice</th><th>Value</th></tr>
+<tr><td>Loss and optimizer</td><td>Huber loss, Adam, learning rate 2e-5, weight decay 1e-4</td></tr>
+<tr><td>Regularization</td><td>Dropout 0.2, Gaussian noise (0.02) on embeddings, early stopping with patience 10</td></tr>
+<tr><td>Split</td><td>Chronological 80/10/10 by publish date, so the model is tested on newer videos</td></tr>
+<tr><td>Scaling</td><td>Scalers are fitted on the training split only, to avoid leakage</td></tr>
+<tr><td>Data</td><td>English-language personality, gaming and commentary channels, 2025 onwards, Shorts excluded</td></tr></table>
+<h2>Retraining and promotion</h2>
+<p>An Airflow pipeline ingests new videos from the YouTube API, embeds them, retrains, and checks for drift. A new model replaces the live one only if it passes two gates:</p>
+<div class="callout"><p><b>Hard gate:</b> it must beat a simple linear baseline on the trailing average.</p><p><b>Soft gate:</b> a paired bootstrap on the difference in Spearman correlation against the live model. It is rejected only if it is confidently worse, so ties go to the model trained on newer data.</p></div>
+<h2>Serving</h2>
+<p>FastAPI loads one exported bundle (weights, scalers, column order, encoder config) and a test checks that serving reproduces the training path. It runs on an Oracle Cloud VM behind Caddy, with a Next.js front end on Vercel and per-IP rate limiting.</p>
+<p><a class="btn alt" href="results.html">See the results</a></p></main><script src="app.js"></script></body></html>

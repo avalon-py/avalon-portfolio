@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Thumbnail check: predicting video performance</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<div id="progress"></div>
+<header class="top"><a class="logo" href="home.html"><span class="mark"></span>Thumbnail check</a>
+<nav class="chips" aria-label="Pages"><a class="chip on" href="home.html">Overview</a><a class="chip " href="technicals.html">Technicals</a><a class="chip " href="results.html">Results</a></nav>
+<a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a></header>
+<main>
+<div class="player"><h2>Will this thumbnail and title beat your usual?</h2>
+<div class="scrub"><div class="t"><div class="f" data-w="33"></div></div><div class="l"><span>Rank correlation on unseen videos: 0.33</span><span>Perfect: 1.00</span></div></div></div>
+<h1 style="margin-top:20px">Predicting YouTube video performance from the thumbnail and title</h1>
+<div class="byline"><span class="av">A</span><div class="grow"><b>Avalon</b><div class="mut">Machine learning project</div></div>
+<a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a><a class="btn alt" href="technicals.html">How it works</a></div>
+<section class="desc">
+<p>The thumbnail and title are the only parts of a video a creator fully controls before publishing, and they decide whether anyone clicks. This project asks a narrow question: given a thumbnail and a title, will this video do better or worse than that channel's recent videos?</p>
+<p>I measure performance against each channel's own average of its last five uploads. Otherwise the model would just learn that big channels get more views.</p>
+<!-- Add your own reason for building this here: one or two sentences in your voice. -->
+<div class="facts"><span class="tag">10,591 videos in the last full evaluation</span><span class="tag">Retrains automatically</span><span class="tag">Live demo, rate-limited</span></div>
+</section>
+<h2>Keep going</h2>
+<div class="next">
+<a class="vid" href="technicals.html"><div class="th">Late fusion<span class="dur">Model</span></div><h3>How the model works</h3><p>Frozen CLIP encoders, a small fusion head, and an automatic retrain and promotion loop.</p></a>
+<a class="vid" href="results.html"><div class="th">0.33<span class="dur">Numbers</span></div><h3>What the results show</h3><p>Experiments, ablations and an honest reading of how good this is.</p></a>
+</div></main><script src="app.js"></script></body></html>
