@@ -1,32 +1,43 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Technicals: how the model works</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
-<div id="progress"></div>
 <header class="top"><a class="logo" href="home.html"><span class="mark"></span>Thumbnail check</a>
-<nav class="chips" aria-label="Pages"><a class="chip " href="home.html">Overview</a><a class="chip on" href="technicals.html">Technicals</a><a class="chip " href="results.html">Results</a></nav>
-<a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a></header>
-<main><h1>How the model works</h1><p class="mut">A frozen-encoder, late-fusion regressor, wrapped in a retraining pipeline.</p>
-<h2>What it predicts</h2>
-<p>The target is the log of a video's views minus the log of the channel's trailing average, <code>log(1+views) − log(1+trailing_avg)</code>. The trailing average is the mean of the channel's five previous uploads, so a video never sees itself. Positive means it beat the channel's usual, negative means it fell short. The predicted value is converted back to an expected view count.</p>
-<h2>Architecture</h2>
+<form class="search" id="search" role="search"><input name="q" placeholder="Search this project" aria-label="Search this project" autocomplete="off"><button aria-label="Search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 109.5 16a6.5 6.5 0 004.2-1.6l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg></button></form>
+<div class="me"><span class="av" title="Avalon">A</span></div></header>
+<div class="watch"><div>
+<div class="player"><div class="stage"><h2>How the model works</h2><p>Frozen encoders, a small fusion head, and how it trains</p></div><div class="ctl">
+<div class="sc" aria-hidden="false"><a class="sg" href="#target" title="Target"></a><a class="sg" href="#arch" title="Architecture"></a><a class="sg" href="#training" title="Training"></a><span class="f"></span></div>
+<div class="bt" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg> <svg viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM16 6h2v12h-2z"/></svg> <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 9a4 4 0 010 6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="time" id="time" data-total="180">0:00 / 3:00</span><span class="sp"></span><span class="cc hide-s">CC</span><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zm2 2v8h14V8z"/></svg> <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zM20 4v6h-2V6h-4V4zM4 20v-6h2v4h4v2zM20 20h-6v-2h4v-4h2z"/></svg></div></div></div>
+<div class="info">
+<h1>How the model works</h1>
+<div class="chan"><span class="av lg">A</span><div class="who"><b>Avalon</b><small>Machine learning project</small></div>
+<a class="pill w" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a><span class="sp"></span>
+<button class="pill" id="share"><svg viewBox="0 0 24 24"><path d="M15 5l6 6-6 6v-4c-5 0-8 1.5-10 5 1-6 4-10 10-11z"/></svg><span>Share</span></button></div>
+<div class="desc"><b>Technicals</b> <span class="mut">Chapters: target, architecture, training</span>
+<p>A frozen-encoder, late-fusion regressor wrapped in a retraining pipeline. Use the chapter marks on the player to jump between sections.</p></div>
+<div class="sec">
+<h2 id="target">What it predicts</h2>
+<p>The target is the log of a video's views minus the log of the channel's trailing average: <code>log(1+views) − log(1+trailing_avg)</code>. The trailing average is the mean of the channel's five previous uploads, so a video never sees itself. Positive means it beat the channel's usual, negative means it fell short. The prediction is converted back to an expected view count.</p>
+<h2 id="arch">Architecture</h2>
 <div class="arch">
-<div><div class="box"><b>Thumbnail</b><small>CLIP ViT-B/32, frozen, 512 dimensions</small></div><div class="arrow">↓</div><div class="box"><b>Image branch</b><small>Linear 512 to 32, ReLU, dropout</small></div></div>
-<div><div class="box"><b>Title</b><small>CLIP text encoder, frozen, 512 dimensions</small></div><div class="arrow">↓</div><div class="box"><b>Text branch</b><small>Linear 512 to 32, ReLU, dropout</small></div></div>
-<div><div class="box"><b>Tabular features</b><small>Log subscribers and trailing views, duration, title statistics, genre</small></div><div class="arrow">↓</div><div class="box"><b>Tabular branch</b><small>Linear to 32, ReLU, dropout</small></div></div>
-</div>
-<div class="arrow">↓</div>
+<div><div class="box"><b>Thumbnail</b><small>CLIP ViT-B/32, frozen, 512 dimensions</small></div><div class="ar">↓</div><div class="box"><b>Image branch</b><small>Linear 512 to 32, ReLU, dropout</small></div></div>
+<div><div class="box"><b>Title</b><small>CLIP text encoder, frozen, 512 dimensions</small></div><div class="ar">↓</div><div class="box"><b>Text branch</b><small>Linear 512 to 32, ReLU, dropout</small></div></div>
+<div><div class="box"><b>Tabular features</b><small>Log subscribers and trailing views, duration, title statistics, genre</small></div><div class="ar">↓</div><div class="box"><b>Tabular branch</b><small>Linear to 32, ReLU, dropout</small></div></div></div>
+<div class="ar">↓</div>
 <div class="head"><div class="box"><b>Concatenate</b><small>96 dimensions</small></div><i>→</i><div class="box"><b>64</b></div><i>→</i><div class="box"><b>16</b></div><i>→</i><div class="box"><b>Score</b><small>predicted log ratio</small></div></div>
-<p class="mut" style="margin-top:14px">Only the three small branches and the head are trained. Embeddings are computed once and stored in Postgres (pgvector), so training takes minutes on a CPU.</p>
-<h2>Training setup</h2>
+<p class="mut">Only the three small branches and the head are trained. Embeddings are computed once and stored in Postgres (pgvector), so training takes minutes on a CPU.</p>
+<h2 id="training">Training setup</h2>
 <table><tr><th>Choice</th><th>Value</th></tr>
 <tr><td>Loss and optimizer</td><td>Huber loss, Adam, learning rate 2e-5, weight decay 1e-4</td></tr>
 <tr><td>Regularization</td><td>Dropout 0.2, Gaussian noise (0.02) on embeddings, early stopping with patience 10</td></tr>
 <tr><td>Split</td><td>Chronological 80/10/10 by publish date, so the model is tested on newer videos</td></tr>
-<tr><td>Scaling</td><td>Scalers are fitted on the training split only, to avoid leakage</td></tr>
+<tr><td>Scaling</td><td>Scalers fitted on the training split only, to avoid leakage</td></tr>
 <tr><td>Data</td><td>English-language personality, gaming and commentary channels, 2025 onwards, Shorts excluded</td></tr></table>
-<h2>Retraining and promotion</h2>
-<p>An Airflow pipeline ingests new videos from the YouTube API, embeds them, retrains, and checks for drift. A new model replaces the live one only if it passes two gates:</p>
-<div class="callout"><p><b>Hard gate:</b> it must beat a simple linear baseline on the trailing average.</p><p><b>Soft gate:</b> a paired bootstrap on the difference in Spearman correlation against the live model. It is rejected only if it is confidently worse, so ties go to the model trained on newer data.</p></div>
-<h2>Serving</h2>
-<p>FastAPI loads one exported bundle (weights, scalers, column order, encoder config) and a test checks that serving reproduces the training path. It runs on an Oracle Cloud VM behind Caddy, with a Next.js front end on Vercel and per-IP rate limiting.</p>
-<p><a class="btn alt" href="results.html">See the results</a></p></main><script src="app.js"></script></body></html>
+<p>Retraining, promotion, serving and the deployment setup now live on the <a href="stack.html" style="color:var(--blue)">Stack &amp; flow</a> page.</p></div>
+</div></div><aside class="side"><a class="next" href="stack.html"><b>Next: Stack &amp; flow</b><small>Oracle VM, Caddy, retraining</small></a>
+<div class="chips"><button class="chip on" data-c="all">All</button><button class="chip" data-c="model">Model</button><button class="chip" data-c="results">Results</button></div>
+<a class="it" data-c="project" href="home.html"><div class="th">Why<em>2:00</em></div><div><h3>Why I built this and what it predicts</h3><p>Avalon</p><p>Overview</p></div></a>
+<a class="it" data-c="model" href="technicals.html"><div class="th">Late fusion<em>3:00</em></div><div><h3>How the model works: encoders, fusion head, retraining</h3><p>Avalon</p><p>Technicals</p></div></a><a class="it" data-c="model" href="stack.html"><div class="th">Stack &amp; flow<em>5:00</em></div><div><h3>Stack and flow: Oracle VM, Caddy, and the retraining pipeline</h3><p>Avalon</p><p>Stack &amp; flow</p></div></a>
+<a class="it" data-c="results" href="results.html"><div class="th">0.33<em>3:00</em></div><div><h3>What the experiments show, and how far to trust them</h3><p>Avalon</p><p>Results</p></div></a>
+<a class="it" data-c="project" href="https://yt-performance-predictor.vercel.app/"><div class="th">Live demo<em>Demo</em></div><div><h3>Try the predictor with your own thumbnail</h3><p>Avalon</p><p>Rate-limited</p></div></a>
+</aside></div><script src="app.js"></script></body></html>

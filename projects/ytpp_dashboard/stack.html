@@ -1,0 +1,89 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stack &amp; flow: deployment and retraining</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
+<header class="top"><a class="logo" href="home.html"><span class="mark"></span>Thumbnail check</a>
+<form class="search" id="search" role="search"><input name="q" placeholder="Search this project" aria-label="Search this project" autocomplete="off"><button aria-label="Search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 109.5 16a6.5 6.5 0 004.2-1.6l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg></button></form>
+<div class="me"><span class="av" title="Avalon">A</span></div></header>
+<div class="watch"><div>
+<div class="player"><div class="stage"><h2>Stack &amp; flow</h2><p>From a thumbnail upload to a retrained model</p></div><div class="ctl">
+<div class="sc" aria-hidden="false"><a class="sg" href="#stack" title="Stack"></a><a class="sg" href="#oracle" title="Oracle VM"></a><a class="sg" href="#caddy" title="Caddy"></a><a class="sg" href="#flow" title="Pipeline"></a><a class="sg" href="#promotion" title="Promotion"></a><a class="sg" href="#serving" title="Serving"></a><span class="f"></span></div>
+<div class="bt" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg> <svg viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM16 6h2v12h-2z"/></svg> <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 9a4 4 0 010 6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="time" id="time" data-total="300">0:00 / 5:00</span><span class="sp"></span><span class="cc hide-s">CC</span><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zm2 2v8h14V8z"/></svg> <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zM20 4v6h-2V6h-4V4zM4 20v-6h2v4h4v2zM20 20h-6v-2h4v-4h2z"/></svg></div></div></div>
+<div class="info">
+<h1>Stack and flow: Oracle VM, Caddy, and the retraining pipeline</h1>
+<div class="chan"><span class="av lg">A</span><div class="who"><b>Avalon</b><small>Machine learning project</small></div>
+<a class="pill w" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a><span class="sp"></span>
+<button class="pill" id="share"><svg viewBox="0 0 24 24"><path d="M15 5l6 6-6 6v-4c-5 0-8 1.5-10 5 1-6 4-10 10-11z"/></svg><span>Share</span></button></div>
+<div class="desc"><b>Stack &amp; flow</b> <span class="mut">Chapters: stack, Oracle VM, Caddy, pipeline, promotion, serving</span>
+<p>How a request travels from a browser to the model, how the pieces are hosted on one free Oracle Cloud VM, and how the model keeps itself up to date. Use the chapter marks on the player to jump around.</p></div>
+<div class="sec">
+<h2 id="stack">The stack at a glance</h2>
+<div class="head"><div class="box"><b>Visitor</b><small>browser</small></div><i>→</i><div class="box"><b>Vercel</b><small>Next.js UI and /api/predict proxy, per-IP rate limit</small></div><i>→</i><div class="box"><b>Caddy</b><small>on the Oracle VM: HTTPS, key check, 5 MB cap</small></div><i>→</i><div class="box"><b>FastAPI</b><small>CLIP and the fusion head, model loaded in memory</small></div></div>
+<p class="mut" style="margin-top:14px">The browser only talks to Vercel, and Vercel talks to the VM. That keeps the VM address and API key server-side and avoids CORS on the API. Behind the API, on the same Docker network, sit the data and training services:</p>
+<table><tr><th>Layer</th><th>Technology</th></tr>
+<tr><td>Front end</td><td>Next.js on Vercel, with a server-side proxy route</td></tr>
+<tr><td>Reverse proxy</td><td>Caddy (automatic HTTPS)</td></tr>
+<tr><td>API</td><td>FastAPI and uvicorn, PyTorch on CPU, CLIP through transformers</td></tr>
+<tr><td>Database</td><td>PostgreSQL 16 with pgvector (features and embeddings)</td></tr>
+<tr><td>Object storage</td><td>MinIO (thumbnails)</td></tr>
+<tr><td>Orchestration</td><td>Airflow 3 with LocalExecutor, tasks run as Docker containers</td></tr>
+<tr><td>Hosting</td><td>Oracle Cloud Always Free Ampere A1 VM (arm64), Docker Compose</td></tr>
+<tr><td>CI</td><td>GitHub Actions builds the API image and smoke-tests it</td></tr></table>
+
+<h2 id="oracle">Oracle Cloud VM</h2>
+<p>Everything backend runs on a single Always Free Ampere A1 VM (arm64), managed by one Docker Compose file: Caddy, the API, Postgres, MinIO, and the three Airflow services, plus a worker image that Airflow launches for each task. PyTorch is installed from the CPU-only wheel index, since the VM has no GPU.</p>
+<div class="callout"><p><b>What is public:</b> only ports 80 and 443, opened in Oracle's security list and served by Caddy.</p><p><b>What is not:</b> Postgres, MinIO and the Airflow UI are bound to <code>127.0.0.1</code>, so they can only be reached from the VM itself (for example through an SSH tunnel).</p></div>
+<p>Code moves through GitHub: I edit on my laptop, push, and run <code>git pull</code> and <code>docker compose up -d --build</code> on the VM. Secrets live in a <code>.env</code> file that exists only on the VM. Trained model bundles are written by the training task into a folder that the API container mounts read-only, so a retrain never needs an image rebuild.</p>
+
+<h2 id="caddy">Caddy: HTTPS and the front door</h2>
+<p>Caddy is the only container that listens on the internet. It gets and renews an HTTPS certificate on its own, then applies three rules before anything reaches the model:</p>
+<pre><code>&lt;your-domain&gt; {
+    @no_key {
+        path /predict
+        not header X-Api-Key {$PREDICT_KEY}
+    }
+    respond @no_key 401
+
+    request_body {
+        max_size 5MB
+    }
+
+    reverse_proxy api:8000
+}</code></pre>
+<p><code>/predict</code> needs the shared secret in the <code>X-Api-Key</code> header (the Vercel proxy adds it), uploads over 5 MB get a 413, and everything else is forwarded to the <code>api</code> container by its Compose service name. <code>/health</code> stays open for monitoring. I tested each rule with curl: 401 without the key, 413 for a 6 MB body, and a pass-through to FastAPI otherwise.</p>
+<table><tr><th>Layer</th><th>Where</th><th>Stops</th></tr>
+<tr><td>Per-IP rate limit on /api/predict</td><td>Vercel Firewall</td><td>One visitor flooding the site</td></tr>
+<tr><td>X-Api-Key check on /predict</td><td>Caddy</td><td>Anyone calling the VM directly</td></tr>
+<tr><td>5 MB request body cap</td><td>Caddy</td><td>Oversized uploads</td></tr>
+<tr><td>Services bound to localhost</td><td>Docker Compose</td><td>Direct access to the database, MinIO and Airflow</td></tr></table>
+
+<h2 id="flow">The pipeline: from new videos to a new model</h2>
+<p>Airflow runs four DAGs, and each task executes inside a worker container against Postgres and MinIO. <code>ingest_new</code> runs monthly and triggers the rest.</p>
+<div class="flow">
+<div class="box s2"><b>ingest_new</b><small>monthly: pulls new videos from the YouTube API, saves thumbnails to MinIO, writes features to Postgres</small></div>
+<div class="ar">↓</div><div class="ar">↓</div>
+<div class="box"><b>monitor_drift</b><small>runs in parallel: compares recent videos with history (KS tests), writes a report, never blocks anything</small></div>
+<div class="box"><b>embed_new</b><small>computes CLIP embeddings for rows that do not have them yet</small></div>
+<div class="mut" style="text-align:center;padding-top:6px">ends here</div><div class="ar">↓</div>
+<div></div><div class="box"><b>train_model</b><small>starts even if embedding failed, and trains on whichever rows are embedded</small></div>
+<div class="ar s2">↓</div>
+<div class="box s2"><b>Promotion checks</b><small>hard gate, then soft gate (below)</small></div>
+<div class="ar">↓</div><div class="ar">↓</div>
+<div class="box"><b>Promoted</b><small>bundle becomes the live one, and the API restarts to load it</small></div>
+<div class="box"><b>Rejected</b><small>the live model stays, the decision is logged</small></div></div>
+
+<h2 id="promotion">Retraining and promotion</h2>
+<p>An Airflow pipeline ingests new videos from the YouTube API, embeds them, retrains, and checks for drift. A new model replaces the live one only if it passes two gates.</p>
+<div class="callout"><p><b>Hard gate:</b> it must beat a simple linear baseline on the trailing average.</p><p><b>Soft gate:</b> a paired bootstrap on the difference in Spearman correlation against the live model. It is rejected only if it is confidently worse, so ties go to the model trained on newer data.</p></div>
+<p>Concretely, the bootstrap resamples the test rows 2,000 times and compares both models on the same rows. The new model is rejected only if the top of the 95% interval falls below -0.01. Every decision, promoted or not, is logged with its reason. After a promotion, the DAG restarts the API container so it loads the new bundle.</p>
+
+<h2 id="serving">Serving</h2>
+<p>FastAPI loads one exported bundle (weights, scalers, column order, encoder config), and a test checks that serving reproduces the training path. It runs on an Oracle Cloud VM behind Caddy, with a Next.js front end on Vercel and per-IP rate limiting.</p>
+<p>The API is stateless: it loads the bundle once at startup and answers from memory. Serving is CLIP-only, and a bundle trained with a different encoder is rejected when it loads. Feature code for a single request is a second implementation of the training math, which is why the parity test exists, and CI runs a smoke test of <code>/health</code> and <code>/predict</code> on every push.</p>
+<p><a class="pill w" href="results.html">See the results</a></p></div>
+</div></div><aside class="side"><a class="next" href="results.html"><b>Next: What the results show</b><small>Experiments and how far to trust them</small></a>
+<div class="chips"><button class="chip on" data-c="all">All</button><button class="chip" data-c="model">Model</button><button class="chip" data-c="results">Results</button></div>
+<a class="it" data-c="project" href="home.html"><div class="th">Why<em>2:00</em></div><div><h3>Why I built this and what it predicts</h3><p>Avalon</p><p>Overview</p></div></a>
+<a class="it" data-c="model" href="technicals.html"><div class="th">Late fusion<em>3:00</em></div><div><h3>How the model works: encoders, fusion head, retraining</h3><p>Avalon</p><p>Technicals</p></div></a><a class="it" data-c="model" href="stack.html"><div class="th">Stack &amp; flow<em>5:00</em></div><div><h3>Stack and flow: Oracle VM, Caddy, and the retraining pipeline</h3><p>Avalon</p><p>Stack &amp; flow</p></div></a>
+<a class="it" data-c="results" href="results.html"><div class="th">0.33<em>3:00</em></div><div><h3>What the experiments show, and how far to trust them</h3><p>Avalon</p><p>Results</p></div></a>
+<a class="it" data-c="project" href="https://yt-performance-predictor.vercel.app/"><div class="th">Live demo<em>Demo</em></div><div><h3>Try the predictor with your own thumbnail</h3><p>Avalon</p><p>Rate-limited</p></div></a>
+</aside></div><script src="app.js"></script></body></html>

@@ -1,24 +1,28 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thumbnail check: predicting video performance</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
-<div id="progress"></div>
 <header class="top"><a class="logo" href="home.html"><span class="mark"></span>Thumbnail check</a>
-<nav class="chips" aria-label="Pages"><a class="chip on" href="home.html">Overview</a><a class="chip " href="technicals.html">Technicals</a><a class="chip " href="results.html">Results</a></nav>
-<a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a></header>
-<main>
-<div class="player"><h2>Will this thumbnail and title beat your usual?</h2>
-<div class="scrub"><div class="t"><div class="f" data-w="33"></div></div><div class="l"><span>Rank correlation on unseen videos: 0.33</span><span>Perfect: 1.00</span></div></div></div>
-<h1 style="margin-top:20px">Predicting YouTube video performance from the thumbnail and title</h1>
-<div class="byline"><span class="av">A</span><div class="grow"><b>Avalon</b><div class="mut">Machine learning project</div></div>
-<a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a><a class="btn alt" href="technicals.html">How it works</a></div>
-<section class="desc">
+<form class="search" id="search" role="search"><input name="q" placeholder="Search this project" aria-label="Search this project" autocomplete="off"><button aria-label="Search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 109.5 16a6.5 6.5 0 004.2-1.6l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg></button></form>
+<div class="me"><span class="av" title="Avalon">A</span></div></header>
+<div class="watch"><div>
+<div class="player"><div class="stage"><h2>Will this thumbnail and title beat your usual?</h2></div><div class="ctl">
+<div class="sc" aria-hidden="false"><a class="sg" href="results.html" title="Rank correlation on unseen videos"></a><span class="f" data-w="33"></span></div>
+<div class="bt" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg> <svg viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM16 6h2v12h-2z"/></svg> <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 9a4 4 0 010 6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="time" id="time" data-total="1">0.33 / 1.00</span><span class="sp"></span><span class="cc hide-s">CC</span><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zm2 2v8h14V8z"/></svg> <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zM20 4v6h-2V6h-4V4zM4 20v-6h2v4h4v2zM20 20h-6v-2h4v-4h2z"/></svg></div></div></div>
+<div class="info">
+<h1>Predicting YouTube video performance from the thumbnail and title</h1>
+<div class="chan"><span class="av lg">A</span><div class="who"><b>Avalon</b><small>Machine learning project</small></div>
+<a class="pill w" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a><span class="sp"></span>
+<button class="pill" id="share"><svg viewBox="0 0 24 24"><path d="M15 5l6 6-6 6v-4c-5 0-8 1.5-10 5 1-6 4-10 10-11z"/></svg><span>Share</span></button></div>
+<div class="desc"><b>Overview</b> <span class="mut">The bar above is the model's score: 0.33 of a possible 1.00</span>
 <p>The thumbnail and title are the only parts of a video a creator fully controls before publishing, and they decide whether anyone clicks. This project asks a narrow question: given a thumbnail and a title, will this video do better or worse than that channel's recent videos?</p>
 <p>I measure performance against each channel's own average of its last five uploads. Otherwise the model would just learn that big channels get more views.</p>
 <!-- Add your own reason for building this here: one or two sentences in your voice. -->
-<div class="facts"><span class="tag">10,591 videos in the last full evaluation</span><span class="tag">Retrains automatically</span><span class="tag">Live demo, rate-limited</span></div>
-</section>
-<h2>Keep going</h2>
-<div class="next">
-<a class="vid" href="technicals.html"><div class="th">Late fusion<span class="dur">Model</span></div><h3>How the model works</h3><p>Frozen CLIP encoders, a small fusion head, and an automatic retrain and promotion loop.</p></a>
-<a class="vid" href="results.html"><div class="th">0.33<span class="dur">Numbers</span></div><h3>What the results show</h3><p>Experiments, ablations and an honest reading of how good this is.</p></a>
-</div></main><script src="app.js"></script></body></html>
+<div class="tags"><span>10,591 videos in the last full evaluation</span><span>Retrains automatically</span><span>Live demo, rate-limited</span></div></div>
+<div class="sec"><h2>Where to next</h2><p>The <a href="technicals.html" style="color:var(--blue)">technicals</a> page explains the model, the <a href="stack.html" style="color:var(--blue)">stack &amp; flow</a> page covers deployment and retraining, and the <a href="results.html" style="color:var(--blue)">results</a> page shows what the experiments found, including the limits. Or skip straight to the <a href="https://yt-performance-predictor.vercel.app/" style="color:var(--blue)">live demo</a>.</p></div>
+</div></div><aside class="side"><a class="next" href="technicals.html"><b>Next: How the model works</b><small>Encoders, fusion head, retraining</small></a>
+<div class="chips"><button class="chip on" data-c="all">All</button><button class="chip" data-c="model">Model</button><button class="chip" data-c="results">Results</button></div>
+<a class="it" data-c="project" href="home.html"><div class="th">Why<em>2:00</em></div><div><h3>Why I built this and what it predicts</h3><p>Avalon</p><p>Overview</p></div></a>
+<a class="it" data-c="model" href="technicals.html"><div class="th">Late fusion<em>3:00</em></div><div><h3>How the model works: encoders, fusion head, retraining</h3><p>Avalon</p><p>Technicals</p></div></a><a class="it" data-c="model" href="stack.html"><div class="th">Stack &amp; flow<em>5:00</em></div><div><h3>Stack and flow: Oracle VM, Caddy, and the retraining pipeline</h3><p>Avalon</p><p>Stack &amp; flow</p></div></a>
+<a class="it" data-c="results" href="results.html"><div class="th">0.33<em>3:00</em></div><div><h3>What the experiments show, and how far to trust them</h3><p>Avalon</p><p>Results</p></div></a>
+<a class="it" data-c="project" href="https://yt-performance-predictor.vercel.app/"><div class="th">Live demo<em>Demo</em></div><div><h3>Try the predictor with your own thumbnail</h3><p>Avalon</p><p>Rate-limited</p></div></a>
+</aside></div><script src="app.js"></script></body></html>

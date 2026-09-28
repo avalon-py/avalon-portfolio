@@ -1,34 +1,43 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Results: what the experiments show</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="style.css"></head><body>
-<div id="progress"></div>
 <header class="top"><a class="logo" href="home.html"><span class="mark"></span>Thumbnail check</a>
-<nav class="chips" aria-label="Pages"><a class="chip " href="home.html">Overview</a><a class="chip " href="technicals.html">Technicals</a><a class="chip on" href="results.html">Results</a></nav>
-<a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a></header>
-<main><h1>What the results show</h1><p class="mut">Measured on 1,060 held-out videos, the newest 10% by publish date. The score is Spearman rank correlation between predicted and actual performance (1.0 would be a perfect ranking).</p>
-<div class="callout"><p><b>Short version:</b> the model ranks videos modestly better than chance (about 0.33). Most of that comes from channel-level features, and the thumbnail and title add roughly +0.04.</p></div>
-<h2>Where the signal comes from</h2>
-<p class="mut">Modality ablation, one seed.</p>
+<form class="search" id="search" role="search"><input name="q" placeholder="Search this project" aria-label="Search this project" autocomplete="off"><button aria-label="Search"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.8l-.3-.3A6.5 6.5 0 109.5 16a6.5 6.5 0 004.2-1.6l.3.3v.8l5 5 1.5-1.5zm-6 0a4.5 4.5 0 110-9 4.5 4.5 0 010 9z"/></svg></button></form>
+<div class="me"><span class="av" title="Avalon">A</span></div></header>
+<div class="watch"><div>
+<div class="player"><div class="stage"><h2>What the results show</h2><p>Measured on 1,060 held-out videos</p></div><div class="ctl">
+<div class="sc" aria-hidden="false"><a class="sg" href="#ablation" title="Ablation"></a><a class="sg" href="#encoders" title="Encoders"></a><a class="sg" href="#retrains" title="Retrains"></a><a class="sg" href="#reading" title="How to read this"></a><span class="f"></span></div>
+<div class="bt" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg> <svg viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM16 6h2v12h-2z"/></svg> <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9z"/><path d="M15 9a4 4 0 010 6" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="time" id="time" data-total="180">0:00 / 3:00</span><span class="sp"></span><span class="cc hide-s">CC</span><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3zm2 2v8h14V8z"/></svg> <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4zM20 4v6h-2V6h-4V4zM4 20v-6h2v4h4v2zM20 20h-6v-2h4v-4h2z"/></svg></div></div></div>
+<div class="info">
+<h1>What the experiments show, and how far to trust them</h1>
+<div class="chan"><span class="av lg">A</span><div class="who"><b>Avalon</b><small>Machine learning project</small></div>
+<a class="pill w" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a><span class="sp"></span>
+<button class="pill" id="share"><svg viewBox="0 0 24 24"><path d="M15 5l6 6-6 6v-4c-5 0-8 1.5-10 5 1-6 4-10 10-11z"/></svg><span>Share</span></button></div>
+<div class="desc"><b>Results</b> <span class="mut">The newest 10% of videos by publish date, never seen in training</span>
+<p>The score is Spearman rank correlation between predicted and actual performance, where 1.0 would be a perfect ranking. The model reaches about 0.33. Most of that comes from channel-level features, and the thumbnail and title add roughly +0.04.</p></div>
+<div class="sec">
+<h2 id="ablation">Where the signal comes from</h2><p class="mut">Modality ablation, one seed.</p>
 <div class="rows">
 <div class="row"><span>Tabular only</span><div class="bar g" data-v=".277"><i></i></div><b>0.277</b></div>
 <div class="row"><span>Plus thumbnail</span><div class="bar" data-v=".302"><i></i></div><b>0.302</b></div>
 <div class="row"><span>Plus title</span><div class="bar" data-v=".308"><i></i></div><b>0.308</b></div>
 <div class="row"><span>Full fusion</span><div class="bar" data-v=".317"><i></i></div><b>0.317</b></div></div>
-<h2>Does the encoder choice matter?</h2>
-<p class="mut">Mean and standard deviation over several seeds. The optional clip_sim feature is the cosine similarity between thumbnail and title.</p>
+<h2 id="encoders">Does the encoder choice matter?</h2><p class="mut">Mean and standard deviation over several seeds. The optional clip_sim feature is the cosine similarity between thumbnail and title.</p>
 <table><tr><th>Text encoder</th><th>clip_sim</th><th>Spearman</th><th>AUC</th></tr>
 <tr><td>CLIP</td><td>off</td><td>0.332 ± 0.016</td><td>0.643</td></tr>
 <tr><td>CLIP</td><td>on</td><td>0.333 ± 0.016</td><td>0.640</td></tr>
 <tr><td>MiniLM</td><td>off</td><td>0.321 ± 0.012</td><td>0.641</td></tr>
 <tr><td>MiniLM</td><td>on</td><td>0.327 ± 0.003</td><td>0.643</td></tr></table>
-<p class="mut">All four sit within seed noise of each other, so I kept CLIP for both towers.</p>
-<h2>Visual tabular features did not help</h2>
-<p>Face detection, text-in-image and colour statistics showed no measurable benefit over five seeds, so I removed all seven from training and serving.</p>
-<h2>Automatic retrains</h2>
-<p class="mut">Test Spearman of each retraining run. Hollow points were rejected by the promotion gate.</p>
-<div id="promo"></div>
-<h2>How to read this</h2>
+<p>All four sit within seed noise of each other, so I kept CLIP for both towers. Face detection, text-in-image and colour statistics also showed no benefit over five seeds, so I removed all seven from training and serving.</p>
+<h2 id="retrains">Automatic retrains</h2><p class="mut">Test Spearman of each retraining run. Hollow points were rejected by the promotion gate.</p><div id="promo"></div>
+<h2 id="reading">How to read this</h2>
 <div class="callout"><p>A correlation near 0.3 is useful for comparing options for one video, not for forecasting exact views.</p>
 <p>The subscriber count is the channel's current one, not the count at publish time, which adds noise.</p>
-<p>The promotion test slice moves with each retrain, so those points are not a fixed benchmark.</p></div>
-<p style="margin-top:24px"><a class="btn" href="https://yt-performance-predictor.vercel.app/">Try the predictor</a></p></main><script src="app.js"></script></body></html>
+<p>The promotion test slice moves with each retrain, so those points are not a fixed benchmark.</p></div></div>
+</div></div><aside class="side"><a class="next" href="https://yt-performance-predictor.vercel.app/"><b>Next: Try the predictor</b><small>Live demo, rate-limited</small></a>
+<div class="chips"><button class="chip on" data-c="all">All</button><button class="chip" data-c="model">Model</button><button class="chip" data-c="results">Results</button></div>
+<a class="it" data-c="project" href="home.html"><div class="th">Why<em>2:00</em></div><div><h3>Why I built this and what it predicts</h3><p>Avalon</p><p>Overview</p></div></a>
+<a class="it" data-c="model" href="technicals.html"><div class="th">Late fusion<em>3:00</em></div><div><h3>How the model works: encoders, fusion head, retraining</h3><p>Avalon</p><p>Technicals</p></div></a><a class="it" data-c="model" href="stack.html"><div class="th">Stack &amp; flow<em>5:00</em></div><div><h3>Stack and flow: Oracle VM, Caddy, and the retraining pipeline</h3><p>Avalon</p><p>Stack &amp; flow</p></div></a>
+<a class="it" data-c="results" href="results.html"><div class="th">0.33<em>3:00</em></div><div><h3>What the experiments show, and how far to trust them</h3><p>Avalon</p><p>Results</p></div></a>
+<a class="it" data-c="project" href="https://yt-performance-predictor.vercel.app/"><div class="th">Live demo<em>Demo</em></div><div><h3>Try the predictor with your own thumbnail</h3><p>Avalon</p><p>Rate-limited</p></div></a>
+</aside></div><script src="app.js"></script></body></html>
